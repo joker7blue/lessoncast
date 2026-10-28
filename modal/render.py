@@ -45,10 +45,10 @@ image = (
     .run_commands("pnpm install --frozen-lockfile --prod", "pnpm exec remotion browser ensure")
     .add_local_file(ROOT / "remotion.config.ts", "/app/remotion.config.ts", copy=True)
     .add_local_file(ROOT / "tsconfig.json", "/app/tsconfig.json", copy=True)  # the bundler requires one
-    .add_local_dir(ROOT / "remotion", "/app/remotion", copy=True, ignore=["*.test.ts"])
-    .add_local_dir(ROOT / "lib" / "lesson", "/app/lib/lesson", copy=True, ignore=["*.test.ts"])
-    .add_local_dir(ROOT / "lib" / "video", "/app/lib/video", copy=True, ignore=["*.test.ts"])
-    .run_commands("pnpm exec remotion bundle remotion/index.ts --out-dir /app/build")
+    .add_local_dir(ROOT / "src" / "remotion", "/app/src/remotion", copy=True, ignore=["*.test.ts"])
+    .add_local_dir(ROOT / "src" / "lib" / "lesson", "/app/src/lib/lesson", copy=True, ignore=["*.test.ts"])
+    .add_local_dir(ROOT / "src" / "lib" / "video", "/app/src/lib/video", copy=True, ignore=["*.test.ts"])
+    .run_commands("pnpm exec remotion bundle src/remotion/index.ts --out-dir /app/build")
     .add_local_file(ROOT / "modal" / "render.mjs", "/app/modal/render.mjs", copy=True)
 )
 

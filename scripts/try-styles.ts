@@ -4,10 +4,10 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { makeLesson } from "../lib/lesson/lesson.fixture";
-import { ArtStyle } from "../lib/lesson/styles";
-import { generateImage, scenePrompt } from "../lib/meta/images";
-import { IMAGE_COST_USD } from "../lib/meta/prices";
+import { makeLesson } from "../src/lib/lesson/lesson.fixture";
+import { ArtStyle } from "../src/lib/lesson/styles";
+import { generateImage, scenePrompt } from "../src/lib/meta/images";
+import { IMAGE_COST_USD } from "../src/lib/meta/prices";
 
 const OUT = path.resolve("scripts/derisk/out/styles");
 
