@@ -42,7 +42,7 @@ describe("runLesson", () => {
     expect(result.outcome === "failed" && result.error).toBeInstanceOf(NotATextbookPageError);
     expect(updates.at(-1)).toEqual({
       status: "failed",
-      error: "Une photo ne ressemble pas à une page de manuel. Reprenez une photo nette de chaque page, en entier.",
+      error: "A photo doesn't look like a textbook page. Take a sharp photo of each whole page.",
     });
     expect(d.drawAndNarrate).not.toHaveBeenCalled();
   });
@@ -53,7 +53,7 @@ describe("runLesson", () => {
     });
     const { d, updates } = deps("queued", { drawAndNarrate });
     expect(await runLesson("id", d)).toMatchObject({ outcome: "failed", step: "narrate" });
-    expect(updates.at(-1)).toEqual({ status: "failed", error: "La voix n'a pas pu être enregistrée. Réessayez dans quelques minutes." });
+    expect(updates.at(-1)).toEqual({ status: "failed", error: "The voice couldn't be recorded. Try again in a few minutes." });
     expect(d.renderVideo).not.toHaveBeenCalled();
   });
 

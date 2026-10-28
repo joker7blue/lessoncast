@@ -49,6 +49,7 @@ describe("GET /api/lessons/:id", () => {
     repo.getLesson.mockResolvedValue(row());
     expect(await (await get(ID)).json()).toEqual({
       status: "queued",
+      language: "pcm",
       error: null,
       title: null,
       style: "auto",
@@ -71,7 +72,7 @@ describe("GET /api/lessons/:id", () => {
   test("a finished lesson gives its video URL; a failed one its message", async () => {
     repo.getLesson.mockResolvedValue(row({ status: "done", script: makeLesson(6), videoPath: `${ID}/video.mp4` }));
     expect((await (await get(ID)).json()).videoUrl).toBe(`https://cdn.test/lessons/${ID}/video.mp4`);
-    repo.getLesson.mockResolvedValue(row({ status: "failed", error: "Le montage de la vidéo a échoué. Réessayez dans quelques minutes." }));
-    expect((await (await get(ID)).json()).error).toMatch(/montage/);
+    repo.getLesson.mockResolvedValue(row({ status: "failed", error: "Putting the video together failed. Try again in a few minutes." }));
+    expect((await (await get(ID)).json()).error).toMatch(/video together/);
   });
 });
