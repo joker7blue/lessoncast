@@ -110,6 +110,11 @@ describe("LESSON_INSTRUCTIONS", () => {
     expect(LESSON_INSTRUCTIONS).toMatch(/secondary school/);
   });
 
+  test("ask to keep apostrophes and accents in the spoken text", () => {
+    expect(LESSON_INSTRUCTIONS).toMatch(/apostrophes/);
+    expect(LESSON_INSTRUCTIONS).toMatch(/l'histoire/);
+  });
+
   test("ask for every highlight object to be drawn in its scene's image prompt", () => {
     expect(LESSON_INSTRUCTIONS).toMatch(/imagePrompt[^.]*(name|show)[^.]*highlight/i);
   });
