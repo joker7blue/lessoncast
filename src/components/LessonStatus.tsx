@@ -13,7 +13,7 @@ import { modelSeconds, nodeStates, scenesDrawn } from "@/lib/lessons/graph";
 import type { LessonView } from "@/lib/lessons/view";
 import { lessonNodes } from "./pipeline/nodes";
 import { PipelineGraph } from "./pipeline/PipelineGraph";
-import { SceneImage } from "./SceneImage";
+import { SceneGallery } from "./SceneGallery";
 
 const POLL_MS = 2000;
 
@@ -62,29 +62,6 @@ function useElapsed(createdAt: string | undefined, running: boolean): number {
     return () => clearInterval(timer);
   }, [running]);
   return createdAt ? Math.max(0, (now - Date.parse(createdAt)) / 1000) : 0;
-}
-
-function SceneSlots({ lesson }: { lesson: LessonView }) {
-  const slots = Math.max(lesson.sceneCount ?? 0, lesson.sceneImageUrls.length);
-  if (slots === 0) return null;
-  return (
-    <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3" aria-label="Scenes">
-      {Array.from({ length: slots }, (_, i) => {
-        const url = lesson.sceneImageUrls[i];
-        return (
-          <li key={i}>
-            {url ? (
-              <SceneImage src={url} alt={`Scene ${i + 1}`} sizes="(max-width: 640px) 50vw, 240px" />
-            ) : (
-              <div className="grid aspect-video place-items-center rounded-lg border border-dashed border-line text-sm font-bold text-dust">
-                Scene {i + 1}
-              </div>
-            )}
-          </li>
-        );
-      })}
-    </ul>
-  );
 }
 
 export function LessonStatus({ id }: { id: string }) {
@@ -165,7 +142,11 @@ export function LessonStatus({ id }: { id: string }) {
           </div>
         )}
         {lesson.status === "queued" && <p className="text-dust">The lesson starts in a few seconds.</p>}
-        <SceneSlots lesson={lesson} />
+        <SceneGallery
+          urls={lesson.sceneImageUrls}
+          slots={Math.max(lesson.sceneCount ?? 0, lesson.sceneImageUrls.length)}
+          drawing={running && lesson.status !== "reading" && lesson.status !== "queued"}
+        />
       </section>
 
       <aside className={`${done ? "order-2" : "order-1"} lg:order-none`}>
