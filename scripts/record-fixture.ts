@@ -1,17 +1,17 @@
 // Records the fixture lesson that Remotion Studio and the render check use: the derisk lesson
 // (Muse Spark, test 1), its six scene images (Muse Image, test 2) and its Pidgin narration read and
-// timed by the deployed voice. Media go to fixture/ in the lessons bucket; the JSON to lib/video/fixtures/.
+// timed by the deployed voice. Media go to fixture/ in the lessons bucket; the JSON to src/lib/video/fixtures/.
 // Run: pnpm exec tsx --env-file=.env scripts/record-fixture.ts
 
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { narrationGroups } from "../lib/lesson/narration";
-import { Lesson } from "../lib/lesson/schema";
-import { narrate } from "../lib/modal/client";
-import { publicUrl, signedUploadUrl, uploadFile } from "../lib/supabase/storage";
+import { narrationGroups } from "../src/lib/lesson/narration";
+import { Lesson } from "../src/lib/lesson/schema";
+import { narrate } from "../src/lib/modal/client";
+import { publicUrl, signedUploadUrl, uploadFile } from "../src/lib/supabase/storage";
 
 const DERISK = path.resolve("scripts/derisk/out");
-const FIXTURES = path.resolve("lib/video/fixtures");
+const FIXTURES = path.resolve("src/lib/video/fixtures");
 // The derisk images show these characters; the derisk schema had a free-form artStyle instead.
 const VISUAL_NOTES =
   "Cameroonian pupils in green school uniforms and their teacher, in a bright classroom and the green countryside around the school";
