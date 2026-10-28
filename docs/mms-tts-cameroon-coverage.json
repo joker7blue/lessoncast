@@ -1,0 +1,331 @@
+[
+ {
+  "iso": "bav",
+  "name": "Vengo",
+  "models": [
+   "facebook/mms-tts-bav"
+  ]
+ },
+ {
+  "iso": "bcw",
+  "name": "Bana",
+  "models": [
+   "facebook/mms-tts-bcw"
+  ]
+ },
+ {
+  "iso": "bdu",
+  "name": "Oroko",
+  "models": [
+   "facebook/mms-tts-bdu"
+  ]
+ },
+ {
+  "iso": "bmv",
+  "name": "Bum",
+  "models": [
+   "facebook/mms-tts-bmv"
+  ]
+ },
+ {
+  "iso": "bss",
+  "name": "Kose",
+  "models": [
+   "facebook/mms-tts-bss"
+  ]
+ },
+ {
+  "iso": "dbq",
+  "name": "Daba",
+  "models": [
+   "facebook/mms-tts-dbq"
+  ]
+ },
+ {
+  "iso": "eng",
+  "name": "English",
+  "models": [
+   "facebook/mms-tts-eng"
+  ]
+ },
+ {
+  "iso": "fal",
+  "name": "South Fali",
+  "models": [
+   "facebook/mms-tts-fal"
+  ]
+ },
+ {
+  "iso": "fra",
+  "name": "French",
+  "models": [
+   "facebook/mms-tts-fra"
+  ]
+ },
+ {
+  "iso": "gde",
+  "name": "Gude",
+  "models": [
+   "facebook/mms-tts-gde"
+  ]
+ },
+ {
+  "iso": "gnd",
+  "name": "Zulgo-Gemzek",
+  "models": [
+   "facebook/mms-tts-gnd"
+  ]
+ },
+ {
+  "iso": "hau",
+  "name": "Hausa",
+  "models": [
+   "facebook/mms-tts-hau"
+  ]
+ },
+ {
+  "iso": "jbu",
+  "name": "Jukun Takum",
+  "models": [
+   "facebook/mms-tts-jbu"
+  ]
+ },
+ {
+  "iso": "kby",
+  "name": "Manga Kanuri",
+  "models": [
+   "facebook/mms-tts-kby"
+  ]
+ },
+ {
+  "iso": "ken",
+  "name": "Kenyang",
+  "models": [
+   "facebook/mms-tts-ken"
+  ]
+ },
+ {
+  "iso": "ker",
+  "name": "Kera",
+  "models": [
+   "facebook/mms-tts-ker"
+  ]
+ },
+ {
+  "iso": "kkj",
+  "name": "Kako",
+  "models": [
+   "facebook/mms-tts-kkj"
+  ]
+ },
+ {
+  "iso": "kub",
+  "name": "Kuteb",
+  "models": [
+   "facebook/mms-tts-kub"
+  ]
+ },
+ {
+  "iso": "lem",
+  "name": "Mandi",
+  "models": [
+   "facebook/mms-tts-lem"
+  ]
+ },
+ {
+  "iso": "lme",
+  "name": "Peve",
+  "models": [
+   "facebook/mms-tts-lme"
+  ]
+ },
+ {
+  "iso": "lns",
+  "name": "Nso",
+  "models": [
+   "facebook/mms-tts-lns"
+  ]
+ },
+ {
+  "iso": "mcp",
+  "name": "Makaa",
+  "models": [
+   "facebook/mms-tts-mcp"
+  ]
+ },
+ {
+  "iso": "mcu",
+  "name": "Cameroon Mambila",
+  "models": [
+   "facebook/mms-tts-mcu"
+  ]
+ },
+ {
+  "iso": "meq",
+  "name": "Merey",
+  "models": [
+   "facebook/mms-tts-meq"
+  ]
+ },
+ {
+  "iso": "mfh",
+  "name": "Matal",
+  "models": [
+   "facebook/mms-tts-mfh"
+  ]
+ },
+ {
+  "iso": "mfi",
+  "name": "Wandala",
+  "models": [
+   "facebook/mms-tts-mfi"
+  ]
+ },
+ {
+  "iso": "mfk",
+  "name": "North Mofu",
+  "models": [
+   "facebook/mms-tts-mfk"
+  ]
+ },
+ {
+  "iso": "mgo",
+  "name": "Meta'",
+  "models": [
+   "facebook/mms-tts-mgo"
+  ]
+ },
+ {
+  "iso": "mif",
+  "name": "Mofu-Gudur",
+  "models": [
+   "facebook/mms-tts-mif"
+  ]
+ },
+ {
+  "iso": "mnf",
+  "name": "Mundani",
+  "models": [
+   "facebook/mms-tts-mnf"
+  ]
+ },
+ {
+  "iso": "mqb",
+  "name": "Mbuko",
+  "models": [
+   "facebook/mms-tts-mqb"
+  ]
+ },
+ {
+  "iso": "muy",
+  "name": "Muyang",
+  "models": [
+   "facebook/mms-tts-muy"
+  ]
+ },
+ {
+  "iso": "nhu",
+  "name": "Noni",
+  "models": [
+   "facebook/mms-tts-nhu"
+  ]
+ },
+ {
+  "iso": "oku",
+  "name": "Oku",
+  "models": [
+   "facebook/mms-tts-oku"
+  ]
+ },
+ {
+  "iso": "ozm",
+  "name": "Nzime",
+  "models": [
+   "facebook/mms-tts-ozm"
+  ]
+ },
+ {
+  "iso": "pbi",
+  "name": "Parkwa",
+  "models": [
+   "facebook/mms-tts-pbi"
+  ]
+ },
+ {
+  "iso": "pcm",
+  "name": "Nigerian Pidgin",
+  "models": [
+   "facebook/mms-tts-pcm"
+  ]
+ },
+ {
+  "iso": "pny",
+  "name": "Pinyin",
+  "models": [
+   "facebook/mms-tts-pny"
+  ]
+ },
+ {
+  "iso": "sba",
+  "name": "Ngambay",
+  "models": [
+   "facebook/mms-tts-sba"
+  ]
+ },
+ {
+  "iso": "tik",
+  "name": "Tikar",
+  "models": [
+   "facebook/mms-tts-tik"
+  ]
+ },
+ {
+  "iso": "vut",
+  "name": "Vute",
+  "models": [
+   "facebook/mms-tts-vut"
+  ]
+ },
+ {
+  "iso": "xed",
+  "name": "Hdi",
+  "models": [
+   "facebook/mms-tts-xed"
+  ]
+ },
+ {
+  "iso": "xuo",
+  "name": "Kuo",
+  "models": [
+   "facebook/mms-tts-xuo"
+  ]
+ },
+ {
+  "iso": "yam",
+  "name": "Yamba",
+  "models": [
+   "facebook/mms-tts-yam"
+  ]
+ },
+ {
+  "iso": "yas",
+  "name": "Gunu",
+  "models": [
+   "facebook/mms-tts-yas"
+  ]
+ },
+ {
+  "iso": "yat",
+  "name": "Yambeta",
+  "models": [
+   "facebook/mms-tts-yat"
+  ]
+ },
+ {
+  "iso": "ybb",
+  "name": "Yemba",
+  "models": [
+   "facebook/mms-tts-ybb"
+  ]
+ }
+]
