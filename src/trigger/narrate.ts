@@ -1,7 +1,7 @@
 // Step 2b, in parallel with the scenes: MMS reads the lesson on Modal and times every word.
 
 import { schemaTask } from "@trigger.dev/sdk";
-import { narrationGroups } from "../lib/lesson/narration";
+import { narrationPlan } from "../lib/lesson/narration";
 import { recordMetrics, updateLesson } from "../lib/lessons/repo";
 import { modalCostUsd, narrate as narrateOnModal } from "../lib/modal/client";
 import { lessonPaths, signedUploadUrl } from "../lib/supabase/storage";
@@ -15,8 +15,10 @@ export const narrate = schemaTask({
   run: async ({ lessonId }) => {
     const { row, lesson } = await loadScript(lessonId);
     const path = lessonPaths.voice(lessonId);
+    const { groups, pauses } = narrationPlan(lesson, row.language);
     const { words, audioSeconds, seconds } = await narrateOnModal({
-      groups: narrationGroups(lesson, row.language),
+      groups,
+      pauses,
       language: row.language,
       uploadUrl: await signedUploadUrl(path),
     });
