@@ -15,7 +15,10 @@ const OFFLINE = "Sending failed. Check the internet connection and try again.";
 
 type Phase = { kind: "idle" } | { kind: "uploading"; percent: number } | { kind: "starting" };
 
-const megabytes = (bytes: number) => `${(bytes / (1024 * 1024)).toFixed(bytes < 10 * 1024 * 1024 ? 1 : 0)} MB`;
+function fileSize(bytes: number): string {
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(bytes < 10 * 1024 * 1024 ? 1 : 0)} MB`;
+}
 
 /** PUTs the file to the signed URL, reporting the share sent. */
 function upload(url: string, file: File, onProgress: (percent: number) => void): Promise<void> {
@@ -82,7 +85,7 @@ export function BookUploadForm() {
             <FileText aria-hidden className="size-10 shrink-0 text-spoken" />
             <div className="min-w-0 flex-1">
               <p className="truncate font-bold">{file.name}</p>
-              <p className="text-sm text-dust">{megabytes(file.size)}</p>
+              <p className="text-sm text-dust">{fileSize(file.size)}</p>
             </div>
             {!busy && (
               <button type="button" onClick={() => setFile(null)} aria-label="Remove the PDF" className="grid size-9 place-items-center rounded-md text-xl font-bold hover:bg-board">
