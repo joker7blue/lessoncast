@@ -5,6 +5,7 @@ import { tasks } from "@trigger.dev/sdk";
 import { Language, MAX_PAGES } from "@/lib/lesson/schema";
 import { StyleChoice } from "@/lib/lesson/styles";
 import { hashIp } from "@/lib/lessons/ip";
+import { checkRateLimit } from "@/lib/lessons/rate-limit";
 import { createLesson, updateLesson } from "@/lib/lessons/repo";
 import { lessonPaths, uploadFile } from "@/lib/supabase/storage";
 import type { generateLesson } from "@/trigger/generate-lesson";
@@ -39,7 +40,11 @@ export async function POST(request: Request) {
   const style = StyleChoice.safeParse(form.get("style"));
   if (!style.success) return fail(400, "This image style doesn't exist.");
 
-  const lesson = await createLesson({ language: language.data, ipHash: hashIp(request), pageCount: pages.length, style: style.data });
+  const ipHash = hashIp(request);
+  const limited = await checkRateLimit(ipHash);
+  if (limited) return fail(429, limited);
+
+  const lesson = await createLesson({ language: language.data, ipHash, pageCount: pages.length, style: style.data });
   try {
     await Promise.all(pages.map((bytes, i) => uploadFile(lessonPaths.page(lesson.id, i + 1), bytes, "image/jpeg")));
     const run = await tasks.trigger<typeof generateLesson>("generate-lesson", { lessonId: lesson.id }, { idempotencyKey: lesson.id });

@@ -3,9 +3,11 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 const repo = vi.hoisted(() => ({ createLesson: vi.fn(), updateLesson: vi.fn() }));
 const storage = vi.hoisted(() => ({ uploadFile: vi.fn() }));
 const trigger = vi.hoisted(() => ({ tasks: { trigger: vi.fn() } }));
+const limits = vi.hoisted(() => ({ checkRateLimit: vi.fn() }));
 vi.mock("@/lib/lessons/repo", () => repo);
 vi.mock("@/lib/supabase/storage", async (importOriginal) => ({ ...(await importOriginal<object>()), ...storage }));
 vi.mock("@trigger.dev/sdk", () => trigger);
+vi.mock("@/lib/lessons/rate-limit", () => limits);
 
 import { POST } from "./route";
 
@@ -41,6 +43,7 @@ beforeEach(() => {
   repo.updateLesson.mockResolvedValue(undefined);
   storage.uploadFile.mockResolvedValue(undefined);
   trigger.tasks.trigger.mockResolvedValue({ id: "run_1" });
+  limits.checkRateLimit.mockResolvedValue(null);
 });
 
 describe("POST /api/lessons", () => {
@@ -82,6 +85,14 @@ describe("POST /api/lessons", () => {
     ]);
     expect(trigger.tasks.trigger).toHaveBeenCalledWith("generate-lesson", { lessonId: ID }, { idempotencyKey: ID });
     expect(repo.updateLesson).toHaveBeenCalledWith(ID, { triggerRunId: "run_1" });
+  });
+
+  test("429 with the limit's sentence when the limit is reached, before anything is stored", async () => {
+    limits.checkRateLimit.mockResolvedValue("You have made three lessons in the last hour. Try again in a little while.");
+    const res = await post({ photos: [jpeg("1.jpg")] });
+    expect(await expectError(res, 429)).toMatch(/last hour/);
+    expect(storage.uploadFile).not.toHaveBeenCalled();
+    expect(limits.checkRateLimit).toHaveBeenCalledWith(null);
   });
 
   test("500 and a failed lesson when the pipeline can't be started", async () => {
