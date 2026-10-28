@@ -13,7 +13,8 @@
     "derisk:typecheck": "tsc -p scripts/derisk",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "trigger:dev": "npx trigger.dev@4.8.1 dev"
+    "trigger:dev": "npx trigger.dev@4.8.1 dev",
+    "smoke": "tsx scripts/smoke.ts"
   },
   "dependencies": {
     "@meta-sam/parser": "^0.1.0",
