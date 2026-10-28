@@ -14,6 +14,7 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "trigger:dev": "npx trigger.dev@4.8.1 dev",
+    "trigger:deploy": "npx trigger.dev@4.8.1 deploy",
     "smoke": "tsx scripts/smoke.ts"
   },
   "dependencies": {
@@ -23,6 +24,8 @@
     "@remotion/renderer": "4.0.438",
     "@supabase/supabase-js": "^2.99.1",
     "@trigger.dev/sdk": "4.8.1",
+    "@upstash/ratelimit": "2.0.8",
+    "@upstash/redis": "1.38.4",
     "lucide-react": "0.577.0",
     "modal": "0.11.1",
     "next": "16.4.3",
