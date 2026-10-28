@@ -52,16 +52,18 @@ const NarrateResult = z.object({
   alignSeconds: z.number(),
 });
 
-/** Reads the groups aloud (group 0 is the title), uploads the WAV to `uploadUrl`, returns the timings. */
+/** Reads the groups aloud (group 0 is the title), uploads the WAV to `uploadUrl`, returns the timings.
+ * `pauses[i]`, when set, is the silence after group i instead of the usual one (the quiz's countdown). */
 export async function narrate(input: {
   groups: string[][];
+  pauses?: (number | null)[];
   language: Language;
   uploadUrl: string;
 }): Promise<{ words: TimedWord[]; audioSeconds: number; seconds: number }> {
   const start = performance.now();
   const raw = await (await voice())
     .method("narrate")
-    .remote([], { groups: input.groups, lang: input.language, upload_url: input.uploadUrl });
+    .remote([], { groups: input.groups, lang: input.language, upload_url: input.uploadUrl, ...(input.pauses && { pauses: input.pauses }) });
   const { words, audioSeconds } = NarrateResult.parse(raw);
   return { words, audioSeconds, seconds: (performance.now() - start) / 1000 };
 }
