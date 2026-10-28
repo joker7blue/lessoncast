@@ -1,12 +1,14 @@
-// Calls the deployed Modal apps (modal/voice.py) through Modal's JavaScript SDK.
+// Calls the deployed Modal apps (modal/voice.py, modal/render.py) through Modal's JavaScript SDK.
 // Credentials: MODAL_TOKEN_ID and MODAL_TOKEN_SECRET together, or neither, and then ~/.modal.toml.
 
 import { ModalClient } from "modal";
 import { z } from "zod";
 import type { Language } from "../lesson/schema";
+import { VideoProps } from "../video/props";
 import { TimedWord } from "../video/words";
 
 const VOICE_APP = "lessoncast-voice";
+const RENDER_APP = "lessoncast-render";
 
 /** The SDK takes each variable from the environment before ~/.modal.toml, so a token id without its
  * secret would be paired with another token's secret and fail with an opaque auth error. */
@@ -54,4 +56,16 @@ export async function narrate(input: {
     .remote([], { groups: input.groups, lang: input.language, upload_url: input.uploadUrl });
   const { words, audioSeconds } = NarrateResult.parse(raw);
   return { words, audioSeconds, seconds: (performance.now() - start) / 1000 };
+}
+
+const RenderResult = z.object({ bytes: z.int().positive(), renderSeconds: z.number() });
+
+/** Renders the MP4 on Modal, which uploads it to `uploadUrl`. Invalid props never leave this process. */
+export async function renderVideo(input: { props: VideoProps; uploadUrl: string }): Promise<{ bytes: number; seconds: number }> {
+  const props = VideoProps.parse(input.props);
+  const start = performance.now();
+  const render = await modal().functions.fromName(RENDER_APP, "render");
+  const raw = await render.remote([], { props_json: JSON.stringify(props), upload_url: input.uploadUrl });
+  const { bytes } = RenderResult.parse(raw);
+  return { bytes, seconds: (performance.now() - start) / 1000 };
 }
