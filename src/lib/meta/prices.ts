@@ -7,6 +7,8 @@ export const PRICES = {
 } as const;
 
 export const IMAGE_COST_USD = 0.01;
+// $2.50 per 1,000 images; one request per object.
+export const SAM_COST_USD = 0.0025;
 
 export type SparkUsage = {
   prompt_tokens: number;
