@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from "vitest";
 import { jpegHeader } from "../../image/__tests__/jpeg.fixture";
 import { makeLesson } from "../../lesson/lesson.fixture";
 import type { SamMatch } from "../../meta/sam";
-import { findAllHighlights, keepShapes } from "../highlights";
+import { findAllHighlights, keepShapes, loadHighlights } from "../highlights";
 
 const IMAGE = { width: 2048, height: 1152 };
 
@@ -100,5 +100,30 @@ describe("findAllHighlights", () => {
       found: 0,
       requested: 3,
     });
+  });
+});
+
+describe("loadHighlights", () => {
+  const stored = [{ imageWidth: 2048, imageHeight: 1152, objects: [{ samPrompt: "heart", fr: "cœur", pcm: "heart", shapes: [{ d: "M0 0L1 1Z", left: 1, top: 2, scaleX: 1, scaleY: 1, confidence: 0.9 }] }] }];
+  const bytes = (value: unknown) => new TextEncoder().encode(typeof value === "string" ? value : JSON.stringify(value));
+
+  test("returns null without a path, and downloads nothing", async () => {
+    const download = vi.fn();
+    expect(await loadHighlights(null, { download })).toBeNull();
+    expect(download).not.toHaveBeenCalled();
+  });
+
+  test("parses a valid file", async () => {
+    const download = vi.fn(async () => bytes(stored));
+    expect(await loadHighlights("abc/highlights.json", { download })).toEqual(stored);
+    expect(download).toHaveBeenCalledWith("abc/highlights.json");
+  });
+
+  test("returns null and warns on a damaged or missing file", async () => {
+    for (const download of [async () => bytes("{not json"), async () => bytes([{ imageWidth: -1 }]), async () => Promise.reject(new Error("Object not found"))]) {
+      const warn = vi.fn();
+      expect(await loadHighlights("abc/highlights.json", { download, warn })).toBeNull();
+      expect(warn).toHaveBeenCalledOnce();
+    }
   });
 });

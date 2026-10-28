@@ -5,7 +5,7 @@ import { jpegSize } from "../image/size";
 import type { Lesson } from "../lesson/schema";
 import { forEachLimit } from "../limit";
 import type { SamMatch } from "../meta/sam";
-import { type FoundObject, type SceneHighlights, type Shape, simplifyPath } from "../video/highlights";
+import { type FoundObject, SceneHighlights, type Shape, simplifyPath } from "../video/highlights";
 
 export const MIN_CONFIDENCE = 0.5;
 // A box this large would light up the whole scene, as a "landscape" does (derisk test 3).
@@ -68,4 +68,19 @@ export async function findAllHighlights(
     }),
   }));
   return { scenes, found: shapes.size, requested: jobs.length };
+}
+
+/** What find-highlights stored at `path`, or null to render without highlights: no path (a lesson
+ * from before highlights), or a file that can't be read or parsed. */
+export async function loadHighlights(
+  path: string | null,
+  deps: { download(path: string): Promise<Uint8Array>; warn?(message: string): void },
+): Promise<SceneHighlights[] | null> {
+  if (!path) return null;
+  try {
+    return SceneHighlights.array().parse(JSON.parse(new TextDecoder().decode(await deps.download(path))));
+  } catch (error) {
+    deps.warn?.(`Highlights at ${path} can't be read (${reason(error)}): rendering without them`);
+    return null;
+  }
 }

@@ -7,7 +7,8 @@ import { supabase } from "../supabase/server";
 import type { TimedWord } from "../video/words";
 
 export type LessonStatus = "queued" | "reading" | "drawing" | "voicing" | "highlighting" | "rendering" | "done" | "failed";
-export type StepMetrics = { seconds: number; costUsd: number };
+/** found and requested: the objects find-highlights lit, of those the script named. */
+export type StepMetrics = { seconds: number; costUsd: number; found?: number; requested?: number };
 
 export type LessonRow = {
   id: string;
@@ -24,6 +25,8 @@ export type LessonRow = {
   scenePaths: (string | null)[];
   audioPath: string | null;
   videoPath: string | null;
+  /** The objects SAM found, stored at lessonPaths.highlights(id); null until find-highlights ran. */
+  highlightsPath: string | null;
   words: TimedWord[] | null;
   metrics: Record<string, StepMetrics>;
   ipHash: string | null;
@@ -42,6 +45,7 @@ type Columns = {
   scene_paths: (string | null)[];
   audio_path: string | null;
   video_path: string | null;
+  highlights_path: string | null;
   words: TimedWord[] | null;
   metrics: Record<string, StepMetrics>;
   ip_hash: string | null;
@@ -54,6 +58,7 @@ const PATCH_COLUMNS = {
   script: "script",
   audioPath: "audio_path",
   videoPath: "video_path",
+  highlightsPath: "highlights_path",
   words: "words",
   triggerRunId: "trigger_run_id",
 } as const satisfies Partial<Record<keyof LessonRow, keyof Columns>>;
@@ -73,6 +78,7 @@ function toRow(c: Columns): LessonRow {
     scenePaths: c.scene_paths,
     audioPath: c.audio_path,
     videoPath: c.video_path,
+    highlightsPath: c.highlights_path,
     words: c.words,
     metrics: c.metrics,
     ipHash: c.ip_hash,

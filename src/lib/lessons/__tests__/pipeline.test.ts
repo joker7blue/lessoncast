@@ -12,18 +12,29 @@ function deps(status: LessonStatus | null = "queued", overrides: Partial<Pipelin
     }),
     writeScript: vi.fn(async () => ({ isTextbookPage: true })),
     drawAndNarrate: vi.fn(async () => ({ audioSeconds: 80 })),
+    findHighlights: vi.fn(async () => {}),
     renderVideo: vi.fn(async () => {}),
+    warn: vi.fn(),
     ...overrides,
   };
   return { d, updates };
 }
 
 describe("runLesson", () => {
-  test("statuses go queued → reading → drawing → rendering → done", async () => {
+  test("statuses go queued → reading → drawing → highlighting → rendering → done", async () => {
     const { d, updates } = deps();
     expect(await runLesson("id", d)).toEqual({ outcome: "done" });
-    expect(updates.map((u) => u.status)).toEqual(["reading", "drawing", "rendering", "done"]);
+    expect(updates.map((u) => u.status)).toEqual(["reading", "drawing", "highlighting", "rendering", "done"]);
+    expect(d.findHighlights).toHaveBeenCalledOnce();
     expect(d.renderVideo).toHaveBeenCalledWith(80);
+  });
+
+  test("a failed find-highlights still renders and finishes the lesson", async () => {
+    const { d, updates } = deps("queued", { findHighlights: vi.fn(async () => Promise.reject(new Error("SAM down"))) });
+    expect(await runLesson("id", d)).toEqual({ outcome: "done" });
+    expect(updates.map((u) => u.status)).toEqual(["reading", "drawing", "highlighting", "rendering", "done"]);
+    expect(d.renderVideo).toHaveBeenCalledWith(80);
+    expect(d.warn).toHaveBeenCalledWith(expect.stringMatching(/SAM down/));
   });
 
   test("does nothing when the lesson is no longer queued, or gone", async () => {
@@ -55,11 +66,12 @@ describe("runLesson", () => {
     expect(await runLesson("id", d)).toMatchObject({ outcome: "failed", step: "narrate" });
     expect(updates.at(-1)).toEqual({ status: "failed", error: "The voice couldn't be recorded. Try again in a few minutes." });
     expect(d.renderVideo).not.toHaveBeenCalled();
+    expect(d.findHighlights).not.toHaveBeenCalled();
   });
 
   test("a failed render fails the lesson at render-video", async () => {
     const { d, updates } = deps("queued", { renderVideo: vi.fn(async () => Promise.reject(new Error("Chrome"))) });
     expect(await runLesson("id", d)).toMatchObject({ outcome: "failed", step: "render-video" });
-    expect(updates.map((u) => u.status)).toEqual(["reading", "drawing", "rendering", "failed"]);
+    expect(updates.map((u) => u.status)).toEqual(["reading", "drawing", "highlighting", "rendering", "failed"]);
   });
 });
