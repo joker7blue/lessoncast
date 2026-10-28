@@ -12,11 +12,13 @@ vi.mock("@/lib/supabase/storage", async (importOriginal) => ({
 import { GET } from "./route";
 
 const ID = "4b4a8a4e-3c1a-4d55-9a57-2f0f6b2b8c11";
+// Recent, so the lesson isn't treated as stalled.
+const CREATED = new Date().toISOString();
 
 function row(patch: Partial<LessonRow> = {}): LessonRow {
   return {
     id: ID,
-    createdAt: "2026-10-28T12:00:00Z",
+    createdAt: CREATED,
     language: "pcm",
     pageCount: 1,
     style: "auto",
@@ -50,7 +52,7 @@ describe("GET /api/lessons/:id", () => {
     expect(await (await get(ID)).json()).toEqual({
       status: "queued",
       language: "pcm",
-      createdAt: "2026-10-28T12:00:00Z",
+      createdAt: CREATED,
       pageCount: 1,
       error: null,
       title: null,
@@ -75,14 +77,21 @@ describe("GET /api/lessons/:id", () => {
     expect(body.voice).toEqual({ seconds: 3.8, words: 2 });
   });
 
-  test("returns the title in the lesson's language and only the scene images already drawn", async () => {
+  test("returns the title in the lesson's language and each scene drawn so far in its own slot", async () => {
     const lesson = { ...makeLesson(6), style: "comic" as const };
     repo.getLesson.mockResolvedValue(row({ status: "drawing", script: lesson, scenePaths: [`${ID}/scenes/1.jpg`, null, `${ID}/scenes/3.jpg`] }));
     const body = await (await get(ID)).json();
     expect(body.title).toBe("Heart na pump");
     expect(body.style).toBe("comic");
     expect(body.sceneCount).toBe(6);
-    expect(body.sceneImageUrls).toEqual([`https://cdn.test/lessons/${ID}/scenes/1.jpg`, `https://cdn.test/lessons/${ID}/scenes/3.jpg`]);
+    expect(body.sceneImageUrls).toEqual([`https://cdn.test/lessons/${ID}/scenes/1.jpg`, null, `https://cdn.test/lessons/${ID}/scenes/3.jpg`]);
+  });
+
+  test("a lesson that stopped on the way reads as failed, so the page stops waiting", async () => {
+    repo.getLesson.mockResolvedValue(row({ status: "drawing", createdAt: new Date(Date.now() - 30 * 60_000).toISOString() }));
+    const body = await (await get(ID)).json();
+    expect(body.status).toBe("failed");
+    expect(body.error).toMatch(/stopped/);
   });
 
   test("a finished lesson gives its video URL; a failed one its message", async () => {

@@ -9,7 +9,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from voice import fill_unaligned, pause_after_group  # noqa: E402
+from voice import fill_unaligned, has_speech, pause_after_group  # noqa: E402
 
 
 class FillUnaligned(unittest.TestCase):
@@ -28,6 +28,16 @@ class FillUnaligned(unittest.TestCase):
     def test_a_sentence_with_no_aligned_word_keeps_every_word(self):
         out = fill_unaligned(["1", "2"], {}, start=2.0)
         self.assertEqual(out, [("1", 2.0, 2.0, 0.0), ("2", 2.0, 2.0, 0.0)])
+
+
+class HasSpeech(unittest.TestCase):
+    def test_a_sentence_with_letters_is_spoken(self):
+        self.assertTrue(has_speech("Le cœur bat."))
+        self.assertTrue(has_speech("Heart di knock."))
+
+    def test_digits_and_punctuation_alone_are_not(self):
+        for sentence in ["12.", "—", "1, 2, 3 !", ""]:
+            self.assertFalse(has_speech(sentence), sentence)
 
 
 class PauseAfterGroup(unittest.TestCase):

@@ -39,4 +39,17 @@ describe.skipIf(!live)("voice (live Modal and Supabase)", { timeout: 180_000 }, 
     expect(wav.status).toBe(200);
     expect(wav.headers.get("content-type")).toBe("audio/wav");
   });
+
+  test("a sentence with nothing to read keeps its words and doesn't stop the voice", async () => {
+    const file = `test/${crypto.randomUUID()}/voice.wav`;
+    paths.push(file);
+    const r = await narrate({
+      groups: [["Le cœur."], ["12.", "—", "Il bat."]],
+      language: "fr",
+      uploadUrl: await signedUploadUrl(file),
+    });
+    expect(r.words.map((w) => w.word)).toEqual(["Le", "cœur.", "12.", "—", "Il", "bat."]);
+    const silent = r.words.filter((w) => w.word === "12." || w.word === "—");
+    expect(silent.every((w) => w.end === w.start && w.score === 0)).toBe(true);
+  });
 });

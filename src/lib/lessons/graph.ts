@@ -31,6 +31,11 @@ export function nodeStates({ status, metrics, scenesDrawn }: GraphInput): Record
   return states;
 }
 
+/** How many scenes have their image, from the slot-aligned list (null until drawn). */
+export function scenesDrawn(lesson: { sceneImageUrls: (string | null)[] }): number {
+  return lesson.sceneImageUrls.filter((url) => url !== null).length;
+}
+
 /** Time spent in the models along the critical path: the script, the longer of scenes and voice, the render. */
 export function modelSeconds(metrics: Record<string, StepMetrics>): number {
   const s = (step: string) => metrics[step]?.seconds ?? 0;

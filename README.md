@@ -21,8 +21,8 @@ Coming next: SAM 3.1 lights up the objects the voice names, and the quiz is narr
 
 ## What a lesson costs
 
-Measured on real lessons made from one page: three and a half to four and a half minutes from upload to
-video, about $0.13 of model calls ($0.05 for Muse Spark, $0.07 for seven Muse Image scenes, about a cent each
+Measured on real lessons made from one page: about four minutes from upload to video, up to about five and a
+half when two lessons run at once, about $0.13 of model calls ($0.05 for Muse Spark, $0.07 for seven Muse Image scenes, about a cent each
 for the voice and the render), and about 6 MB for two and a half minutes of video. Every lesson page shows its
 own times and costs as a live graph of the pipeline. The derisk tests that set these choices are in
 [`docs/derisk.md`](docs/derisk.md).

@@ -20,7 +20,7 @@ type LessonView = {
   error: string | null;
   title: string | null;
   style: string;
-  sceneImageUrls: string[];
+  sceneImageUrls: (string | null)[];
   videoUrl: string | null;
   metrics: Record<string, { seconds: number; costUsd: number }>;
 };
@@ -62,7 +62,8 @@ async function main() {
       await new Promise((resolve) => setTimeout(resolve, POLL_MS));
       continue;
     }
-    const line = lesson.status === "drawing" ? `drawing (${lesson.sceneImageUrls.length} scenes)` : lesson.status;
+    const drawn = lesson.sceneImageUrls.filter((url) => url !== null).length;
+    const line = lesson.status === "drawing" ? `drawing (${drawn} scenes)` : lesson.status;
     if (line !== status) {
       status = line;
       console.log(`${String(Math.round((Date.now() - start) / 1000)).padStart(4)} s  ${status}`);

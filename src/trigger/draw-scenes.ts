@@ -12,7 +12,8 @@ import { LessonPayload, loadScript } from "./shared";
 export const drawScenes = schemaTask({
   id: "draw-scenes",
   schema: LessonPayload,
-  maxDuration: 300,
+  // Room for a timed-out image to be retried or redrawn: a task past its budget is not retried.
+  maxDuration: 600,
   run: async ({ lessonId }) => {
     const { row, lesson } = await loadScript(lessonId);
     const start = performance.now();
