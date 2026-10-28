@@ -1,10 +1,12 @@
 // The lesson pipeline: write the script, then draw the scenes and record the voice in parallel, then
-// render the video. Each step is a child task with its own retries; waiting on them is not billed.
+// find the highlights with SAM, then render the video. Each step is a child task with its own retries;
+// waiting on them is not billed.
 
 import { AbortTaskRunError, batch, logger, schemaTask } from "@trigger.dev/sdk";
 import { runLesson, StepError } from "../lib/lessons/pipeline";
 import { getLesson, updateLesson } from "../lib/lessons/repo";
 import { drawScenes } from "./draw-scenes";
+import { findHighlights } from "./find-highlights";
 import { narrate } from "./narrate";
 import { renderVideo } from "./render-video";
 import { LessonPayload } from "./shared";
@@ -32,9 +34,14 @@ export const generateLesson = schemaTask({
         if (!voice.ok) throw new StepError("narrate", voice.error);
         return { audioSeconds: voice.output.audioSeconds };
       },
+      findHighlights: async () => {
+        const result = await findHighlights.triggerAndWait({ lessonId });
+        if (!result.ok) throw result.error;
+      },
       renderVideo: async (audioSeconds) => {
         await renderVideo.triggerAndWait({ lessonId, audioSeconds }).unwrap();
       },
+      warn: (message) => logger.warn(message),
     });
 
     if (result.outcome === "failed") {

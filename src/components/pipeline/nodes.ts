@@ -6,7 +6,7 @@ import { formatSeconds } from "@/lib/format";
 import { STYLES } from "@/lib/lesson/styles";
 import { type NodeId, scenesDrawn } from "@/lib/lessons/graph";
 import type { LessonView } from "@/lib/lessons/view";
-import { IMAGE_MODEL, SPARK_MODEL, VOICE_MODELS } from "@/lib/meta/models";
+import { IMAGE_MODEL, SAM_MODEL, SPARK_MODEL, VOICE_MODELS } from "@/lib/meta/models";
 import type { NodeContent } from "./PipelineGraph";
 
 export function explainNodes(): Record<NodeId, NodeContent> {
@@ -19,9 +19,17 @@ export function explainNodes(): Record<NodeId, NodeContent> {
     },
     image: { title: "Muse Image", model: IMAGE_MODEL, role: "Draws every scene in one style, with the same characters." },
     voice: { title: "MMS voice", model: "mms-tts + MMS_FA", role: "Speaks the lesson and times every word." },
+    sam: { title: "SAM 3.1", model: SAM_MODEL, role: "Cuts out each object the voice names, to light it up on cue." },
     render: { title: "Remotion", model: `remotion ${REMOTION_VERSION}`, role: "Edits scenes, voice and karaoke subtitles into a 480p video." },
     video: { title: "WhatsApp video", role: "An MP4 under 10 MB that a parent can replay at night." },
   };
+}
+
+/** How many of the objects the script named SAM found, once it has run or the lesson has moved past it. */
+function samOutput(lesson: LessonView): string | undefined {
+  const sam = lesson.metrics["find-highlights"];
+  if (sam?.found !== undefined && sam.requested !== undefined) return `${sam.found} of ${sam.requested} objects found`;
+  return ["rendering", "done"].includes(lesson.status) ? "No objects lit" : undefined;
 }
 
 export function lessonNodes(lesson: LessonView): Record<NodeId, NodeContent> {
@@ -46,6 +54,7 @@ export function lessonNodes(lesson: LessonView): Record<NodeId, NodeContent> {
       output: lesson.voice ? `${formatSeconds(lesson.voice.seconds)}, ${lesson.voice.words} words timed` : undefined,
       metrics: m.narrate,
     },
+    sam: { ...nodes.sam, output: samOutput(lesson), metrics: m["find-highlights"] },
     render: { ...nodes.render, output: lesson.videoUrl ? "854 × 480 MP4" : undefined, metrics: m["render-video"] },
     video: { ...nodes.video, output: lesson.status === "done" ? "Ready to watch and send" : undefined },
   };

@@ -9,6 +9,7 @@ export const lessonPaths = {
   scene: (id: string, n: number) => `${id}/scenes/${n}.jpg`,
   voice: (id: string) => `${id}/voice.wav`,
   video: (id: string) => `${id}/video.mp4`,
+  highlights: (id: string) => `${id}/highlights.json`,
 };
 
 /** Uploads a file, replacing any file already at that path. */
@@ -22,6 +23,13 @@ export async function signedUploadUrl(path: string): Promise<string> {
   const { data, error } = await supabase().storage.from(BUCKET).createSignedUploadUrl(path, { upsert: true });
   if (error) throw new Error(`Signed upload URL for ${path} failed: ${error.message}`);
   return data.signedUrl;
+}
+
+/** Reads a file through the API rather than the CDN, which can serve a replaced file for an hour. */
+export async function downloadFile(path: string): Promise<Uint8Array> {
+  const { data, error } = await supabase().storage.from(BUCKET).download(path);
+  if (error) throw new Error(`Download of ${path} failed: ${error.message}`);
+  return new Uint8Array(await data.arrayBuffer());
 }
 
 export function publicUrl(path: string): string {
