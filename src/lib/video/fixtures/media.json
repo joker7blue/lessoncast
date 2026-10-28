@@ -1,0 +1,11 @@
+{
+  "audioUrl": "https://edlfmvqatbsarunubkgh.supabase.co/storage/v1/object/public/lessons/fixture/voice.wav",
+  "sceneImageUrls": [
+    "https://edlfmvqatbsarunubkgh.supabase.co/storage/v1/object/public/lessons/fixture/scenes/1.jpg",
+    "https://edlfmvqatbsarunubkgh.supabase.co/storage/v1/object/public/lessons/fixture/scenes/2.jpg",
+    "https://edlfmvqatbsarunubkgh.supabase.co/storage/v1/object/public/lessons/fixture/scenes/3.jpg",
+    "https://edlfmvqatbsarunubkgh.supabase.co/storage/v1/object/public/lessons/fixture/scenes/4.jpg",
+    "https://edlfmvqatbsarunubkgh.supabase.co/storage/v1/object/public/lessons/fixture/scenes/5.jpg",
+    "https://edlfmvqatbsarunubkgh.supabase.co/storage/v1/object/public/lessons/fixture/scenes/6.jpg"
+  ]
+}
