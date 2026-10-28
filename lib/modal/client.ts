@@ -10,6 +10,14 @@ import { TimedWord } from "../video/words";
 const VOICE_APP = "lessoncast-voice";
 const RENDER_APP = "lessoncast-render";
 
+// Both apps run on 8 CPUs and 8 GiB. Modal rates: $0.047 per core-hour, $0.008 per GiB-hour.
+const USD_PER_HOUR = 8 * 0.047 + 8 * 0.008;
+
+/** Estimated cost of a call from its wall time, cold start included, so a slight overestimate. */
+export function modalCostUsd(seconds: number): number {
+  return (seconds / 3600) * USD_PER_HOUR;
+}
+
 /** The SDK takes each variable from the environment before ~/.modal.toml, so a token id without its
  * secret would be paired with another token's secret and fail with an opaque auth error. */
 export function checkModalEnv(env: Record<string, string | undefined>): void {
