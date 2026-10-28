@@ -32,3 +32,19 @@ export function activeCaption(captions: Caption[], frame: number): Caption | nul
 export function activeWordIndex(caption: Caption, frame: number): number {
   return caption.words.findLastIndex((w) => frame >= w.startFrame);
 }
+
+const LIT_IN_FRAMES = 6;
+const LIT_OUT_FRAMES = 8;
+
+/** How lit a highlight is at `frame`: 0 → 1 over its first 6 frames, back to 0 over its last 8,
+ * eased so the cut-out settles rather than snaps. */
+export function highlightLevel(frame: number, startFrame: number, endFrame: number): number {
+  const t = clamp01(Math.min((frame - startFrame) / LIT_IN_FRAMES, (endFrame - frame) / LIT_OUT_FRAMES));
+  return t * t * (3 - 2 * t);
+}
+
+/** Where `object-fit: cover` puts an image in a box: its scale, and the offset of its top-left corner. */
+export function coverFit(box: { width: number; height: number }, image: { width: number; height: number }) {
+  const scale = Math.max(box.width / image.width, box.height / image.height);
+  return { scale, x: (box.width - image.width * scale) / 2, y: (box.height - image.height * scale) / 2 };
+}

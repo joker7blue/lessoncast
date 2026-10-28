@@ -3,7 +3,7 @@
 
 import type { LessonStatus, StepMetrics } from "./repo";
 
-export type NodeId = "pages" | "spark" | "image" | "voice" | "render" | "video";
+export type NodeId = "pages" | "spark" | "image" | "voice" | "sam" | "render" | "video";
 export type NodeState = "waiting" | "running" | "done" | "failed";
 
 type GraphInput = { status: LessonStatus; metrics: Record<string, StepMetrics>; scenesDrawn: number };
@@ -15,6 +15,8 @@ export function nodeStates({ status, metrics, scenesDrawn }: GraphInput): Record
     spark: finished("write-script") ? "done" : status === "reading" ? "running" : "waiting",
     image: finished("draw-scenes") ? "done" : status === "drawing" ? "running" : "waiting",
     voice: finished("narrate") ? "done" : status === "drawing" ? "running" : "waiting",
+    // SAM never fails a lesson: past it, the video renders with whatever it found, even nothing.
+    sam: finished("find-highlights") || ["rendering", "done"].includes(status) ? "done" : status === "highlighting" ? "running" : "waiting",
     render: finished("render-video") || status === "done" ? "done" : status === "rendering" ? "running" : "waiting",
     video: status === "done" ? "done" : "waiting",
   };
@@ -27,7 +29,10 @@ export function nodeStates({ status, metrics, scenesDrawn }: GraphInput): Record
   else if (states.image !== "done" || states.voice !== "done") {
     if (states.image !== "done") states.image = "failed";
     if (states.voice !== "done") states.voice = "failed";
-  } else if (states.render !== "done") states.render = "failed";
+  } else if (states.render !== "done") {
+    states.sam = "done";
+    states.render = "failed";
+  }
   return states;
 }
 
@@ -36,8 +41,8 @@ export function scenesDrawn(lesson: { sceneImageUrls: (string | null)[] }): numb
   return lesson.sceneImageUrls.filter((url) => url !== null).length;
 }
 
-/** Time spent in the models along the critical path: the script, the longer of scenes and voice, the render. */
+/** Time spent in the models along the critical path: the script, the longer of scenes and voice, SAM, the render. */
 export function modelSeconds(metrics: Record<string, StepMetrics>): number {
   const s = (step: string) => metrics[step]?.seconds ?? 0;
-  return s("write-script") + Math.max(s("draw-scenes"), s("narrate")) + s("render-video");
+  return s("write-script") + Math.max(s("draw-scenes"), s("narrate")) + s("find-highlights") + s("render-video");
 }

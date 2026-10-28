@@ -1,11 +1,12 @@
-// Step 3: the timeline is built from the script, the word timings and the images, then Remotion
-// renders the MP4 on Modal.
+// Step 4: the timeline is built from the script, the word timings, the images and the highlights SAM
+// found, then Remotion renders the MP4 on Modal.
 
-import { AbortTaskRunError, schemaTask } from "@trigger.dev/sdk";
+import { AbortTaskRunError, logger, schemaTask } from "@trigger.dev/sdk";
 import { z } from "zod";
+import { loadHighlights } from "../lib/lessons/highlights";
 import { recordMetrics, updateLesson } from "../lib/lessons/repo";
 import { modalCostUsd, renderVideo as renderOnModal } from "../lib/modal/client";
-import { lessonPaths, publicUrl, signedUploadUrl } from "../lib/supabase/storage";
+import { downloadFile, lessonPaths, publicUrl, signedUploadUrl } from "../lib/supabase/storage";
 import { buildVideoProps } from "../lib/video/timeline";
 import { LessonPayload, loadScript } from "./shared";
 
@@ -28,6 +29,7 @@ export const renderVideo = schemaTask({
       audioUrl: publicUrl(row.audioPath),
       audioSeconds,
       sceneImageUrls,
+      highlights: await loadHighlights(row.highlightsPath, { download: downloadFile, warn: (message) => logger.warn(message) }),
     });
 
     const path = lessonPaths.video(lessonId);

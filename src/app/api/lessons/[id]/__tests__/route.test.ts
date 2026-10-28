@@ -28,6 +28,7 @@ function row(patch: Partial<LessonRow> = {}): LessonRow {
     scenePaths: [],
     audioPath: null,
     videoPath: null,
+    highlightsPath: null,
     words: null,
     metrics: {},
     ipHash: null,

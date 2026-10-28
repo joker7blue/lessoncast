@@ -13,7 +13,7 @@ const SECONDARY = "inline-flex items-center justify-center rounded-lg border bor
 
 const FACTS = [
   { icon: Clock, text: "About four minutes from photo to video." },
-  { icon: Wallet, text: "About thirteen cents of model calls per lesson." },
+  { icon: Wallet, text: "About fifteen cents of model calls per lesson." },
   { icon: HardDrive, text: "Six megabytes for a lesson of two and a half minutes." },
   { icon: Languages, text: "French and Pidgin today; MMS speaks over a thousand languages." },
 ];
@@ -57,11 +57,12 @@ export default async function Home() {
 
       <section className="grid gap-10 border-t border-line py-16 lg:grid-cols-[1fr_27rem] lg:gap-14">
         <div>
-          <h2 className="text-3xl font-extrabold tracking-tight">Four Meta models make every lesson</h2>
+          <h2 className="text-3xl font-extrabold tracking-tight">Five Meta models make every lesson</h2>
           <p className="mt-4 max-w-xl text-lg leading-relaxed text-dust">
             Muse Spark reads the photographed pages and writes the lesson. Muse Image draws each scene with the same
             characters. MMS, Meta&apos;s open speech models, reads the lesson aloud and times every word for the karaoke
-            subtitles. Remotion puts it all together into one small video.
+            subtitles. SAM 3.1 cuts out each object the voice names, so it lights up as the word is said. Remotion puts it
+            all together into one small video.
           </p>
           <ul className="mt-8 space-y-4">
             {FACTS.map(({ icon: Icon, text }) => (

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { activeCaption, activeWordIndex, fadeOpacity, motionTransform } from "../motion";
+import { activeCaption, activeWordIndex, fadeOpacity, motionTransform, coverFit, highlightLevel } from "../motion";
 
 describe("motionTransform", () => {
   test("zoom-in goes from scale(1) to scale(1.08)", () => {
@@ -71,5 +71,34 @@ describe("activeCaption and activeWordIndex", () => {
     const caption = { startFrame: 5, endFrame: 20, words: [{ text: "12", startFrame: 5, endFrame: 5 }, { text: "fois", startFrame: 8, endFrame: 12 }] };
     expect(activeWordIndex(caption, 6)).toBe(0);
     expect(activeWordIndex(caption, 8)).toBe(1);
+  });
+});
+
+describe("highlightLevel", () => {
+  test("is 0 before and after its window", () => {
+    expect(highlightLevel(99, 100, 150)).toBe(0);
+    expect(highlightLevel(100, 100, 150)).toBe(0);
+    expect(highlightLevel(150, 100, 150)).toBe(0);
+    expect(highlightLevel(160, 100, 150)).toBe(0);
+  });
+
+  test("rises over 6 frames and falls over 8", () => {
+    expect(highlightLevel(103, 100, 150)).toBeCloseTo(0.5);
+    expect(highlightLevel(106, 100, 150)).toBe(1);
+    expect(highlightLevel(142, 100, 150)).toBe(1);
+    expect(highlightLevel(146, 100, 150)).toBeCloseTo(0.5);
+  });
+});
+
+describe("coverFit", () => {
+  test("scales a 16:9 image to fill the frame", () => {
+    expect(coverFit({ width: 854, height: 480 }, { width: 2048, height: 1152 })).toEqual({ scale: 854 / 2048, x: 0, y: expect.closeTo((480 - 1152 * (854 / 2048)) / 2, 6) });
+  });
+
+  test("crops a taller image top and bottom, centred", () => {
+    const fit = coverFit({ width: 854, height: 480 }, { width: 1000, height: 1000 });
+    expect(fit.scale).toBeCloseTo(0.854);
+    expect(fit.x).toBe(0);
+    expect(fit.y).toBeCloseTo((480 - 854) / 2);
   });
 });

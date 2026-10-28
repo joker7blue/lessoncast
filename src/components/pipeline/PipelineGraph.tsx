@@ -1,8 +1,9 @@
 // The lesson pipeline drawn as the graph it really is: the pages feed Muse Spark, whose script feeds
-// Muse Image and the MMS voice in parallel, which both feed the Remotion render. Each node shows the
-// model and its exact version, what it is doing, and once done, its time and cost.
+// Muse Image and the MMS voice in parallel, then SAM 3.1 cuts out the objects in the scenes, and all of
+// it feeds the Remotion render. Each node shows the model and its exact version, what it is doing, and
+// once done, its time and cost.
 
-import { AudioLines, Camera, Check, Clapperboard, Image as ImageIcon, Smartphone, Sparkles, TriangleAlert } from "lucide-react";
+import { AudioLines, Camera, Check, Clapperboard, Image as ImageIcon, ScanSearch, Smartphone, Sparkles, TriangleAlert } from "lucide-react";
 import type { ReactNode } from "react";
 import { formatSeconds, formatUsd } from "@/lib/format";
 import type { NodeId, NodeState } from "@/lib/lessons/graph";
@@ -23,6 +24,7 @@ const ICONS: Record<NodeId, typeof Camera> = {
   spark: Sparkles,
   image: ImageIcon,
   voice: AudioLines,
+  sam: ScanSearch,
   render: Clapperboard,
   video: Smartphone,
 };
@@ -132,7 +134,9 @@ export function PipelineGraph({
         <Node id="image" state={states.image} content={nodes.image} />
         <Node id="voice" state={states.voice} content={nodes.voice} />
       </div>
-      <Edges shape="join" left={edgeInto(states.render)} />
+      <Edges shape="join" left={edgeInto(states.sam)} />
+      <Node id="sam" state={states.sam} content={nodes.sam} />
+      <Edges shape="straight" left={edgeInto(states.render)} />
       <Node id="render" state={states.render} content={nodes.render} />
       <Edges shape="straight" left={edgeInto(states.video)} />
       <Node id="video" state={states.video} content={nodes.video} />
