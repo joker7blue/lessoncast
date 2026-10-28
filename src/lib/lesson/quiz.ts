@@ -30,8 +30,15 @@ const COPY: Record<Language, Copy> = {
   },
 };
 
+const ended = (text: string) => /[.!?…]$/.test(text.trim());
+
 /** Ends the text with a full stop unless it already ends a sentence. */
-const sentence = (text: string) => (/[.!?…]$/.test(text.trim()) ? text.trim() : `${text.trim()}.`);
+const sentence = (text: string) => (ended(text) ? text.trim() : `${text.trim()}.`);
+
+/** The question as shown and read: with its question mark, French spacing in French. */
+export function asQuestion(text: string, language: Language): string {
+  return ended(text) ? text.trim() : `${text.trim()}${language === "fr" ? " ?" : "?"}`;
+}
 
 export type SpokenQuestion = {
   /** What the voice reads, in order: the lead, the question, then each choice. */
@@ -48,7 +55,7 @@ export function quizScript(lesson: Lesson, language: Language): { title: string;
     questions: lesson.quiz.map((q, i) => ({
       pieces: [
         copy.lead(copy.numbers[i] ?? String(i + 1)),
-        sentence(q.question[language]),
+        asQuestion(q.question[language], language),
         ...q.choices.map((choice, c) => sentence(`${copy.letters[c]}, ${choice[language]}`)),
       ],
       answer: sentence(copy.answer(copy.letters[q.answerIndex]!, q.choices[q.answerIndex]![language])),

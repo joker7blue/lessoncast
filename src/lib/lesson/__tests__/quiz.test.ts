@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { makeLesson } from "../lesson.fixture";
 import { narrationGroups, narrationPlan, splitSentences } from "../narration";
-import { COUNTDOWN_SECONDS, quizGroups, quizScript, QUIZ_LETTERS } from "../quiz";
+import { asQuestion, COUNTDOWN_SECONDS, quizGroups, quizScript, QUIZ_LETTERS } from "../quiz";
 
 describe("quizScript", () => {
   test("reads each question with its lead, then its three choices by letter", () => {
@@ -24,6 +24,15 @@ describe("quizScript", () => {
     expect(title).toBe("Small quiz");
     expect(intro).toMatch(/^Small quiz!/);
     expect(questions[0]!.pieces.slice(0, 3)).toEqual(["Question one.", "Question 1?", "ey, Yes."]);
+  });
+
+  test("asks a question even when Muse Spark left out its question mark", () => {
+    expect(asQuestion("Qu'est-ce que le cœur", "fr")).toBe("Qu'est-ce que le cœur ?");
+    expect(asQuestion("Wetin be heart", "pcm")).toBe("Wetin be heart?");
+    expect(asQuestion("Où va le sang ?", "fr")).toBe("Où va le sang ?");
+    const lesson = makeLesson(6);
+    lesson.quiz[0]!.question.fr = "Que fait le cœur";
+    expect(quizScript(lesson, "fr").questions[0]!.pieces[1]).toBe("Que fait le cœur ?");
   });
 
   test("shows the letters A, B and C", () => {

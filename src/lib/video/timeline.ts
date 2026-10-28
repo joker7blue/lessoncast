@@ -3,7 +3,7 @@
 // next scene, the last scene until the quiz (or until 0.5 s after the voice ends), the quiz until then,
 // then a 2 s end card. A SAM cut-out is lit when the voice says the phrase that names it, within its scene.
 
-import { quizGroups, quizScript } from "../lesson/quiz";
+import { asQuestion, quizGroups, quizScript } from "../lesson/quiz";
 import type { Language, Lesson } from "../lesson/schema";
 import type { SceneHighlights } from "./highlights";
 import { findPhrase } from "./phrase";
@@ -50,7 +50,7 @@ function quizFor(lesson: Lesson, language: Language, wordsOf: (group: number) =>
     const quiz = lesson.quiz[q]!;
     questions.push({
       number: q + 1,
-      text: quiz.question[language],
+      text: asQuestion(quiz.question[language], language),
       choices: quiz.choices.map((choice, c) => ({ text: choice[language], startFrame: toFrame(words[choiceStarts[c]!]!.start) })),
       answerIndex: quiz.answerIndex,
       startFrame: Math.max(toFrame(words[0]!.start - SCENE_LEAD_SECONDS), (questions.at(-1)?.startFrame ?? startFrame) + 1),
