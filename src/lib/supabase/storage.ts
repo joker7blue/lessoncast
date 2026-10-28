@@ -12,6 +12,12 @@ export const lessonPaths = {
   highlights: (id: string) => `${id}/highlights.json`,
 };
 
+/** A book's files, under books/ so they never mix with a lesson's folder. */
+export const bookPaths = {
+  pdf: (id: string) => `books/${id}/book.pdf`,
+  slice: (id: string, firstPage: number, lastPage: number) => `books/${id}/slices/${firstPage}-${lastPage}.pdf`,
+};
+
 /** Uploads a file, replacing any file already at that path. */
 export async function uploadFile(path: string, bytes: Uint8Array, contentType: string): Promise<void> {
   const { error } = await supabase().storage.from(BUCKET).upload(path, bytes, { contentType, upsert: true });
