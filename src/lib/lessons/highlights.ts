@@ -9,7 +9,7 @@ import { type FoundObject, type SceneHighlights, type Shape, simplifyPath } from
 
 export const MIN_CONFIDENCE = 0.5;
 // A box this large would light up the whole scene, as a "landscape" does (derisk test 3).
-export const MAX_BOX_SHARE = 0.6;
+export const MAX_BOX_SHARE = 0.7;
 export const MAX_SHAPES = 3;
 const CONCURRENCY = 4;
 

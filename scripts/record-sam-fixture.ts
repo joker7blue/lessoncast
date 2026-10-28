@@ -1,12 +1,14 @@
 // Records what SAM 3.1 answers on the fixture lesson's scenes, for the tests and Remotion Studio.
 //   stream: one raw SSE stream (scene 1, its first object) → src/lib/meta/__tests__/fixtures/sam-stream.txt ($0.0025)
-// Run: pnpm exec tsx --env-file=.env scripts/record-sam-fixture.ts stream
+//   scenes: every scene's highlights, as find-highlights stores them → src/lib/video/fixtures/highlights.json (~$0.03)
+// Run: pnpm exec tsx --env-file=.env scripts/record-sam-fixture.ts stream|scenes
 
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { findAllHighlights } from "../src/lib/lessons/highlights";
 import { Lesson } from "../src/lib/lesson/schema";
 import { postJson } from "../src/lib/meta/client";
-import { samRequestBody } from "../src/lib/meta/sam";
+import { samRequestBody, segment } from "../src/lib/meta/sam";
 
 const FIXTURES = path.resolve("src/lib/video/fixtures");
 
@@ -34,12 +36,21 @@ async function recordStream(lesson: Lesson, sceneUrls: string[]) {
   console.log(`Recorded SAM's stream for "${prompt}" on scene 1 to ${out}`);
 }
 
+async function recordScenes(lesson: Lesson, sceneUrls: string[]) {
+  const images = await Promise.all(sceneUrls.map(download));
+  const { scenes, found, requested } = await findAllHighlights(lesson, images, { segment, warn: console.warn });
+  await writeFile(path.join(FIXTURES, "highlights.json"), `${JSON.stringify(scenes, null, 2)}\n`);
+  for (const [i, scene] of scenes.entries()) console.log(`scene ${i + 1}: ${scene.objects.map((o) => o.samPrompt).join(", ") || "-"}`);
+  console.log(`${found} of ${requested} objects found`);
+}
+
 async function main() {
   const mode = process.argv[2];
   const lesson = Lesson.parse(await readFixture("lesson.json"));
   const { sceneImageUrls } = (await readFixture("media.json")) as { sceneImageUrls: string[] };
   if (mode === "stream") return recordStream(lesson, sceneImageUrls);
-  throw new Error("usage: record-sam-fixture.ts stream");
+  if (mode === "scenes") return recordScenes(lesson, sceneImageUrls);
+  throw new Error("usage: record-sam-fixture.ts stream|scenes");
 }
 
 main().catch((error) => {

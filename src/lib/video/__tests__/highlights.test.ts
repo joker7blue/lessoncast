@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { segment } from "../../meta/sam";
-import { SceneHighlights, simplifyPath } from "../highlights";
+import { SceneHighlights, shapesCenter, simplifyPath } from "../highlights";
 
 const points = (d: string) => (d.match(/[ML]/g) ?? []).length;
 
@@ -56,5 +56,13 @@ describe("SceneHighlights", () => {
 
   test("rejects an object without shapes", () => {
     expect(() => SceneHighlights.parse({ imageWidth: 2048, imageHeight: 1152, objects: [{ ...object, shapes: [] }] })).toThrow();
+  });
+});
+
+describe("shapesCenter", () => {
+  test("is the centre of the shapes' outlines placed on the image", () => {
+    const square = { d: "M0 0L10 0L10 10L0 10Z", left: 100, top: 50, scaleX: 2, scaleY: 3, confidence: 0.9 };
+    expect(shapesCenter([square])).toEqual({ x: 110, y: 65 });
+    expect(shapesCenter([square, { ...square, left: 300 }])).toEqual({ x: 210, y: 65 });
   });
 });

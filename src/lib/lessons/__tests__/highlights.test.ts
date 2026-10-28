@@ -16,10 +16,10 @@ describe("keepShapes", () => {
     expect(shapes.map((s) => s.confidence)).toEqual([0.5, null]);
   });
 
-  test("drops a box over 60 % of the image", () => {
+  test("drops a box over 70 % of the image", () => {
     expect(keepShapes([match(0.95, [0, 0, 2048, 1152])], IMAGE)).toEqual([]);
-    expect(keepShapes([match(0.95, [0, 0, 1500, 1000])], IMAGE)).toEqual([]);
-    expect(keepShapes([match(0.95, [0, 0, 1400, 900])], IMAGE)).toHaveLength(1);
+    expect(keepShapes([match(0.95, [0, 0, 1600, 1100])], IMAGE)).toEqual([]);
+    expect(keepShapes([match(0.95, [0, 0, 1711, 881])], IMAGE)).toHaveLength(1);
   });
 
   test("keeps the 3 most confident", () => {

@@ -86,3 +86,16 @@ export function simplifyPath(d: string): string {
     })
     .join("");
 }
+
+/** The centre of the shapes' bounding box on the image, the point a lit cut-out grows from. */
+export function shapesCenter(shapes: Shape[]): { x: number; y: number } {
+  let [left, top, right, bottom] = [Infinity, Infinity, -Infinity, -Infinity];
+  for (const shape of shapes) {
+    for (const [, x, y] of shape.d.matchAll(/[ML]\s*(-?[\d.]+)[\s,]+(-?[\d.]+)/gi)) {
+      const px = shape.left + Number(x) * shape.scaleX;
+      const py = shape.top + Number(y) * shape.scaleY;
+      [left, top, right, bottom] = [Math.min(left, px), Math.min(top, py), Math.max(right, px), Math.max(bottom, py)];
+    }
+  }
+  return { x: (left + right) / 2, y: (top + bottom) / 2 };
+}

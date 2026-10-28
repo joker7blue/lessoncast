@@ -20,7 +20,7 @@ export const LessonVideo: React.FC<VideoProps> = ({ audioUrl, title, scenes, cap
         const from = scene.startFrame - OVERLAP_FRAMES;
         return (
           <Sequence key={i} from={from} durationInFrames={scene.endFrame - from}>
-            <Scene imageUrl={scene.imageUrl} motion={scene.motion} fadeIn />
+            <Scene imageUrl={scene.imageUrl} motion={scene.motion} overlay={scene.overlay} from={from} fadeIn />
           </Sequence>
         );
       })}
