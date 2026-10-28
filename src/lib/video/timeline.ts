@@ -1,8 +1,9 @@
 // Turns the lesson, the voice's word timings and the scene images into VideoProps. The parts tile the
 // audio exactly: the title card until scene 1, each scene from 0.25 s before its first word to the
-// next scene, the last scene until 0.5 s after the voice ends, then a 2 s end card. A SAM cut-out is
-// lit when the voice says the phrase that names it, within its scene.
+// next scene, the last scene until the quiz (or until 0.5 s after the voice ends), the quiz until then,
+// then a 2 s end card. A SAM cut-out is lit when the voice says the phrase that names it, within its scene.
 
+import { quizGroups, quizScript } from "../lesson/quiz";
 import type { Language, Lesson } from "../lesson/schema";
 import type { SceneHighlights } from "./highlights";
 import { findPhrase } from "./phrase";
@@ -25,6 +26,42 @@ const LIT_MIN_SECONDS = 2;
 const LIT_MIN_FRAMES = Math.round(0.5 * FPS);
 
 const toFrame = (seconds: number) => Math.max(0, Math.round(seconds * FPS));
+// The voice service's silence after every sentence (modal/voice.py): the countdown starts after it.
+const SENTENCE_PAUSE_SECONDS = 0.35;
+
+const tokenCount = (text: string) => text.split(/\s+/).filter(Boolean).length;
+
+/** The quiz in frames, from the words of its groups; null when the narration has no quiz (it predates
+ * it) or its words don't match the quiz's text, which would mistime every choice. */
+function quizFor(lesson: Lesson, language: Language, wordsOf: (group: number) => TimedWord[], endFrame: number): VideoProps["quiz"] {
+  const g = quizGroups(lesson.scenes.length);
+  const intro = wordsOf(g.intro)[0];
+  if (!intro) return null;
+  const script = quizScript(lesson, language);
+  const startFrame = toFrame(intro.start - SCENE_LEAD_SECONDS);
+  const questions: NonNullable<VideoProps["quiz"]>["questions"] = [];
+  for (const [q, spoken] of script.questions.entries()) {
+    const words = wordsOf(g.question(q));
+    const answer = wordsOf(g.answer(q))[0];
+    const counts = spoken.pieces.map(tokenCount);
+    if (!answer || words.length !== counts.reduce((a, b) => a + b, 0)) return null;
+    // pieces: the lead, the question, then the three choices.
+    const choiceStarts = [0, 1, 2].map((c) => counts.slice(0, 2 + c).reduce((a, b) => a + b, 0));
+    const quiz = lesson.quiz[q]!;
+    questions.push({
+      number: q + 1,
+      text: quiz.question[language],
+      choices: quiz.choices.map((choice, c) => ({ text: choice[language], startFrame: toFrame(words[choiceStarts[c]!]!.start) })),
+      answerIndex: quiz.answerIndex,
+      startFrame: Math.max(toFrame(words[0]!.start - SCENE_LEAD_SECONDS), (questions.at(-1)?.startFrame ?? startFrame) + 1),
+      endFrame: 0, // set below, from the next question
+      countdownStartFrame: toFrame(words.at(-1)!.end + SENTENCE_PAUSE_SECONDS),
+      revealFrame: toFrame(answer.start),
+    });
+  }
+  questions.forEach((question, i) => (question.endFrame = questions[i + 1]?.startFrame ?? endFrame));
+  return { title: script.title, subtitle: script.subtitle, startFrame, endFrame, questions };
+}
 
 type Scene = VideoProps["scenes"][number];
 
@@ -98,10 +135,12 @@ export function buildVideoProps(input: {
     starts.push(Math.max(toFrame(first.start - SCENE_LEAD_SECONDS), (starts[i - 1] ?? 0) + 1));
   });
   const voiceEnd = Math.max(toFrame(audioSeconds + TAIL_SECONDS), starts.at(-1)! + 1);
+  const quiz = quizFor(lesson, language, wordsOf, voiceEnd);
+  const scenesEnd = quiz ? Math.max(quiz.startFrame, starts.at(-1)! + 1) : voiceEnd;
 
   const litUntil = new Map<TimedWord, number>();
   const scenes = lesson.scenes.map((_, i) => {
-    const window = { startFrame: starts[i]!, endFrame: starts[i + 1] ?? voiceEnd };
+    const window = { startFrame: starts[i]!, endFrame: starts[i + 1] ?? scenesEnd };
     const overlay = overlayFor(highlights?.[i], wordsOf(i + 1), language, window, litUntil);
     return { imageUrl: sceneImageUrls[i]!, motion: MOTIONS[i % MOTIONS.length]!, ...window, overlay };
   });
@@ -121,6 +160,7 @@ export function buildVideoProps(input: {
     },
     scenes,
     captions: scenes.flatMap((scene, i) => captionsFor(wordsOf(i + 1), scene.endFrame, litUntil)),
+    quiz,
     endCard,
   };
 }
