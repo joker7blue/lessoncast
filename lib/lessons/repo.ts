@@ -1,7 +1,8 @@
-// The lessons table: one row per photo, from upload to the finished video.
+// The lessons table: one row per lesson, from the uploaded pages to the finished video.
 
 import { z } from "zod";
 import type { Language, Lesson } from "../lesson/schema";
+import type { StyleChoice } from "../lesson/styles";
 import { supabase } from "../supabase/server";
 import type { TimedWord } from "../video/words";
 
@@ -12,6 +13,10 @@ export type LessonRow = {
   id: string;
   createdAt: string;
   language: Language;
+  /** Page photos the lesson is made from, 1 to 4, stored at lessonPaths.page(id, n). */
+  pageCount: number;
+  /** The teacher's choice; the style actually used is script.style. */
+  style: StyleChoice;
   status: LessonStatus;
   error: string | null;
   script: Lesson | null;
@@ -29,6 +34,8 @@ type Columns = {
   id: string;
   created_at: string;
   language: Language;
+  page_count: number;
+  style: StyleChoice;
   status: LessonStatus;
   error: string | null;
   script: Lesson | null;
@@ -58,6 +65,8 @@ function toRow(c: Columns): LessonRow {
     id: c.id,
     createdAt: c.created_at,
     language: c.language,
+    pageCount: c.page_count,
+    style: c.style,
     status: c.status,
     error: c.error,
     script: c.script,
@@ -77,8 +86,13 @@ function fail(action: string, error: { message: string }): never {
 
 const lessons = () => supabase().from("lessons");
 
-export async function createLesson({ language, ipHash }: { language: Language; ipHash: string | null }): Promise<LessonRow> {
-  const { data, error } = await lessons().insert({ language, ip_hash: ipHash }).select().single<Columns>();
+export type NewLesson = { language: Language; ipHash: string | null; pageCount: number; style: StyleChoice };
+
+export async function createLesson({ language, ipHash, pageCount, style }: NewLesson): Promise<LessonRow> {
+  const { data, error } = await lessons()
+    .insert({ language, ip_hash: ipHash, page_count: pageCount, style })
+    .select()
+    .single<Columns>();
   if (error) fail("create a lesson", error);
   return toRow(data);
 }

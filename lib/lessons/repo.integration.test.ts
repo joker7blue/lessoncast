@@ -8,7 +8,7 @@ const live = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABAS
 const ids: string[] = [];
 
 async function newLesson() {
-  const row = await createLesson({ language: "pcm", ipHash: null });
+  const row = await createLesson({ language: "pcm", ipHash: null, pageCount: 1, style: "auto" });
   ids.push(row.id);
   return row;
 }
@@ -50,6 +50,16 @@ describe.skipIf(!live)("lessons table (live Supabase)", { timeout: 30_000 }, () 
     const row = await newLesson();
     // @ts-expect-error: not a LessonStatus
     await expect(updateLesson(row.id, { status: "paused" })).rejects.toThrow(/lessons_status_check/);
+  });
+
+  test("a lesson stores its page count and the teacher's style", async () => {
+    const row = await createLesson({ language: "fr", ipHash: null, pageCount: 3, style: "realistic" });
+    ids.push(row.id);
+    expect([row.pageCount, row.style]).toEqual([3, "realistic"]);
+  });
+
+  test("the database refuses a fifth page", async () => {
+    await expect(createLesson({ language: "fr", ipHash: null, pageCount: 5, style: "auto" })).rejects.toThrow(/page_count/);
   });
 
   test("an unknown or malformed id reads as no lesson", async () => {

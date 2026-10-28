@@ -5,7 +5,7 @@ import { supabase } from "./server";
 export const BUCKET = "lessons";
 
 export const lessonPaths = {
-  photo: (id: string) => `${id}/photo.jpg`,
+  page: (id: string, n: number) => `${id}/pages/${n}.jpg`,
   scene: (id: string, n: number) => `${id}/scenes/${n}.jpg`,
   voice: (id: string) => `${id}/voice.wav`,
   video: (id: string) => `${id}/video.mp4`,
