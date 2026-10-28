@@ -4,7 +4,7 @@
 import { VERSION as REMOTION_VERSION } from "remotion/version";
 import { formatSeconds } from "@/lib/format";
 import { STYLES } from "@/lib/lesson/styles";
-import type { NodeId } from "@/lib/lessons/graph";
+import { type NodeId, scenesDrawn } from "@/lib/lessons/graph";
 import type { LessonView } from "@/lib/lessons/view";
 import { IMAGE_MODEL, SPARK_MODEL, VOICE_MODELS } from "@/lib/meta/models";
 import type { NodeContent } from "./PipelineGraph";
@@ -37,7 +37,7 @@ export function lessonNodes(lesson: LessonView): Record<NodeId, NodeContent> {
     },
     image: {
       ...nodes.image,
-      output: lesson.sceneCount ? `${lesson.sceneImageUrls.length} of ${lesson.sceneCount} scenes` : undefined,
+      output: lesson.sceneCount ? `${scenesDrawn(lesson)} of ${lesson.sceneCount} scenes` : undefined,
       metrics: m["draw-scenes"],
     },
     voice: {

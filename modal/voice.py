@@ -57,6 +57,11 @@ def fill_unaligned(
     return out
 
 
+def has_speech(sentence: str) -> bool:
+    """MMS-TTS reads letters only: digits or punctuation alone give it nothing to say."""
+    return any(c.isalpha() for c in sentence)
+
+
 def pause_after_group(group: int, group_end: float, last: bool) -> float:
     """Silence after a group's last sentence pause: none after the last group, the group pause
     otherwise, plus what the title needs to last TITLE_MIN_SECONDS."""
@@ -141,20 +146,36 @@ class Voice:
 
         pieces, words = [], []
         offset = tts_seconds = align_seconds = 0.0
+        def add_words(tokens: list[str], timed: dict, group: int) -> None:
+            words.extend(
+                {"word": w, "start": s, "end": e, "score": score, "group": group}
+                for w, s, e, score in fill_unaligned(tokens, timed, start=offset)
+            )
+
         for group, sentences in enumerate(groups):
             for sentence in sentences:
-                t = time.perf_counter()
-                waveform = self.speak(sentence, lang)
-                tts_seconds += time.perf_counter() - t
+                tokens = sentence.split()
+                # A sentence the voice can't read keeps its words, unspoken, rather than losing the lesson.
+                waveform = None
+                if has_speech(sentence):
+                    t = time.perf_counter()
+                    try:
+                        waveform = self.speak(sentence, lang)
+                    except Exception as error:
+                        print(f"TTS skipped {sentence!r}: {error}")
+                    tts_seconds += time.perf_counter() - t
+                if waveform is None:
+                    add_words(tokens, {}, group)
+                    continue
 
                 t = time.perf_counter()
-                tokens = sentence.split()
-                timed = self.align(waveform, tokens, lang, offset)
+                try:
+                    timed = self.align(waveform, tokens, lang, offset)
+                except Exception as error:
+                    print(f"Alignment skipped {sentence!r}: {error}")
+                    timed = {}
                 align_seconds += time.perf_counter() - t
-                words += [
-                    {"word": w, "start": s, "end": e, "score": score, "group": group}
-                    for w, s, e, score in fill_unaligned(tokens, timed, start=offset)
-                ]
+                add_words(tokens, timed, group)
 
                 pieces += [waveform, silence(SENTENCE_PAUSE)]
                 offset += waveform.shape[0] / SAMPLE_RATE + SENTENCE_PAUSE
@@ -163,6 +184,8 @@ class Voice:
                 pieces.append(silence(pause))
                 offset += pause
 
+        if not pieces:  # nothing in the whole narration could be read
+            pieces.append(silence(1.0))
         audio = torch.cat(pieces).clamp(-1, 1).cpu().numpy()
         buffer = io.BytesIO()
         with wave.open(buffer, "wb") as wav:

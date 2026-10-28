@@ -192,7 +192,7 @@ export function UploadForm() {
           >
             {sending ? "Sending the pages…" : "Create the lesson"}
           </button>
-          <p className="mt-3 text-center text-dust">The video is ready in four to five minutes.</p>
+          <p className="mt-3 text-center text-dust">The video is ready in about four minutes.</p>
         </div>
       </div>
     </form>

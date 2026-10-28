@@ -10,7 +10,8 @@ import { LessonPayload, loadScript } from "./shared";
 export const narrate = schemaTask({
   id: "narrate",
   schema: LessonPayload,
-  maxDuration: 300,
+  // The voice's cold start plus a CPU narration, within the Modal function's own 600 s.
+  maxDuration: 600,
   run: async ({ lessonId }) => {
     const { row, lesson } = await loadScript(lessonId);
     const path = lessonPaths.voice(lessonId);

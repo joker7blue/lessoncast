@@ -22,12 +22,19 @@ function apiKey(): string {
   return key;
 }
 
-/** POSTs a JSON body to the API. Throws ApiError on a non-2xx status. */
-export async function postJson(pathname: string, body: unknown, accept = "application/json"): Promise<Response> {
+type PostOptions = {
+  /** Abort after this long, reading the body included: fetch alone waits 300 s, a task's whole budget. */
+  timeoutMs: number;
+  accept?: string;
+};
+
+/** POSTs a JSON body to the API. Throws ApiError on a non-2xx status, a TimeoutError past timeoutMs. */
+export async function postJson(pathname: string, body: unknown, { timeoutMs, accept = "application/json" }: PostOptions): Promise<Response> {
   const res = await fetch(`${apiBase()}${pathname}`, {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey()}`, "Content-Type": "application/json", Accept: accept },
     body: JSON.stringify(body),
+    signal: AbortSignal.timeout(timeoutMs),
   });
   if (!res.ok) throw new ApiError(res.status, await res.text());
   return res;

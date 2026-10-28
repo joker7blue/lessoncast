@@ -4,6 +4,13 @@ import { ApiError } from "./client";
 import { STYLES } from "../lesson/styles";
 import { LESSON_INSTRUCTIONS, writeLesson } from "./lesson";
 
+/** The lesson of a result that must be a textbook page. */
+async function lessonOf(result: ReturnType<typeof writeLesson>) {
+  const written = await result;
+  if (!written.isTextbookPage) throw new Error("expected a textbook page");
+  return written.lesson;
+}
+
 const PHOTO = "https://example.supabase.co/storage/v1/object/public/lessons/abc/pages/1.jpg";
 const PAGES = [1, 2, 3].map((n) => `https://example.supabase.co/storage/v1/object/public/lessons/abc/pages/${n}.jpg`);
 
@@ -49,7 +56,7 @@ describe("writeLesson", () => {
   test("returns the parsed lesson", async () => {
     const lesson = makeLesson(7);
     fetchMock.mockResolvedValue(completion(lesson));
-    expect((await writeLesson([PHOTO], "auto")).lesson).toEqual(lesson);
+    expect(await lessonOf(writeLesson([PHOTO], "auto"))).toEqual(lesson);
   });
 
   test("computes the cost from the token usage", async () => {
@@ -78,16 +85,24 @@ describe("writeLesson", () => {
 
   test("a forced style wins over the model's choice", async () => {
     fetchMock.mockResolvedValue(completion({ ...makeLesson(7), style: "comic" }));
-    const { lesson } = await writeLesson([PHOTO], "realistic");
+    const lesson = await lessonOf(writeLesson([PHOTO], "realistic"));
     expect(lesson.style).toBe("realistic");
     expect(userContent()[0]!.text).toContain('Use the image style "realistic".');
   });
 
   test("in Automatique the model's style is kept and every rule is sent", async () => {
     fetchMock.mockResolvedValue(completion({ ...makeLesson(7), style: "diagram" }));
-    const { lesson } = await writeLesson([PHOTO], "auto");
+    const lesson = await lessonOf(writeLesson([PHOTO], "auto"));
     expect(lesson.style).toBe("diagram");
     for (const [key, style] of Object.entries(STYLES)) expect(userContent()[0]!.text).toContain(`${key}: ${style.when}`);
+  });
+
+  test("a page that isn't a textbook is reported even when the rest of the answer is incomplete", async () => {
+    const page = { isTextbookPage: false, subject: "", level: "", topic: "", keyText: "" };
+    fetchMock.mockResolvedValue(completion({ page, title: { fr: "", pcm: "" }, scenes: [], quiz: [] }));
+    const written = await writeLesson([PHOTO], "auto");
+    expect(written.isTextbookPage).toBe(false);
+    expect(written.costUsd).toBeGreaterThan(0);
   });
 
   test("rejects an answer that does not match the schema", async () => {

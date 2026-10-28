@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { formatSeconds, formatUsd } from "@/lib/format";
 import { STYLES } from "@/lib/lesson/styles";
-import { modelSeconds, nodeStates } from "@/lib/lessons/graph";
+import { modelSeconds, nodeStates, scenesDrawn } from "@/lib/lessons/graph";
 import type { LessonView } from "@/lib/lessons/view";
 import { lessonNodes } from "./pipeline/nodes";
 import { PipelineGraph } from "./pipeline/PipelineGraph";
@@ -106,13 +106,16 @@ export function LessonStatus({ id }: { id: string }) {
 
   const done = lesson.status === "done";
   const failed = lesson.status === "failed";
-  const states = nodeStates({ status: lesson.status, metrics: lesson.metrics, scenesDrawn: lesson.sceneImageUrls.length });
+  const states = nodeStates({ status: lesson.status, metrics: lesson.metrics, scenesDrawn: scenesDrawn(lesson) });
   const cost = Object.values(lesson.metrics).reduce((sum, m) => sum + m.costUsd, 0);
   const footer = running
-    ? `Started ${formatSeconds(elapsed)} ago. A lesson takes about four minutes.`
+    ? elapsed > 8 * 60
+      ? `Started ${formatSeconds(elapsed)} ago. This one is taking longer than usual.`
+      : `Started ${formatSeconds(elapsed)} ago. A lesson takes about four minutes.`
     : `Model time ${formatSeconds(modelSeconds(lesson.metrics))}. Estimated cost ${formatUsd(cost)}.`;
-  const poster = lesson.sceneImageUrls[0]
-    ? getImageProps({ src: lesson.sceneImageUrls[0], alt: "", width: 320, height: 180 }).props.src // 640 px at 2x
+  const firstScene = lesson.sceneImageUrls.find((url) => url !== null);
+  const poster = firstScene
+    ? getImageProps({ src: firstScene, alt: "", width: 320, height: 180 }).props.src // 640 px at 2x
     : undefined;
 
   return (

@@ -57,7 +57,7 @@ export default async function Home() {
 
       <section className="grid gap-10 border-t border-line py-16 lg:grid-cols-[1fr_27rem] lg:gap-14">
         <div>
-          <h2 className="text-3xl font-extrabold tracking-tight">Every step runs on a Meta model</h2>
+          <h2 className="text-3xl font-extrabold tracking-tight">Four Meta models make every lesson</h2>
           <p className="mt-4 max-w-xl text-lg leading-relaxed text-dust">
             Muse Spark reads the photographed pages and writes the lesson. Muse Image draws each scene with the same
             characters. MMS, Meta&apos;s open speech models, reads the lesson aloud and times every word for the karaoke
@@ -132,7 +132,7 @@ export default async function Home() {
         </div>
         <div className="rounded-2xl border border-line bg-panel p-8">
           <p className="text-2xl leading-snug font-extrabold">Try it with a page from any textbook.</p>
-          <p className="mt-3 text-dust">No account, works on a phone, ready in four minutes.</p>
+          <p className="mt-3 text-dust">No account, works on a phone, ready in about four minutes.</p>
           <Link href="/create" className={`mt-6 ${PRIMARY}`}>
             Create a lesson
           </Link>

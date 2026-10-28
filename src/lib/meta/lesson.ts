@@ -1,5 +1,6 @@
 // Muse Spark reads one to four textbook page photos and writes the lesson (strict structured output).
 
+import { z } from "zod";
 import { Lesson, lessonJsonSchema, MAX_PAGES } from "../lesson/schema";
 import { ArtStyle, STYLES, type StyleChoice } from "../lesson/styles";
 import { postJson } from "./client";
@@ -7,6 +8,8 @@ import { SPARK_MODEL } from "./models";
 import { type SparkUsage, sparkCostUsd } from "./prices";
 
 const MODEL = SPARK_MODEL;
+// Writing a lesson takes 40–55 s; past this, the step is retried.
+const TIMEOUT_MS = 150_000;
 
 export const LESSON_INSTRUCTIONS = `You turn one to four photographed pages of a Cameroonian school textbook, given in page order, into the script of one short narrated, illustrated video lesson for pupils. Parents and pupils will replay it at home in the evening, so it must be clear when heard without the book.
 
@@ -33,11 +36,13 @@ function styleRequest(style: StyleChoice): string {
   return `Choose the image style from the level and the subject of the pages. ${rules}.`;
 }
 
+// Read first, alone: for a selfie the rest of the answer may be too thin to be a valid lesson.
+const PageCheck = z.object({ page: z.object({ isTextbookPage: z.boolean() }) });
+
+export type WrittenLesson = { seconds: number; costUsd: number } & ({ isTextbookPage: true; lesson: Lesson } | { isTextbookPage: false });
+
 /** Writes the lesson from 1 to 4 page photos, in page order; a forced style always wins. */
-export async function writeLesson(
-  photoUrls: string[],
-  style: StyleChoice,
-): Promise<{ lesson: Lesson; seconds: number; costUsd: number }> {
+export async function writeLesson(photoUrls: string[], style: StyleChoice): Promise<WrittenLesson> {
   if (photoUrls.length < 1 || photoUrls.length > MAX_PAGES) {
     throw new RangeError(`A lesson takes 1 to ${MAX_PAGES} pages, got ${photoUrls.length}`);
   }
@@ -57,13 +62,16 @@ export async function writeLesson(
       },
     ],
     response_format: { type: "json_schema", json_schema: { name: "Lesson", strict: true, schema: lessonJsonSchema() } },
-  });
+  }, { timeoutMs: TIMEOUT_MS });
   const completion = (await res.json()) as ChatCompletion;
   const choice = completion.choices[0];
   if (!choice?.message.content) {
     throw new Error(`Muse Spark returned no lesson (finish_reason=${choice?.finish_reason}, refusal=${choice?.message.refusal})`);
   }
-  const parsed = Lesson.parse(JSON.parse(choice.message.content));
-  const lesson = style === "auto" ? parsed : { ...parsed, style };
-  return { lesson, seconds: (performance.now() - start) / 1000, costUsd: sparkCostUsd(completion.usage) };
+  const cost = { seconds: (performance.now() - start) / 1000, costUsd: sparkCostUsd(completion.usage) };
+  const answer: unknown = JSON.parse(choice.message.content);
+  const check = PageCheck.safeParse(answer);
+  if (check.success && !check.data.page.isTextbookPage) return { ...cost, isTextbookPage: false };
+  const parsed = Lesson.parse(answer);
+  return { ...cost, isTextbookPage: true, lesson: style === "auto" ? parsed : { ...parsed, style } };
 }

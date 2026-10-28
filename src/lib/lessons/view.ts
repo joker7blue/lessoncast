@@ -14,7 +14,8 @@ export type LessonView = {
   /** The style used once the script exists, the teacher's choice before. */
   style: StyleChoice;
   sceneCount: number | null;
-  sceneImageUrls: string[];
+  /** Scene n at index n - 1, null until it is drawn. */
+  sceneImageUrls: (string | null)[];
   voice: { seconds: number; words: number } | null;
   videoUrl: string | null;
   metrics: Record<string, StepMetrics>;

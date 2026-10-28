@@ -43,7 +43,7 @@ export function MyLessons() {
                   title: entry.view.title,
                   language: entry.view.language,
                   style: entry.view.style,
-                  posterUrl: entry.view.sceneImageUrls[0] ?? null,
+                  posterUrl: entry.view.sceneImageUrls.find((url) => url !== null) ?? null,
                   note:
                     entry.view.status === "done"
                       ? describeLesson(entry.view.language, entry.view.style)

@@ -17,9 +17,15 @@ export const writeScript = schemaTask({
 
     const row = await loadLesson(lessonId);
     const pages = Array.from({ length: row.pageCount }, (_, i) => publicUrl(lessonPaths.page(lessonId, i + 1)));
-    const { lesson, seconds, costUsd } = await writeLesson(pages, row.style);
-    await updateLesson(lessonId, { script: lesson });
+    const written = await writeLesson(pages, row.style);
+    const { seconds, costUsd } = written;
     await recordMetrics(lessonId, "write-script", { seconds, costUsd });
+    if (!written.isTextbookPage) {
+      logger.info("Not a textbook page", { seconds, costUsd });
+      return { isTextbookPage: false };
+    }
+    const { lesson } = written;
+    await updateLesson(lessonId, { script: lesson });
     logger.info("Lesson written", { title: lesson.title.fr, style: lesson.style, scenes: lesson.scenes.length, seconds, costUsd });
     return { isTextbookPage: lesson.page.isTextbookPage };
   },
