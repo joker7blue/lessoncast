@@ -3,6 +3,7 @@
 
 import { z } from "zod";
 import { Language } from "../lesson/schema";
+import { Shape } from "./highlights";
 
 export const FPS = 25;
 export const WIDTH = 854;
@@ -16,13 +17,22 @@ const Window = z.object({ startFrame: Frame, endFrame: Frame });
 const ordered = (part: { startFrame: number; endFrame: number }) => part.endFrame > part.startFrame;
 const ORDER = "endFrame must come after startFrame";
 
+/** The SAM cut-outs drawn over a scene image (width × height pixels), each lit for its window. Optional,
+ * so props built before highlights still render. */
+const Overlay = z.object({
+  width: z.int().positive(),
+  height: z.int().positive(),
+  highlights: z.array(Window.extend({ shapes: z.array(Shape).min(1) }).refine(ordered, ORDER)).min(1),
+});
+
 export const VideoProps = z.object({
   language: Language,
   durationInFrames: z.int().positive(),
   audioUrl: z.url(),
   title: Window.extend({ text: z.string(), subject: z.string(), level: z.string(), backgroundUrl: z.url() }).refine(ordered, ORDER),
-  scenes: z.array(Window.extend({ imageUrl: z.url(), motion: Motion }).refine(ordered, ORDER)).min(1),
-  captions: z.array(Window.extend({ words: z.array(Window.extend({ text: z.string() })).min(1) })),
+  scenes: z.array(Window.extend({ imageUrl: z.url(), motion: Motion, overlay: Overlay.nullish() }).refine(ordered, ORDER)).min(1),
+  // A word that names a lit object stays yellow until litUntilFrame.
+  captions: z.array(Window.extend({ words: z.array(Window.extend({ text: z.string(), litUntilFrame: Frame.optional() })).min(1) })),
   endCard: Window.extend({ text: z.string() }).refine(ordered, ORDER),
 });
 export type VideoProps = z.infer<typeof VideoProps>;
