@@ -30,11 +30,12 @@ export default async function Home() {
       <section className="grid items-center gap-10 py-12 lg:grid-cols-[1.15fr_1fr] lg:gap-14 lg:py-20">
         <div>
           <h1 className="text-4xl leading-[1.08] font-extrabold tracking-tight sm:text-5xl">
-            A textbook page becomes a video lesson in the language of home.
+            A textbook or an ebook becomes video lessons in the language of home.
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-dust">
-            A teacher photographs a page. In about four minutes, Meta&apos;s models write, draw and narrate a short lesson
-            in French or Pidgin, small enough to share in the parents&apos; WhatsApp group.
+            A teacher photographs a page, or uploads a whole textbook as a PDF that Muse Spark splits into lessons. In
+            about four minutes, Meta&apos;s models write, draw and narrate a short lesson in French or Pidgin, small enough
+            to share in the parents&apos; WhatsApp group.
           </p>
           <ul aria-label="Meta models used" className="mt-7 flex flex-wrap gap-1.5">
             {MODELS.map((model) => (
@@ -142,7 +143,7 @@ export default async function Home() {
           </Link>
         </div>
         <div className="rounded-2xl border border-line bg-panel p-8">
-          <p className="text-2xl leading-snug font-extrabold">Try it with a page from any textbook.</p>
+          <p className="text-2xl leading-snug font-extrabold">Try it with a page, or a whole textbook.</p>
           <p className="mt-3 text-dust">No account, works on a phone, ready in about four minutes.</p>
           <Link href="/create" className={`mt-6 ${PRIMARY}`}>
             Create a lesson

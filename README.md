@@ -11,6 +11,7 @@ can replay with the child in the evening, helps where a printed page doesn't.
 
 | Step | Model | What it does |
 |---|---|---|
+| Split a book into lessons | **Muse Spark** `muse-spark-1.3`, PDF input | Reads an uploaded textbook or ebook PDF (typed or scanned, up to 50 MB and 400 pages) in slices of 30 pages, and lists its lessons with their pages and a summary. No video is made until the teacher picks a lesson. |
 | Write the lesson | **Muse Spark** `muse-spark-1.3`, Meta Model API | Reads the photographed pages in one request, checks they are textbook pages, and writes the lesson as strict JSON: seven scenes, the narration in French and Pidgin, an image prompt per scene, the objects each scene names, a three-question quiz. In *Automatic* it also picks the picture style from the level and the subject. |
 | Draw the scenes | **Muse Image** `muse-image-1.0`, Meta Model API | Draws scene 1 from a fixed style prompt (Illustrated, Realistic, Diagram or Comic), then every other scene as an edit of scene 1, so the characters stay the same. |
 | Speak | **MMS-TTS** `facebook/mms-tts-fra`, `facebook/mms-tts-pcm`, open weights on Modal | Reads the narration aloud. |
@@ -38,15 +39,19 @@ Browser (teacher or judge)
 Next.js 16
   │ POST /api/lessons      checks → pages to Supabase Storage → lessons row → trigger generate-lesson
   │ GET  /api/lessons/:id  status, scenes drawn so far, each step's metrics, the video (polled every 2 s)
+  │ POST /api/books        a signed URL: the browser uploads the PDF straight to Supabase Storage
+  │ POST /api/books/:id/read, GET /api/books/:id, POST /api/books/:id/lessons (one lesson's video, on request)
   ▼
 Trigger.dev
-  generate-lesson ─┬─ write-script      Muse Spark → lesson (Zod); warms the voice
+  read-book            the PDF in slices of 30 pages → Muse Spark → the book's lessons (no video yet)
+
+  generate-lesson ─┬─ write-script      Muse Spark → lesson (Zod) from the photos, or the lesson's pages cut from the PDF
                    ├─ draw-scenes  ┐    Muse Image: scene 1, then the others as edits of it, 4 at a time
                    │  narrate      ┘    Modal lessoncast-voice: MMS-TTS + MMS_FA → WAV + word timings
                    ├─ find-highlights   SAM 3.1: one request per named object → highlights.json
                    └─ render-video      Modal lessoncast-render: Remotion → MP4
   ▼
-Supabase: the lessons table (RLS on, server only) and the public "lessons" bucket
+Supabase: the lessons and books tables (RLS on, server only) and the public "lessons" bucket
 ```
 
 Each step is a child task with its own retries; waiting on children is not billed. Modal never holds the

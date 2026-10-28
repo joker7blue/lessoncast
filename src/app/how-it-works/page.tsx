@@ -61,6 +61,17 @@ export default function HowItWorksPage() {
         </div>
       </div>
 
+      <section className="mt-16 max-w-3xl">
+        <h2 className="text-2xl font-extrabold">From a whole book</h2>
+        <p className="mt-2 inline-block rounded-md bg-panel px-2 py-0.5 text-sm font-bold text-chalk/90">{SPARK_MODEL}, PDF input</p>
+        <p className="mt-3 leading-relaxed text-dust">
+          A teacher can also upload a textbook or an ebook as a PDF, typed or scanned, up to 50 MB and 400 pages. Muse
+          Spark reads it in parts of thirty pages, the text and the page images, and lists its lessons with their pages
+          and what each one teaches. Nothing more happens until the teacher picks a lesson: its pages are then cut out of
+          the PDF, Muse Spark writes the lesson from them, and the five steps above make its video.
+        </p>
+      </section>
+
       <section className="mt-16 rounded-2xl border border-line bg-panel p-6 sm:p-8">
         <h2 className="text-xl font-extrabold">Measured on real lessons</h2>
         <p className="mt-3 max-w-3xl leading-relaxed text-dust">
