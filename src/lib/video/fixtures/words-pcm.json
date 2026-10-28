@@ -1,0 +1,1384 @@
+{
+  "words": [
+    {
+      "word": "History",
+      "start": 0.02,
+      "end": 0.485,
+      "score": 0.806,
+      "group": 0
+    },
+    {
+      "word": "and",
+      "start": 0.687,
+      "end": 0.808,
+      "score": 0.973,
+      "group": 0
+    },
+    {
+      "word": "Geography",
+      "start": 0.889,
+      "end": 1.373,
+      "score": 0.328,
+      "group": 0
+    },
+    {
+      "word": "for",
+      "start": 1.454,
+      "end": 1.616,
+      "score": 0.809,
+      "group": 0
+    },
+    {
+      "word": "Lycée",
+      "start": 1.676,
+      "end": 2.019,
+      "score": 0.022,
+      "group": 0
+    },
+    {
+      "word": "For",
+      "start": 3.62,
+      "end": 3.74,
+      "score": 0.246,
+      "group": 1
+    },
+    {
+      "word": "lycée,",
+      "start": 3.78,
+      "end": 4.041,
+      "score": 0.219,
+      "group": 1
+    },
+    {
+      "word": "you",
+      "start": 4.041,
+      "end": 4.181,
+      "score": 0.515,
+      "group": 1
+    },
+    {
+      "word": "di",
+      "start": 4.242,
+      "end": 4.302,
+      "score": 0.992,
+      "group": 1
+    },
+    {
+      "word": "study",
+      "start": 4.362,
+      "end": 4.663,
+      "score": 0.893,
+      "group": 1
+    },
+    {
+      "word": "history",
+      "start": 4.783,
+      "end": 5.244,
+      "score": 0.801,
+      "group": 1
+    },
+    {
+      "word": "and",
+      "start": 5.765,
+      "end": 5.906,
+      "score": 0.939,
+      "group": 1
+    },
+    {
+      "word": "geography.",
+      "start": 5.986,
+      "end": 6.527,
+      "score": 0.328,
+      "group": 1
+    },
+    {
+      "word": "Na",
+      "start": 7.218,
+      "end": 7.299,
+      "score": 0.777,
+      "group": 1
+    },
+    {
+      "word": "dem",
+      "start": 7.419,
+      "end": 7.58,
+      "score": 0.938,
+      "group": 1
+    },
+    {
+      "word": "be",
+      "start": 7.661,
+      "end": 7.721,
+      "score": 0.5,
+      "group": 1
+    },
+    {
+      "word": "subject",
+      "start": 7.842,
+      "end": 8.385,
+      "score": 0.621,
+      "group": 1
+    },
+    {
+      "word": "for",
+      "start": 8.425,
+      "end": 8.566,
+      "score": 0.993,
+      "group": 1
+    },
+    {
+      "word": "make",
+      "start": 8.667,
+      "end": 8.888,
+      "score": 0.966,
+      "group": 1
+    },
+    {
+      "word": "you",
+      "start": 8.908,
+      "end": 9.009,
+      "score": 0.549,
+      "group": 1
+    },
+    {
+      "word": "understand",
+      "start": 9.21,
+      "end": 9.834,
+      "score": 0.598,
+      "group": 1
+    },
+    {
+      "word": "world",
+      "start": 9.894,
+      "end": 10.176,
+      "score": 0.821,
+      "group": 1
+    },
+    {
+      "word": "and",
+      "start": 10.538,
+      "end": 10.639,
+      "score": 0.987,
+      "group": 1
+    },
+    {
+      "word": "for",
+      "start": 10.679,
+      "end": 10.8,
+      "score": 0.986,
+      "group": 1
+    },
+    {
+      "word": "act.",
+      "start": 10.9,
+      "end": 11.061,
+      "score": 0.661,
+      "group": 1
+    },
+    {
+      "word": "Dem",
+      "start": 11.572,
+      "end": 11.693,
+      "score": 0.854,
+      "group": 1
+    },
+    {
+      "word": "di",
+      "start": 11.773,
+      "end": 11.833,
+      "score": 0.996,
+      "group": 1
+    },
+    {
+      "word": "open",
+      "start": 11.934,
+      "end": 12.195,
+      "score": 0.741,
+      "group": 1
+    },
+    {
+      "word": "your",
+      "start": 12.255,
+      "end": 12.395,
+      "score": 0.766,
+      "group": 1
+    },
+    {
+      "word": "eye",
+      "start": 12.496,
+      "end": 12.636,
+      "score": 0.343,
+      "group": 1
+    },
+    {
+      "word": "for",
+      "start": 12.656,
+      "end": 12.777,
+      "score": 0.992,
+      "group": 1
+    },
+    {
+      "word": "world",
+      "start": 12.837,
+      "end": 13.098,
+      "score": 0.222,
+      "group": 1
+    },
+    {
+      "word": "wey",
+      "start": 13.821,
+      "end": 13.961,
+      "score": 0.869,
+      "group": 1
+    },
+    {
+      "word": "di",
+      "start": 14.021,
+      "end": 14.102,
+      "score": 0.931,
+      "group": 1
+    },
+    {
+      "word": "round",
+      "start": 14.182,
+      "end": 14.383,
+      "score": 0.964,
+      "group": 1
+    },
+    {
+      "word": "you.",
+      "start": 14.463,
+      "end": 14.564,
+      "score": 0.713,
+      "group": 1
+    },
+    {
+      "word": "History",
+      "start": 15.654,
+      "end": 16.138,
+      "score": 0.757,
+      "group": 2
+    },
+    {
+      "word": "di",
+      "start": 16.663,
+      "end": 16.764,
+      "score": 0.507,
+      "group": 2
+    },
+    {
+      "word": "give",
+      "start": 16.885,
+      "end": 17.107,
+      "score": 0.988,
+      "group": 2
+    },
+    {
+      "word": "you",
+      "start": 17.127,
+      "end": 17.228,
+      "score": 0.649,
+      "group": 2
+    },
+    {
+      "word": "mark",
+      "start": 17.329,
+      "end": 17.551,
+      "score": 0.495,
+      "group": 2
+    },
+    {
+      "word": "for",
+      "start": 17.571,
+      "end": 17.712,
+      "score": 0.987,
+      "group": 2
+    },
+    {
+      "word": "time.",
+      "start": 17.813,
+      "end": 18.177,
+      "score": 0.98,
+      "group": 2
+    },
+    {
+      "word": "Geography",
+      "start": 18.99,
+      "end": 19.555,
+      "score": 0.366,
+      "group": 2
+    },
+    {
+      "word": "di",
+      "start": 19.635,
+      "end": 19.716,
+      "score": 0.652,
+      "group": 2
+    },
+    {
+      "word": "give",
+      "start": 19.817,
+      "end": 20.039,
+      "score": 0.984,
+      "group": 2
+    },
+    {
+      "word": "you",
+      "start": 20.079,
+      "end": 20.22,
+      "score": 0.657,
+      "group": 2
+    },
+    {
+      "word": "mark",
+      "start": 20.301,
+      "end": 20.522,
+      "score": 0.918,
+      "group": 2
+    },
+    {
+      "word": "for",
+      "start": 20.563,
+      "end": 20.704,
+      "score": 0.998,
+      "group": 2
+    },
+    {
+      "word": "place.",
+      "start": 20.784,
+      "end": 21.188,
+      "score": 0.993,
+      "group": 2
+    },
+    {
+      "word": "You",
+      "start": 21.598,
+      "end": 21.718,
+      "score": 0.181,
+      "group": 2
+    },
+    {
+      "word": "go",
+      "start": 21.778,
+      "end": 21.859,
+      "score": 0.986,
+      "group": 2
+    },
+    {
+      "word": "meet",
+      "start": 21.979,
+      "end": 22.159,
+      "score": 0.98,
+      "group": 2
+    },
+    {
+      "word": "old-time",
+      "start": 22.28,
+      "end": 22.701,
+      "score": 0.793,
+      "group": 2
+    },
+    {
+      "word": "people",
+      "start": 22.942,
+      "end": 23.744,
+      "score": 0.54,
+      "group": 2
+    },
+    {
+      "word": "dem",
+      "start": 23.744,
+      "end": 23.924,
+      "score": 0.98,
+      "group": 2
+    },
+    {
+      "word": "story",
+      "start": 24.024,
+      "end": 24.425,
+      "score": 0.994,
+      "group": 2
+    },
+    {
+      "word": "and",
+      "start": 24.566,
+      "end": 24.666,
+      "score": 0.996,
+      "group": 2
+    },
+    {
+      "word": "different",
+      "start": 24.726,
+      "end": 25.147,
+      "score": 0.76,
+      "group": 2
+    },
+    {
+      "word": "different",
+      "start": 25.187,
+      "end": 25.568,
+      "score": 0.738,
+      "group": 2
+    },
+    {
+      "word": "land",
+      "start": 25.649,
+      "end": 25.849,
+      "score": 0.877,
+      "group": 2
+    },
+    {
+      "word": "dem.",
+      "start": 25.929,
+      "end": 26.09,
+      "score": 0.996,
+      "group": 2
+    },
+    {
+      "word": "Dese",
+      "start": 27.401,
+      "end": 27.642,
+      "score": 0.495,
+      "group": 3
+    },
+    {
+      "word": "two",
+      "start": 27.682,
+      "end": 27.822,
+      "score": 0.782,
+      "group": 3
+    },
+    {
+      "word": "subject",
+      "start": 27.943,
+      "end": 28.424,
+      "score": 0.456,
+      "group": 3
+    },
+    {
+      "word": "dem",
+      "start": 28.504,
+      "end": 28.625,
+      "score": 0.995,
+      "group": 3
+    },
+    {
+      "word": "go",
+      "start": 28.705,
+      "end": 28.785,
+      "score": 0.997,
+      "group": 3
+    },
+    {
+      "word": "wake",
+      "start": 28.865,
+      "end": 29.106,
+      "score": 0.96,
+      "group": 3
+    },
+    {
+      "word": "your",
+      "start": 29.186,
+      "end": 29.307,
+      "score": 0.649,
+      "group": 3
+    },
+    {
+      "word": "curiosity",
+      "start": 29.427,
+      "end": 30.149,
+      "score": 0.397,
+      "group": 3
+    },
+    {
+      "word": "and",
+      "start": 30.852,
+      "end": 30.972,
+      "score": 0.933,
+      "group": 3
+    },
+    {
+      "word": "open",
+      "start": 31.092,
+      "end": 31.453,
+      "score": 0.505,
+      "group": 3
+    },
+    {
+      "word": "your",
+      "start": 31.514,
+      "end": 31.634,
+      "score": 0.745,
+      "group": 3
+    },
+    {
+      "word": "eye",
+      "start": 31.734,
+      "end": 31.895,
+      "score": 0.329,
+      "group": 3
+    },
+    {
+      "word": "big.",
+      "start": 31.935,
+      "end": 32.176,
+      "score": 0.281,
+      "group": 3
+    },
+    {
+      "word": "You",
+      "start": 32.646,
+      "end": 32.747,
+      "score": 0.316,
+      "group": 3
+    },
+    {
+      "word": "go",
+      "start": 32.787,
+      "end": 32.867,
+      "score": 0.995,
+      "group": 3
+    },
+    {
+      "word": "discover",
+      "start": 32.988,
+      "end": 33.491,
+      "score": 0.598,
+      "group": 3
+    },
+    {
+      "word": "say",
+      "start": 33.571,
+      "end": 33.753,
+      "score": 0.686,
+      "group": 3
+    },
+    {
+      "word": "people",
+      "start": 33.954,
+      "end": 34.316,
+      "score": 0.531,
+      "group": 3
+    },
+    {
+      "word": "dem",
+      "start": 34.336,
+      "end": 34.537,
+      "score": 0.983,
+      "group": 3
+    },
+    {
+      "word": "na",
+      "start": 34.939,
+      "end": 35.02,
+      "score": 0.994,
+      "group": 3
+    },
+    {
+      "word": "one",
+      "start": 35.201,
+      "end": 35.402,
+      "score": 0.88,
+      "group": 3
+    },
+    {
+      "word": "but",
+      "start": 35.623,
+      "end": 35.784,
+      "score": 0.986,
+      "group": 3
+    },
+    {
+      "word": "dem",
+      "start": 35.845,
+      "end": 35.985,
+      "score": 0.996,
+      "group": 3
+    },
+    {
+      "word": "different.",
+      "start": 36.046,
+      "end": 36.549,
+      "score": 0.64,
+      "group": 3
+    },
+    {
+      "word": "You",
+      "start": 37.14,
+      "end": 37.241,
+      "score": 0.011,
+      "group": 3
+    },
+    {
+      "word": "go",
+      "start": 37.321,
+      "end": 37.402,
+      "score": 0.983,
+      "group": 3
+    },
+    {
+      "word": "understand",
+      "start": 37.523,
+      "end": 38.006,
+      "score": 0.772,
+      "group": 3
+    },
+    {
+      "word": "how",
+      "start": 38.086,
+      "end": 38.227,
+      "score": 0.421,
+      "group": 3
+    },
+    {
+      "word": "society",
+      "start": 38.328,
+      "end": 38.771,
+      "score": 0.929,
+      "group": 3
+    },
+    {
+      "word": "dem",
+      "start": 39.496,
+      "end": 39.637,
+      "score": 0.996,
+      "group": 3
+    },
+    {
+      "word": "di",
+      "start": 39.697,
+      "end": 39.778,
+      "score": 0.961,
+      "group": 3
+    },
+    {
+      "word": "change",
+      "start": 39.838,
+      "end": 40.1,
+      "score": 0.498,
+      "group": 3
+    },
+    {
+      "word": "with",
+      "start": 40.16,
+      "end": 40.301,
+      "score": 0.861,
+      "group": 3
+    },
+    {
+      "word": "time.",
+      "start": 40.342,
+      "end": 40.603,
+      "score": 0.99,
+      "group": 3
+    },
+    {
+      "word": "Dese",
+      "start": 41.674,
+      "end": 41.834,
+      "score": 0.478,
+      "group": 4
+    },
+    {
+      "word": "subject",
+      "start": 41.915,
+      "end": 42.276,
+      "score": 0.438,
+      "group": 4
+    },
+    {
+      "word": "dem",
+      "start": 42.356,
+      "end": 42.476,
+      "score": 0.927,
+      "group": 4
+    },
+    {
+      "word": "di",
+      "start": 42.496,
+      "end": 42.596,
+      "score": 0.374,
+      "group": 4
+    },
+    {
+      "word": "teach",
+      "start": 42.677,
+      "end": 42.937,
+      "score": 0.392,
+      "group": 4
+    },
+    {
+      "word": "you",
+      "start": 42.937,
+      "end": 43.138,
+      "score": 0.063,
+      "group": 4
+    },
+    {
+      "word": "how",
+      "start": 43.218,
+      "end": 43.399,
+      "score": 0.333,
+      "group": 4
+    },
+    {
+      "word": "for",
+      "start": 43.479,
+      "end": 43.619,
+      "score": 0.967,
+      "group": 4
+    },
+    {
+      "word": "look",
+      "start": 43.659,
+      "end": 43.8,
+      "score": 0.865,
+      "group": 4
+    },
+    {
+      "word": "present",
+      "start": 43.84,
+      "end": 44.16,
+      "score": 0.799,
+      "group": 4
+    },
+    {
+      "word": "time",
+      "start": 44.221,
+      "end": 44.461,
+      "score": 0.991,
+      "group": 4
+    },
+    {
+      "word": "well.",
+      "start": 44.501,
+      "end": 44.682,
+      "score": 0.891,
+      "group": 4
+    },
+    {
+      "word": "Dem",
+      "start": 45.413,
+      "end": 45.534,
+      "score": 0.698,
+      "group": 4
+    },
+    {
+      "word": "di",
+      "start": 45.594,
+      "end": 45.654,
+      "score": 0.997,
+      "group": 4
+    },
+    {
+      "word": "helep",
+      "start": 45.694,
+      "end": 45.975,
+      "score": 0.753,
+      "group": 4
+    },
+    {
+      "word": "you",
+      "start": 46.036,
+      "end": 46.176,
+      "score": 0.252,
+      "group": 4
+    },
+    {
+      "word": "for",
+      "start": 46.196,
+      "end": 46.317,
+      "score": 0.979,
+      "group": 4
+    },
+    {
+      "word": "find",
+      "start": 46.377,
+      "end": 46.598,
+      "score": 0.701,
+      "group": 4
+    },
+    {
+      "word": "correct",
+      "start": 46.638,
+      "end": 47.019,
+      "score": 0.816,
+      "group": 4
+    },
+    {
+      "word": "information",
+      "start": 47.1,
+      "end": 47.682,
+      "score": 0.409,
+      "group": 4
+    },
+    {
+      "word": "with",
+      "start": 47.722,
+      "end": 47.863,
+      "score": 0.899,
+      "group": 4
+    },
+    {
+      "word": "care.",
+      "start": 47.883,
+      "end": 48.103,
+      "score": 0.009,
+      "group": 4
+    },
+    {
+      "word": "Dem",
+      "start": 48.614,
+      "end": 48.755,
+      "score": 0.829,
+      "group": 4
+    },
+    {
+      "word": "di",
+      "start": 48.835,
+      "end": 48.915,
+      "score": 0.989,
+      "group": 4
+    },
+    {
+      "word": "ready",
+      "start": 48.996,
+      "end": 49.317,
+      "score": 0.447,
+      "group": 4
+    },
+    {
+      "word": "you",
+      "start": 49.417,
+      "end": 49.598,
+      "score": 0.078,
+      "group": 4
+    },
+    {
+      "word": "for",
+      "start": 49.678,
+      "end": 49.839,
+      "score": 0.973,
+      "group": 4
+    },
+    {
+      "word": "make",
+      "start": 50.18,
+      "end": 50.401,
+      "score": 0.998,
+      "group": 4
+    },
+    {
+      "word": "good",
+      "start": 50.461,
+      "end": 50.622,
+      "score": 0.995,
+      "group": 4
+    },
+    {
+      "word": "choice",
+      "start": 50.762,
+      "end": 51.124,
+      "score": 0.949,
+      "group": 4
+    },
+    {
+      "word": "with",
+      "start": 51.164,
+      "end": 51.305,
+      "score": 0.991,
+      "group": 4
+    },
+    {
+      "word": "freedom",
+      "start": 51.405,
+      "end": 51.807,
+      "score": 0.96,
+      "group": 4
+    },
+    {
+      "word": "and",
+      "start": 52.068,
+      "end": 52.188,
+      "score": 0.989,
+      "group": 4
+    },
+    {
+      "word": "duty.",
+      "start": 52.268,
+      "end": 52.529,
+      "score": 0.967,
+      "group": 4
+    },
+    {
+      "word": "History",
+      "start": 53.66,
+      "end": 54.121,
+      "score": 0.827,
+      "group": 5
+    },
+    {
+      "word": "and",
+      "start": 54.683,
+      "end": 54.844,
+      "score": 0.874,
+      "group": 5
+    },
+    {
+      "word": "geography",
+      "start": 54.904,
+      "end": 55.486,
+      "score": 0.508,
+      "group": 5
+    },
+    {
+      "word": "dem",
+      "start": 55.546,
+      "end": 55.666,
+      "score": 0.987,
+      "group": 5
+    },
+    {
+      "word": "be",
+      "start": 55.726,
+      "end": 55.807,
+      "score": 0.478,
+      "group": 5
+    },
+    {
+      "word": "sister",
+      "start": 55.987,
+      "end": 56.328,
+      "score": 0.696,
+      "group": 5
+    },
+    {
+      "word": "subject",
+      "start": 56.428,
+      "end": 56.85,
+      "score": 0.692,
+      "group": 5
+    },
+    {
+      "word": "for",
+      "start": 56.91,
+      "end": 57.05,
+      "score": 0.995,
+      "group": 5
+    },
+    {
+      "word": "train",
+      "start": 57.111,
+      "end": 57.351,
+      "score": 0.507,
+      "group": 5
+    },
+    {
+      "word": "you.",
+      "start": 57.371,
+      "end": 57.472,
+      "score": 0.434,
+      "group": 5
+    },
+    {
+      "word": "Dem",
+      "start": 57.982,
+      "end": 58.103,
+      "score": 0.984,
+      "group": 5
+    },
+    {
+      "word": "get",
+      "start": 58.203,
+      "end": 58.364,
+      "score": 1,
+      "group": 5
+    },
+    {
+      "word": "same",
+      "start": 58.424,
+      "end": 58.624,
+      "score": 0.998,
+      "group": 5
+    },
+    {
+      "word": "time",
+      "start": 58.665,
+      "end": 58.926,
+      "score": 0.997,
+      "group": 5
+    },
+    {
+      "word": "for",
+      "start": 58.946,
+      "end": 59.086,
+      "score": 0.997,
+      "group": 5
+    },
+    {
+      "word": "week",
+      "start": 59.146,
+      "end": 59.347,
+      "score": 0.824,
+      "group": 5
+    },
+    {
+      "word": "and",
+      "start": 59.789,
+      "end": 59.929,
+      "score": 0.997,
+      "group": 5
+    },
+    {
+      "word": "same",
+      "start": 60.03,
+      "end": 60.25,
+      "score": 0.747,
+      "group": 5
+    },
+    {
+      "word": "number",
+      "start": 60.27,
+      "end": 60.592,
+      "score": 0.383,
+      "group": 5
+    },
+    {
+      "word": "for",
+      "start": 60.612,
+      "end": 60.732,
+      "score": 0.992,
+      "group": 5
+    },
+    {
+      "word": "topic.",
+      "start": 60.792,
+      "end": 61.134,
+      "score": 0.834,
+      "group": 5
+    },
+    {
+      "word": "Each",
+      "start": 61.644,
+      "end": 61.785,
+      "score": 0.372,
+      "group": 5
+    },
+    {
+      "word": "topic",
+      "start": 61.805,
+      "end": 62.166,
+      "score": 0.787,
+      "group": 5
+    },
+    {
+      "word": "get",
+      "start": 62.247,
+      "end": 62.407,
+      "score": 0.998,
+      "group": 5
+    },
+    {
+      "word": "time",
+      "start": 62.548,
+      "end": 62.789,
+      "score": 0.963,
+      "group": 5
+    },
+    {
+      "word": "wey",
+      "start": 62.809,
+      "end": 62.909,
+      "score": 0.995,
+      "group": 5
+    },
+    {
+      "word": "dem",
+      "start": 62.95,
+      "end": 63.09,
+      "score": 0.985,
+      "group": 5
+    },
+    {
+      "word": "mark",
+      "start": 63.15,
+      "end": 63.391,
+      "score": 0.888,
+      "group": 5
+    },
+    {
+      "word": "for",
+      "start": 63.472,
+      "end": 63.612,
+      "score": 0.997,
+      "group": 5
+    },
+    {
+      "word": "learn",
+      "start": 63.693,
+      "end": 63.873,
+      "score": 0.692,
+      "group": 5
+    },
+    {
+      "word": "am",
+      "start": 63.954,
+      "end": 64.054,
+      "score": 0.996,
+      "group": 5
+    },
+    {
+      "word": "well.",
+      "start": 64.134,
+      "end": 64.315,
+      "score": 0.841,
+      "group": 5
+    },
+    {
+      "word": "For",
+      "start": 65.486,
+      "end": 65.627,
+      "score": 0.993,
+      "group": 6
+    },
+    {
+      "word": "end",
+      "start": 65.728,
+      "end": 65.848,
+      "score": 0.909,
+      "group": 6
+    },
+    {
+      "word": "for",
+      "start": 65.909,
+      "end": 66.029,
+      "score": 0.984,
+      "group": 6
+    },
+    {
+      "word": "lycée,",
+      "start": 66.11,
+      "end": 66.411,
+      "score": 0.2,
+      "group": 6
+    },
+    {
+      "word": "you",
+      "start": 66.411,
+      "end": 66.492,
+      "score": 0.651,
+      "group": 6
+    },
+    {
+      "word": "go",
+      "start": 66.552,
+      "end": 66.633,
+      "score": 0.999,
+      "group": 6
+    },
+    {
+      "word": "sabi",
+      "start": 66.733,
+      "end": 66.995,
+      "score": 0.964,
+      "group": 6
+    },
+    {
+      "word": "handle",
+      "start": 67.075,
+      "end": 67.478,
+      "score": 0.686,
+      "group": 6
+    },
+    {
+      "word": "information",
+      "start": 67.598,
+      "end": 68.242,
+      "score": 0.416,
+      "group": 6
+    },
+    {
+      "word": "and",
+      "start": 68.705,
+      "end": 68.805,
+      "score": 0.992,
+      "group": 6
+    },
+    {
+      "word": "write",
+      "start": 68.866,
+      "end": 69.107,
+      "score": 0.772,
+      "group": 6
+    },
+    {
+      "word": "note.",
+      "start": 69.167,
+      "end": 69.449,
+      "score": 0.496,
+      "group": 6
+    },
+    {
+      "word": "You",
+      "start": 69.98,
+      "end": 70.061,
+      "score": 0.475,
+      "group": 6
+    },
+    {
+      "word": "go",
+      "start": 70.121,
+      "end": 70.202,
+      "score": 0.999,
+      "group": 6
+    },
+    {
+      "word": "sabi",
+      "start": 70.322,
+      "end": 70.604,
+      "score": 0.901,
+      "group": 6
+    },
+    {
+      "word": "work",
+      "start": 70.705,
+      "end": 70.906,
+      "score": 0.799,
+      "group": 6
+    },
+    {
+      "word": "alone",
+      "start": 71.027,
+      "end": 71.369,
+      "score": 0.848,
+      "group": 6
+    },
+    {
+      "word": "for",
+      "start": 71.429,
+      "end": 71.57,
+      "score": 0.988,
+      "group": 6
+    },
+    {
+      "word": "yourself.",
+      "start": 71.631,
+      "end": 72.154,
+      "score": 0.711,
+      "group": 6
+    },
+    {
+      "word": "Teacher",
+      "start": 72.826,
+      "end": 73.167,
+      "score": 0.315,
+      "group": 6
+    },
+    {
+      "word": "go",
+      "start": 73.247,
+      "end": 73.308,
+      "score": 0.979,
+      "group": 6
+    },
+    {
+      "word": "teach",
+      "start": 73.428,
+      "end": 73.689,
+      "score": 0.46,
+      "group": 6
+    },
+    {
+      "word": "and",
+      "start": 73.909,
+      "end": 74.01,
+      "score": 0.77,
+      "group": 6
+    },
+    {
+      "word": "you",
+      "start": 74.07,
+      "end": 74.21,
+      "score": 0.616,
+      "group": 6
+    },
+    {
+      "word": "go",
+      "start": 74.271,
+      "end": 74.331,
+      "score": 0.99,
+      "group": 6
+    },
+    {
+      "word": "listen,",
+      "start": 74.431,
+      "end": 74.812,
+      "score": 0.912,
+      "group": 6
+    },
+    {
+      "word": "then",
+      "start": 74.933,
+      "end": 75.073,
+      "score": 0.615,
+      "group": 6
+    },
+    {
+      "word": "you",
+      "start": 75.113,
+      "end": 75.214,
+      "score": 0.629,
+      "group": 6
+    },
+    {
+      "word": "go",
+      "start": 75.274,
+      "end": 75.354,
+      "score": 0.994,
+      "group": 6
+    },
+    {
+      "word": "check",
+      "start": 75.535,
+      "end": 75.795,
+      "score": 0.509,
+      "group": 6
+    },
+    {
+      "word": "map",
+      "start": 75.916,
+      "end": 76.116,
+      "score": 0.864,
+      "group": 6
+    },
+    {
+      "word": "and",
+      "start": 76.257,
+      "end": 76.357,
+      "score": 0.945,
+      "group": 6
+    },
+    {
+      "word": "video",
+      "start": 76.437,
+      "end": 76.839,
+      "score": 0.345,
+      "group": 6
+    },
+    {
+      "word": "dem",
+      "start": 77.24,
+      "end": 77.401,
+      "score": 0.983,
+      "group": 6
+    },
+    {
+      "word": "well.",
+      "start": 77.461,
+      "end": 77.621,
+      "score": 0.716,
+      "group": 6
+    }
+  ],
+  "audioSeconds": 78.212
+}

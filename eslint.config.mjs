@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Python virtualenv for the voice derisk tests.
     "scripts/derisk/.venv/**",
+    // Trigger.dev dev builds.
+    ".trigger/**",
   ]),
 ]);
 

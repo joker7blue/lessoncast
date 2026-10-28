@@ -14,6 +14,7 @@ call for are listed under [Next: the full pipeline](#next-the-full-pipeline).
 | 3 | SAM 3.1: named object → mask | `03-sam.mts` | ✅ go (7/11 found: prompt fix + fallback) |
 | 4 | MMS-TTS: French + Pidgin voices | `voice_modal.py` | ✅ go |
 | 5 | MMS forced alignment: word timestamps | `voice_modal.py` | ✅ go |
+| 6 | Remotion render on Modal (no Lambda) | spike, not kept | ✅ go |
 
 ## How to run
 
@@ -198,6 +199,29 @@ sentence offsets are added so the timestamps cover the whole narration.
 
 **Decision: go.** Word-level subtitles and "light up the heart when the voice says *cœur*" are feasible
 from these timestamps. The narration and alignment can run in the same Modal call, as here.
+
+## 6. Remotion render on Modal (no Lambda)
+
+Question: can a Modal container render the Remotion video, so the pipeline needs no AWS Lambda? Throwaway
+spike (not committed): a 10 s, 854 × 480, 30 fps composition with one scene image, a slow zoom, karaoke
+subtitles, the narration audio, and the SAM cut-out of the teacher lit up with a yellow outline between 4
+and 7 s (CSS `clip-path: url(#cut)` on an SVG `clipPath` built from the SAM path).
+
+Setup: `node:22-bookworm-slim` + Python 3.12, Chrome's Debian libraries (Remotion's Linux dependency
+list), `npm install` of Remotion 4.0.534, `npx remotion browser ensure` and `npx remotion bundle` at
+image build time; the function runs `renderMedia` on the bundle with 8 CPUs and 8 GiB.
+
+- Image build: 41 s, once per deploy. Cold start + render: 11.4 s. Warm render: 4.2–10 s for 10 s of
+  video, so roughly 1 to 2.5 min for a 2.5-minute lesson.
+- The frames are right: the cut-out, the outline, the dimmed background and the highlighted word all
+  render as in the browser.
+- Size, extrapolated to 2.5 min: CRF 28 → 13.6 MB (too big); CRF 33 → 6.2 MB; 350 kbit/s → 7.0 MB;
+  **300 kbit/s with `x264Preset: "slow"` → 6.1 MB**, still sharp at 480p for flat illustrations. Audio:
+  AAC 48 kbit/s.
+- Cost: about $0.02 per render (8 cores at $0.047/core/h, plus memory).
+
+**Decision: go.** Render on Modal with `videoBitrate: "300k"`, `x264Preset: "slow"`, AAC 48 kbit/s;
+Remotion Lambda stays the fallback (already used in BuildStory AI).
 
 ## Next: the full pipeline
 

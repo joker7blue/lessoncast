@@ -10,24 +10,39 @@
     "derisk:1": "node --env-file=.env --disable-warning=ExperimentalWarning scripts/derisk/01-muse-spark.mts",
     "derisk:2": "node --env-file=.env --disable-warning=ExperimentalWarning scripts/derisk/02-muse-image.mts",
     "derisk:3": "node --env-file=.env --disable-warning=ExperimentalWarning scripts/derisk/03-sam.mts",
-    "derisk:typecheck": "tsc -p scripts/derisk"
+    "derisk:typecheck": "tsc -p scripts/derisk",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "trigger:dev": "npx trigger.dev@4.8.1 dev",
+    "smoke": "tsx scripts/smoke.ts"
   },
   "dependencies": {
     "@meta-sam/parser": "^0.1.0",
+    "@remotion/cli": "4.0.438",
+    "@remotion/google-fonts": "4.0.438",
+    "@remotion/renderer": "4.0.438",
+    "@supabase/supabase-js": "^2.99.1",
+    "@trigger.dev/sdk": "4.8.1",
+    "lucide-react": "0.577.0",
+    "modal": "0.11.1",
     "next": "16.4.3",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "zod": "^4.6.7"
+    "remotion": "4.0.438",
+    "zod": "4.3.6"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
-    "@types/node": "^20",
+    "@trigger.dev/build": "4.8.1",
+    "@types/node": "^22.20.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.3",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "tsx": "^4.21.0",
+    "typescript": "^5",
+    "vitest": "^5.0.0"
   },
   "packageManager": "pnpm@10.12.1"
 }

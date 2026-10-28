@@ -56,3 +56,13 @@ scripts/derisk/out/
 
 # local coding-agent setup (skills), not part of the app
 .claude/
+
+# local working notes (design specs and plans)
+docs/specs/
+docs/plans/
+
+# local agent instructions
+CLAUDE.md
+
+# Trigger.dev dev state
+.trigger
