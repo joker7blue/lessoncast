@@ -2,14 +2,21 @@
 // characters and the style stay the same (derisk test 2, strategy B).
 
 import type { Lesson } from "../lesson/schema";
+import { STYLES } from "../lesson/styles";
 import { postJson } from "./client";
 
 const MODEL = "muse-image-1.0";
 // Sets the aspect ratio only (16:9); the API picks the pixel size (2048 × 1152 in the derisk run).
 const SIZE = "1280x720";
 
+/** The style's fixed prompt, then the lesson's recurring characters and places, then the scene. */
 export function scenePrompt(lesson: Lesson, index: number): string {
-  return `${lesson.artStyle}\n\nScene: ${lesson.scenes[index]?.imagePrompt}\n\nNo text, letters or numbers anywhere in the image.`;
+  return [
+    STYLES[lesson.style].prompt,
+    `Recurring characters, places and objects: ${lesson.visualNotes}`,
+    `Scene: ${lesson.scenes[index]?.imagePrompt}`,
+    "No text, letters or numbers anywhere in the image, not even on posters, boards or books.",
+  ].join("\n\n");
 }
 
 async function requestImage(pathname: string, body: Record<string, unknown>): Promise<Uint8Array> {

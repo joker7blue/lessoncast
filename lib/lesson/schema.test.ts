@@ -41,6 +41,13 @@ describe("Lesson", () => {
     expect(Lesson.safeParse(makeLesson(9)).success).toBe(false);
   });
 
+  test("a lesson needs one of the four styles and its visual notes", () => {
+    expect(Lesson.safeParse({ ...makeLesson(6), style: "watercolor" }).success).toBe(false);
+    const withoutNotes: Partial<Lesson> = makeLesson(6);
+    delete withoutNotes.visualNotes;
+    expect(Lesson.safeParse(withoutNotes).success).toBe(false);
+  });
+
   test("accepts 5 and 8 scenes", () => {
     expect(Lesson.safeParse(makeLesson(5)).success).toBe(true);
     expect(Lesson.safeParse(makeLesson(8)).success).toBe(true);

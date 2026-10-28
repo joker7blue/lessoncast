@@ -1,7 +1,8 @@
-// The lesson Muse Spark writes from a textbook page photo. Its JSON Schema is sent as strict
+// The lesson Muse Spark writes from one to four textbook page photos. Its JSON Schema is sent as strict
 // structured output, so every field here is required and every object closed.
 
 import { z } from "zod";
+import { ArtStyle } from "./styles";
 
 export const Language = z.enum(["fr", "pcm"]);
 export type Language = z.infer<typeof Language>;
@@ -34,14 +35,19 @@ const QuizQuestion = z.object({
 
 export const Lesson = z.object({
   page: z.object({
-    isTextbookPage: z.boolean().describe("false when the photo is not a readable textbook page"),
+    isTextbookPage: z.boolean().describe("false when any photo is not a readable textbook page"),
     subject: z.string(),
     level: z.string().describe("School level printed on or implied by the page, e.g. CM1, 6e, Form 1"),
     topic: z.string(),
     keyText: z.string().describe("The page's title and main definitions, copied as printed"),
   }),
   title: Bilingual,
-  artStyle: z.string().describe("One English art style description shared by every image of the lesson"),
+  style: ArtStyle.describe("The image style of the lesson, as the user message asks"),
+  visualNotes: z
+    .string()
+    .describe(
+      "English description of the recurring characters (age, look, clothes), places and objects shared by every image, without any art style",
+    ),
   scenes: z.array(Scene).min(5).max(8),
   quiz: z.array(QuizQuestion).length(3),
 });

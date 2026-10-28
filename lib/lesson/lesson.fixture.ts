@@ -14,7 +14,8 @@ export function makeLesson(sceneCount = 6): Lesson {
       keyText: "Le cœur est un muscle qui pompe le sang.",
     },
     title: both("Le cœur, une pompe", "Heart na pump"),
-    artStyle: "warm flat digital illustration for children",
+    style: "illustrated",
+    visualNotes: "Amina, a nine-year-old Cameroonian girl with braided hair and a green school uniform, in a sunny classroom in Douala",
     scenes: Array.from({ length: sceneCount }, (_, i) => ({
       title: both(`Scène ${i + 1}`, `Scene ${i + 1}`),
       narration: both(

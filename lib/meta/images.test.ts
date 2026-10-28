@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { makeLesson } from "../lesson/lesson.fixture";
+import { STYLES } from "../lesson/styles";
 import { editImage, generateImage, scenePrompt } from "./images";
 
 const JPEG = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 1, 2, 3]);
@@ -43,11 +44,12 @@ describe("editImage", () => {
 });
 
 describe("scenePrompt", () => {
-  test("starts with the art style, then the scene, and forbids text in the image", () => {
-    const lesson = makeLesson(6);
+  test("is the style prompt, then the visual notes, then the scene, then no text", () => {
+    const lesson = { ...makeLesson(6), style: "realistic" as const };
     const prompt = scenePrompt(lesson, 2);
-    expect(prompt.startsWith(lesson.artStyle)).toBe(true);
-    expect(prompt).toContain(lesson.scenes[2]!.imagePrompt);
-    expect(prompt).toMatch(/No text, letters or numbers/);
+    const parts = [STYLES.realistic.prompt, lesson.visualNotes, lesson.scenes[2]!.imagePrompt, "No text, letters or numbers"];
+    const positions = parts.map((part) => prompt.indexOf(part));
+    expect(positions[0]).toBe(0);
+    for (let i = 1; i < positions.length; i++) expect(positions[i]).toBeGreaterThan(positions[i - 1]!);
   });
 });
