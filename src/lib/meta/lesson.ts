@@ -1,6 +1,6 @@
 // Muse Spark reads one to four textbook page photos and writes the lesson (strict structured output).
 
-import { Lesson, lessonJsonSchema } from "../lesson/schema";
+import { Lesson, lessonJsonSchema, MAX_PAGES } from "../lesson/schema";
 import { ArtStyle, STYLES, type StyleChoice } from "../lesson/styles";
 import { postJson } from "./client";
 import { type SparkUsage, sparkCostUsd } from "./prices";
@@ -25,8 +25,6 @@ type ChatCompletion = {
   choices: { message: { content: string | null; refusal?: string | null }; finish_reason: string }[];
   usage?: SparkUsage;
 };
-
-export const MAX_PAGES = 4;
 
 function styleRequest(style: StyleChoice): string {
   if (style !== "auto") return `Use the image style "${style}".`;

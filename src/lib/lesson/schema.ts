@@ -4,6 +4,9 @@
 import { z } from "zod";
 import { ArtStyle } from "./styles";
 
+/** A lesson is made from 1 to MAX_PAGES page photos. */
+export const MAX_PAGES = 4;
+
 export const Language = z.enum(["fr", "pcm"]);
 export type Language = z.infer<typeof Language>;
 

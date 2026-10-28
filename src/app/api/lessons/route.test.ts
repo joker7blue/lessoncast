@@ -30,7 +30,7 @@ function post(fields: { photos?: File[]; language?: string; style?: string }) {
 async function expectError(res: Response, status: number) {
   expect(res.status).toBe(status);
   const body = await res.json();
-  expect(body.error).toMatch(/\.$/); // a French sentence
+  expect(body.error).toMatch(/\.$/); // a sentence for the teacher
   expect(repo.createLesson).not.toHaveBeenCalled();
   return body.error as string;
 }

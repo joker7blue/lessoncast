@@ -6,10 +6,11 @@ import { publicUrl } from "@/lib/supabase/storage";
 export async function GET(_request: Request, ctx: RouteContext<"/api/lessons/[id]">) {
   const { id } = await ctx.params;
   const lesson = await getLesson(id);
-  if (!lesson) return Response.json({ error: "Cette leçon n'existe pas." }, { status: 404 });
+  if (!lesson) return Response.json({ error: "This lesson doesn't exist." }, { status: 404 });
 
   return Response.json({
     status: lesson.status,
+    language: lesson.language,
     error: lesson.error,
     title: lesson.script?.title[lesson.language] ?? null,
     // The style actually used once Muse Spark has written the script, the teacher's choice before.

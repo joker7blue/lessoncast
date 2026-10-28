@@ -1,5 +1,5 @@
-// What the teacher reads when a lesson fails: one plain French sentence per pipeline step. The
-// technical cause stays in the Trigger.dev run.
+// What the teacher reads when a lesson fails: one plain sentence per pipeline step. The technical
+// cause stays in the Trigger.dev run.
 
 export type Step = "write-script" | "draw-scenes" | "narrate" | "render-video";
 
@@ -10,18 +10,18 @@ export class NotATextbookPageError extends Error {
   }
 }
 
-const RETRY = "Réessayez dans quelques minutes.";
+const RETRY = "Try again in a few minutes.";
 
 const MESSAGES: Record<Step, string> = {
-  "write-script": `La lecture des pages a échoué. ${RETRY}`,
-  "draw-scenes": `Les illustrations n'ont pas pu être créées. ${RETRY}`,
-  narrate: `La voix n'a pas pu être enregistrée. ${RETRY}`,
-  "render-video": `Le montage de la vidéo a échoué. ${RETRY}`,
+  "write-script": `Reading the pages failed. ${RETRY}`,
+  "draw-scenes": `The pictures couldn't be drawn. ${RETRY}`,
+  narrate: `The voice couldn't be recorded. ${RETRY}`,
+  "render-video": `Putting the video together failed. ${RETRY}`,
 };
 
 export function teacherMessage(step: Step, error: unknown): string {
   if (error instanceof NotATextbookPageError) {
-    return "Une photo ne ressemble pas à une page de manuel. Reprenez une photo nette de chaque page, en entier.";
+    return "A photo doesn't look like a textbook page. Take a sharp photo of each whole page.";
   }
   return MESSAGES[step];
 }

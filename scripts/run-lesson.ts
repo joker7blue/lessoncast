@@ -5,10 +5,9 @@
 
 import { readFile } from "node:fs/promises";
 import { tasks } from "@trigger.dev/sdk";
-import { Language } from "../src/lib/lesson/schema";
+import { Language, MAX_PAGES } from "../src/lib/lesson/schema";
 import { StyleChoice } from "../src/lib/lesson/styles";
 import { createLesson, getLesson } from "../src/lib/lessons/repo";
-import { MAX_PAGES } from "../src/lib/meta/lesson";
 import { lessonPaths, publicUrl, uploadFile } from "../src/lib/supabase/storage";
 import type { generateLesson } from "../src/trigger/generate-lesson";
 

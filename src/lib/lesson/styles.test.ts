@@ -9,7 +9,7 @@ test("every style has a French label, a description, a prompt and a rule", () =>
     expect(style.prompt).toMatch(/^Art style: /);
     expect(style.when).not.toBe("");
   }
-  expect(AUTO_STYLE.label).toBe("Automatique");
+  expect(AUTO_STYLE.label).toBe("Automatic");
 });
 
 test("StyleChoice accepts auto and the four styles, nothing else", () => {
