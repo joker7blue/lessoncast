@@ -1,21 +1,18 @@
-// Default props for Remotion Studio: a 6-scene Pidgin lesson with voice-shaped timings, using the
-// derisk images and narration served by the local "derisk-out" preview server (port 8765).
-// The voice service task (Task 4) replaces them with a recorded lesson on Supabase Storage.
+// Default props for Remotion Studio: the recorded fixture lesson (scripts/record-fixture.ts), with its
+// real Pidgin narration and word timings, and the scene images stored in the lessons bucket.
 
-import { makeLesson } from "../lib/lesson/lesson.fixture";
-import { narrationGroups } from "../lib/lesson/narration";
+import lessonJson from "../lib/video/fixtures/lesson.json";
+import media from "../lib/video/fixtures/media.json";
+import recording from "../lib/video/fixtures/words-pcm.json";
+import { Lesson } from "../lib/lesson/schema";
 import { buildVideoProps } from "../lib/video/timeline";
-import { timedWordsFor } from "../lib/video/words.fixture";
-
-const MEDIA = "http://localhost:8765";
-const lesson = makeLesson(6);
-const { words, audioSeconds } = timedWordsFor(narrationGroups(lesson, "pcm"));
+import { TimedWord } from "../lib/video/words";
 
 export const fixtureProps = buildVideoProps({
-  lesson,
+  lesson: Lesson.parse(lessonJson),
   language: "pcm",
-  words,
-  audioSeconds,
-  audioUrl: `${MEDIA}/04/t4-pcm.wav`,
-  sceneImageUrls: lesson.scenes.map((_, i) => `${MEDIA}/02/b-scene-${i + 1}.jpg`),
+  words: TimedWord.array().parse(recording.words),
+  audioSeconds: recording.audioSeconds,
+  audioUrl: media.audioUrl,
+  sceneImageUrls: media.sceneImageUrls,
 });

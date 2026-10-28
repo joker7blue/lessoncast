@@ -1,0 +1,215 @@
+{
+  "page": {
+    "isTextbookPage": true,
+    "subject": "Histoire-Géographie",
+    "level": "Seconde",
+    "topic": "L'histoire et la géographie au lycée",
+    "keyText": "Préambule ■ L’histoire et la géographie au lycée ■ Des disciplines pour comprendre et agir L’histoire et la géographie ouvrent les élèves au monde et leur donnent les moyens d’une compréhension éclairée de celui-ci. L’acquisition de repères temporels et spatiaux, la confrontation à l’altérité par la connaissance d’expériences humaines antérieures et de territoires variés affinent leur regard sur le monde. L’histoire et la géographie éveillent la curiosité des élèves et élargissent leur horizon. Elles leur font découvrir l’humanité dans son unité et sa diversité. ■ Des disciplines complémentaires Les deux disciplines sont complémentaires dans la formation des élèves, aussi disposent-elles du même volume horaire annuel et du même nombre de thèmes. ■ Professeurs et élèves, acteurs des apprentissages A l’issue du lycée, les élèves doivent être capables de traiter de l’information, de prendre des notes ainsi que de mener un travail autonome."
+  },
+  "title": {
+    "fr": "L'histoire et la géographie au lycée",
+    "pcm": "History and Geography for Lycée"
+  },
+  "style": "illustrated",
+  "visualNotes": "Cameroonian pupils in green school uniforms and their teacher, in a bright classroom and the green countryside around the school",
+  "scenes": [
+    {
+      "title": {
+        "fr": "Comprendre et agir",
+        "pcm": "For Understand and Act"
+      },
+      "narration": {
+        "fr": "Au lycée, tu étudies l'histoire et la géographie. Ce sont des disciplines pour comprendre le monde et pour agir. Elles t'ouvrent au monde qui t'entoure.",
+        "pcm": "For lycée, you di study history and geography. Na dem be subject for make you understand world and for act. Dem di open your eye for world wey di round you."
+      },
+      "imagePrompt": "Cameroonian teenage students walking toward a bright secondary school building in the morning, a large globe in the sky behind, welcoming composition",
+      "highlights": [
+        {
+          "samPrompt": "globe",
+          "fr": "le monde",
+          "pcm": "world"
+        }
+      ]
+    },
+    {
+      "title": {
+        "fr": "Se repérer dans le temps et l'espace",
+        "pcm": "For Know Time and Place"
+      },
+      "narration": {
+        "fr": "L'histoire te donne des repères dans le temps. La géographie te donne des repères dans l'espace. Tu rencontres des expériences humaines anciennes et des territoires variés.",
+        "pcm": "History di give you mark for time. Geography di give you mark for place. You go meet old-time people dem story and different different land dem."
+      },
+      "imagePrompt": "Cameroonian children looking at a big clock on one side and diverse Cameroon landscapes with hills and village houses on the other side",
+      "highlights": [
+        {
+          "samPrompt": "wall clock",
+          "fr": "des repères dans le temps",
+          "pcm": "mark for time"
+        },
+        {
+          "samPrompt": "rural landscape",
+          "fr": "des territoires variés",
+          "pcm": "different different land dem"
+        }
+      ]
+    },
+    {
+      "title": {
+        "fr": "L'humanité une et diverse",
+        "pcm": "People Dem One but Different"
+      },
+      "narration": {
+        "fr": "Ces deux disciplines éveillent ta curiosité et élargissent ton horizon. Tu découvres l'humanité dans son unité et sa diversité. Tu comprends comment les sociétés changent avec le temps.",
+        "pcm": "Dese two subject dem go wake your curiosity and open your eye big. You go discover say people dem na one but dem different. You go understand how society dem di change with time."
+      },
+      "imagePrompt": "diverse group of Cameroonian children from different regions in traditional outfits smiling together in a sunny schoolyard, green hills behind",
+      "highlights": [
+        {
+          "samPrompt": "group of children",
+          "fr": "l'humanité",
+          "pcm": "people dem"
+        },
+        {
+          "samPrompt": "village community",
+          "fr": "les sociétés",
+          "pcm": "society dem"
+        }
+      ]
+    },
+    {
+      "title": {
+        "fr": "Regarder le présent et choisir",
+        "pcm": "For Look Present and Choose"
+      },
+      "narration": {
+        "fr": "Ces disciplines éduquent ton regard sur le présent. Elles t'aident à chercher des informations solides. Elles te préparent à faire des choix réfléchis avec liberté et responsabilité.",
+        "pcm": "Dese subject dem di teach you how for look present time well. Dem di helep you for find correct information with care. Dem di ready you for make good choice with freedom and duty."
+      },
+      "imagePrompt": "Cameroonian teenage girl reading a newspaper in a lively market place, two diverging footpaths before her symbolizing choice, bright daylight",
+      "highlights": [
+        {
+          "samPrompt": "stack of newspapers",
+          "fr": "des informations solides",
+          "pcm": "correct information"
+        },
+        {
+          "samPrompt": "fork in road",
+          "fr": "des choix réfléchis",
+          "pcm": "good choice"
+        }
+      ]
+    },
+    {
+      "title": {
+        "fr": "Deux disciplines complémentaires",
+        "pcm": "Two Subject Dem Di Waka Together"
+      },
+      "narration": {
+        "fr": "L'histoire et la géographie sont complémentaires pour te former. Elles ont le même nombre d'heures et le même nombre de thèmes. Chaque thème a une durée indicative pour bien apprendre.",
+        "pcm": "History and geography dem be sister subject for train you. Dem get same time for week and same number for topic. Each topic get time wey dem mark for learn am well."
+      },
+      "imagePrompt": "two balanced school books side by side on a classroom desk in a Cameroon classroom, wall clock behind, harmonious composition",
+      "highlights": [
+        {
+          "samPrompt": "wall clock",
+          "fr": "le même nombre d'heures",
+          "pcm": "same time for week"
+        },
+        {
+          "samPrompt": "stack of books",
+          "fr": "le même nombre de thèmes",
+          "pcm": "same number for topic"
+        }
+      ]
+    },
+    {
+      "title": {
+        "fr": "Professeurs et élèves acteurs",
+        "pcm": "Teacher and Pikin Dem Di Work Together"
+      },
+      "narration": {
+        "fr": "A la fin du lycée, tu sauras traiter des informations et prendre des notes. Tu sauras travailler seul de manière autonome. Le professeur transmet et tu écoutes puis tu analyses des cartes et des vidéos.",
+        "pcm": "For end for lycée, you go sabi handle information and write note. You go sabi work alone for yourself. Teacher go teach and you go listen, then you go check map and video dem well."
+      },
+      "imagePrompt": "Cameroonian teacher explaining a lesson to attentive teenage students taking notes, a large wall map and classroom television visible",
+      "highlights": [
+        {
+          "samPrompt": "teacher",
+          "fr": "Le professeur",
+          "pcm": "Teacher"
+        },
+        {
+          "samPrompt": "map",
+          "fr": "des cartes",
+          "pcm": "map"
+        }
+      ]
+    }
+  ],
+  "quiz": [
+    {
+      "question": {
+        "fr": "Pourquoi étudie-t-on l'histoire et la géographie au lycée ?",
+        "pcm": "Why you di study history and geography for lycée?"
+      },
+      "choices": [
+        {
+          "fr": "Pour comprendre le monde et pour agir",
+          "pcm": "For make you understand world and for act"
+        },
+        {
+          "fr": "Pour oublier le présent",
+          "pcm": "For forget present time"
+        },
+        {
+          "fr": "Pour fermer les yeux sur le monde",
+          "pcm": "For close eye for world"
+        }
+      ],
+      "answerIndex": 0
+    },
+    {
+      "question": {
+        "fr": "Que partagent les deux disciplines complémentaires ?",
+        "pcm": "Wetin dese two sister subject dem get together?"
+      },
+      "choices": [
+        {
+          "fr": "Des heures et des thèmes très différents",
+          "pcm": "Time and topic dem wey different well well"
+        },
+        {
+          "fr": "Le même nombre d'heures et le même nombre de thèmes",
+          "pcm": "Same time for week and same number for topic"
+        },
+        {
+          "fr": "Aucune heure de cours",
+          "pcm": "No time for class at all"
+        }
+      ],
+      "answerIndex": 1
+    },
+    {
+      "question": {
+        "fr": "Que doit savoir faire un élève à la fin du lycée ?",
+        "pcm": "Wetin pikin suppose sabi do for end for lycée?"
+      },
+      "choices": [
+        {
+          "fr": "Dormir en classe",
+          "pcm": "For sleep for class"
+        },
+        {
+          "fr": "Recopier sans réfléchir",
+          "pcm": "For copy without think"
+        },
+        {
+          "fr": "Traiter des informations, prendre des notes et travailler seul",
+          "pcm": "For handle information, write note and work alone for yourself"
+        }
+      ],
+      "answerIndex": 2
+    }
+  ]
+}
