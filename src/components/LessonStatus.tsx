@@ -149,9 +149,9 @@ export function LessonStatus({ id }: { id: string }) {
         />
       </section>
 
-      <aside className={`${done ? "order-2" : "order-1"} lg:order-none`}>
+      <aside className={`${done ? "order-2" : "order-1"} lg:sticky lg:top-6 lg:order-none lg:self-start`}>
         <h2 className="mb-4 text-xl font-extrabold">{done ? "How this video was made" : "Being made now"}</h2>
-        <PipelineGraph states={states} nodes={lessonNodes(lesson)} footer={footer} />
+        <PipelineGraph states={states} nodes={lessonNodes(lesson)} footer={footer} roles={false} />
       </aside>
     </div>
   );

@@ -39,7 +39,7 @@ const FRAME: Record<NodeState, string> = {
 function StateLine({ state, metrics }: { state: NodeState; metrics?: StepMetrics }) {
   if (state === "running") {
     return (
-      <p className="flex items-center gap-1.5 text-sm font-bold text-spoken">
+      <p className="flex items-center gap-1.5 text-[13px] font-bold text-spoken">
         <span aria-hidden className="size-2 rounded-full bg-spoken motion-safe:animate-pulse" />
         Working
       </p>
@@ -47,7 +47,7 @@ function StateLine({ state, metrics }: { state: NodeState; metrics?: StepMetrics
   }
   if (state === "done") {
     return (
-      <p className="flex items-center gap-1 text-sm font-bold text-chalk/85">
+      <p className="flex items-center gap-1 text-[13px] font-bold text-chalk/85">
         <Check aria-hidden className="size-4 shrink-0 text-spoken" strokeWidth={3} />
         {metrics ? `${formatSeconds(metrics.seconds)}, ${formatUsd(metrics.costUsd)}` : "Done"}
       </p>
@@ -55,29 +55,30 @@ function StateLine({ state, metrics }: { state: NodeState; metrics?: StepMetrics
   }
   if (state === "failed") {
     return (
-      <p className="flex items-center gap-1 text-sm font-bold text-danger">
+      <p className="flex items-center gap-1 text-[13px] font-bold text-danger">
         <TriangleAlert aria-hidden className="size-4 shrink-0" />
         Stopped
       </p>
     );
   }
-  return <p className="text-sm text-dust">Waiting</p>;
+  return <p className="text-[13px] text-dust">Waiting</p>;
 }
 
-function Node({ id, state, content }: { id: NodeId; state: NodeState; content: NodeContent }) {
+function Node({ id, state, content, roles }: { id: NodeId; state: NodeState; content: NodeContent; roles: boolean }) {
   const Icon = ICONS[id];
   return (
-    <div className={`rounded-xl border bg-panel p-3.5 transition-[border-color,box-shadow,opacity] duration-500 ${FRAME[state]}`}>
-      <div className="flex items-center gap-2">
-        <Icon aria-hidden className={`size-5 shrink-0 ${state === "running" ? "text-spoken" : "text-chalk/80"}`} />
+    <div
+      title={roles ? undefined : content.role}
+      className={`rounded-xl border bg-panel px-3 py-2.5 transition-[border-color,box-shadow,opacity] duration-500 ${FRAME[state]}`}
+    >
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <Icon aria-hidden className={`size-4.5 shrink-0 ${state === "running" ? "text-spoken" : "text-chalk/80"}`} />
         <p className="font-extrabold leading-tight">{content.title}</p>
+        {content.model && <p className="rounded bg-board px-1.5 py-0.5 text-xs font-bold break-all text-chalk/80">{content.model}</p>}
       </div>
-      {content.model && (
-        <p className="mt-2 inline-block rounded-md bg-board px-2 py-0.5 text-sm font-bold break-all text-chalk/90">{content.model}</p>
-      )}
-      <p className="mt-2 text-sm leading-snug text-dust">{content.role}</p>
-      {content.output && <p className="mt-1.5 text-sm leading-snug font-bold text-chalk">{content.output}</p>}
-      <div className="mt-2.5 border-t border-line pt-2">
+      {roles && <p className="mt-1 line-clamp-2 text-[13px] leading-snug text-dust">{content.role}</p>}
+      {content.output && <p className="mt-1 line-clamp-2 text-[13px] leading-snug font-bold text-chalk">{content.output}</p>}
+      <div className="mt-1.5 border-t border-line pt-1.5">
         <StateLine state={state} metrics={content.metrics} />
       </div>
     </div>
@@ -107,7 +108,7 @@ function Edges({ shape, left, right = left }: { shape: "straight" | "fork" | "jo
             ["M75 0 V18 H50 V28", right],
           ];
   return (
-    <svg viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden className="block h-7 w-full">
+    <svg viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden className="block h-4 w-full">
       {paths.map(([d, state]) => (
         <path key={d} d={d} className={EDGE_CLASS[state as EdgeState]} />
       ))}
@@ -119,27 +120,30 @@ export function PipelineGraph({
   states,
   nodes,
   footer,
+  roles = true,
 }: {
   states: Record<NodeId, NodeState>;
   nodes: Record<NodeId, NodeContent>;
   footer?: ReactNode;
+  /** Each model's general role under its name; a lesson's own graph leaves it to the tooltip. */
+  roles?: boolean;
 }) {
   return (
     <figure aria-label="How this lesson is made">
-      <Node id="pages" state={states.pages} content={nodes.pages} />
+      <Node id="pages" state={states.pages} content={nodes.pages} roles={roles} />
       <Edges shape="straight" left={edgeInto(states.spark)} />
-      <Node id="spark" state={states.spark} content={nodes.spark} />
+      <Node id="spark" state={states.spark} content={nodes.spark} roles={roles} />
       <Edges shape="fork" left={edgeInto(states.image)} right={edgeInto(states.voice)} />
       <div className="grid grid-cols-2 gap-3">
-        <Node id="image" state={states.image} content={nodes.image} />
-        <Node id="voice" state={states.voice} content={nodes.voice} />
+        <Node id="image" state={states.image} content={nodes.image} roles={roles} />
+        <Node id="voice" state={states.voice} content={nodes.voice} roles={roles} />
       </div>
       <Edges shape="join" left={edgeInto(states.sam)} />
-      <Node id="sam" state={states.sam} content={nodes.sam} />
+      <Node id="sam" state={states.sam} content={nodes.sam} roles={roles} />
       <Edges shape="straight" left={edgeInto(states.render)} />
-      <Node id="render" state={states.render} content={nodes.render} />
+      <Node id="render" state={states.render} content={nodes.render} roles={roles} />
       <Edges shape="straight" left={edgeInto(states.video)} />
-      <Node id="video" state={states.video} content={nodes.video} />
+      <Node id="video" state={states.video} content={nodes.video} roles={roles} />
       {footer && <figcaption className="mt-4 text-sm text-dust">{footer}</figcaption>}
     </figure>
   );
