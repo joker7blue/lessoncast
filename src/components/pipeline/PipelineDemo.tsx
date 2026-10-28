@@ -15,11 +15,12 @@ const R = "running" as const;
 const D = "done" as const;
 
 const PHASES: States[] = [
-  { pages: D, spark: R, image: W, voice: W, render: W, video: W },
-  { pages: D, spark: D, image: R, voice: R, render: W, video: W },
-  { pages: D, spark: D, image: R, voice: D, render: W, video: W },
-  { pages: D, spark: D, image: D, voice: D, render: R, video: W },
-  { pages: D, spark: D, image: D, voice: D, render: D, video: D },
+  { pages: D, spark: R, image: W, voice: W, sam: W, render: W, video: W },
+  { pages: D, spark: D, image: R, voice: R, sam: W, render: W, video: W },
+  { pages: D, spark: D, image: R, voice: D, sam: W, render: W, video: W },
+  { pages: D, spark: D, image: D, voice: D, sam: R, render: W, video: W },
+  { pages: D, spark: D, image: D, voice: D, sam: D, render: R, video: W },
+  { pages: D, spark: D, image: D, voice: D, sam: D, render: D, video: D },
 ];
 
 const PHASE_MS = 1800;

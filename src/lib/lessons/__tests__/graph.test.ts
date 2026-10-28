@@ -10,6 +10,7 @@ describe("nodeStates", () => {
       spark: "waiting",
       image: "waiting",
       voice: "waiting",
+      sam: "waiting",
       render: "waiting",
       video: "waiting",
     });
@@ -25,8 +26,24 @@ describe("nodeStates", () => {
   });
 
   test("a finished lesson is done everywhere", () => {
-    const metrics = { "write-script": m(40), "draw-scenes": m(133), narrate: m(51), "render-video": m(80) };
+    const metrics = { "write-script": m(40), "draw-scenes": m(133), narrate: m(51), "find-highlights": m(25), "render-video": m(80) };
     expect(Object.values(nodeStates({ status: "done", metrics, scenesDrawn: 7 })).every((s) => s === "done")).toBe(true);
+  });
+
+  test("SAM runs while the lesson is highlighting", () => {
+    const metrics = { "write-script": m(40), "draw-scenes": m(133), narrate: m(51) };
+    expect(nodeStates({ status: "highlighting", metrics, scenesDrawn: 7 }).sam).toBe("running");
+  });
+
+  test("SAM is done once find-highlights recorded its metrics", () => {
+    const metrics = { "write-script": m(40), "draw-scenes": m(133), narrate: m(51), "find-highlights": m(25) };
+    expect(nodeStates({ status: "highlighting", metrics, scenesDrawn: 7 }).sam).toBe("done");
+  });
+
+  test("SAM is done once the lesson renders, even when it left no metrics", () => {
+    const metrics = { "write-script": m(40), "draw-scenes": m(133), narrate: m(51) };
+    const states = nodeStates({ status: "rendering", metrics, scenesDrawn: 7 });
+    expect([states.sam, states.render]).toEqual(["done", "running"]);
   });
 
   test("a page that isn't a textbook fails at Muse Spark, not at the next steps", () => {
@@ -40,13 +57,20 @@ describe("nodeStates", () => {
   });
 
   test("a failed render fails Remotion only", () => {
+    const metrics = { "write-script": m(40), "draw-scenes": m(133), narrate: m(51), "find-highlights": m(25) };
+    const states = nodeStates({ status: "failed", metrics, scenesDrawn: 7 });
+    expect([states.sam, states.render]).toEqual(["done", "failed"]);
+  });
+
+  test("a lesson failed at render after SAM left no metrics keeps SAM done", () => {
     const metrics = { "write-script": m(40), "draw-scenes": m(133), narrate: m(51) };
-    expect(nodeStates({ status: "failed", metrics, scenesDrawn: 7 }).render).toBe("failed");
+    const states = nodeStates({ status: "failed", metrics, scenesDrawn: 7 });
+    expect([states.image, states.voice, states.sam, states.render]).toEqual(["done", "done", "done", "failed"]);
   });
 });
 
-test("model time follows the critical path: script, the longer of scenes and voice, render", () => {
-  const metrics = { "write-script": m(40.7), "draw-scenes": m(132.8), narrate: m(51.1), "render-video": m(80.3) };
-  expect(modelSeconds(metrics)).toBeCloseTo(253.8, 5);
+test("model time follows the critical path: script, the longer of scenes and voice, SAM, render", () => {
+  const metrics = { "write-script": m(40.7), "draw-scenes": m(132.8), narrate: m(51.1), "find-highlights": m(24.5), "render-video": m(80.3) };
+  expect(modelSeconds(metrics)).toBeCloseTo(278.3, 5);
   expect(modelSeconds({})).toBe(0);
 });

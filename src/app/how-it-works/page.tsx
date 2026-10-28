@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { VERSION as REMOTION_VERSION } from "remotion/version";
 import { PipelineDemo } from "@/components/pipeline/PipelineDemo";
-import { ALIGNER_MODEL, IMAGE_MODEL, SPARK_MODEL, VOICE_MODELS } from "@/lib/meta/models";
+import { ALIGNER_MODEL, IMAGE_MODEL, SAM_MODEL, SPARK_MODEL, VOICE_MODELS } from "@/lib/meta/models";
 
 export const metadata: Metadata = { title: "How it works · LessonCast" };
 
@@ -23,9 +23,14 @@ const STEPS = [
     body: "Meta's Massively Multilingual Speech models run in our own container while the scenes are drawn. MMS-TTS reads each sentence, and MMS forced alignment finds when each word starts and ends, which gives the karaoke subtitles and the length of every scene.",
   },
   {
+    title: "SAM 3.1 cuts out the objects the voice names",
+    model: `${SAM_MODEL}, Meta Model API`,
+    body: "For every object a scene's narration names, such as the heart or the map, SAM 3.1 finds it in the drawing and returns its exact outline. The video then dims the rest of the scene and lifts that object, outlined in yellow, at the moment the voice says its name, so a child sees what the word means. An object SAM can't find is simply left out.",
+  },
+  {
     title: "Remotion edits the video",
     model: `Remotion ${REMOTION_VERSION}, on Modal`,
-    body: "A title card, the scenes with a slow zoom and crossfades, subtitles that light up the spoken word, and an end card that asks the child to replay the lesson with a parent. 854 × 480 at 300 kbit/s: about six megabytes for two and a half minutes.",
+    body: "A title card, the scenes with a slow zoom and crossfades, the SAM cut-outs lit on their words, subtitles that light up the spoken word, and an end card that asks the child to replay the lesson with a parent. 854 × 480 at 300 kbit/s: about six megabytes for two and a half minutes.",
   },
 ];
 
@@ -34,7 +39,7 @@ export default function HowItWorksPage() {
     <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-8 lg:py-12">
       <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">How it works</h1>
       <p className="mt-3 max-w-2xl text-lg leading-relaxed text-dust">
-        One photographed page goes through four Meta models. Trigger.dev runs each step as its own task, with retries, and
+        One photographed page goes through five Meta models. Trigger.dev runs each step as its own task, with retries, and
         draws the scenes while the voice records. Supabase keeps the lesson and its files.
       </p>
 
