@@ -64,8 +64,8 @@ export default function HowItWorksPage() {
       <section className="mt-16 rounded-2xl border border-line bg-panel p-6 sm:p-8">
         <h2 className="text-xl font-extrabold">Measured on real lessons</h2>
         <p className="mt-3 max-w-3xl leading-relaxed text-dust">
-          A one-page lesson took about four minutes from upload to video, a little more when several were made at once, and about $0.13 in model calls: $0.05 for Muse Spark,
-          $0.07 for seven Muse Image scenes, about a cent each for the voice and the render on Modal. Every lesson page shows
+          A one-page lesson took about four minutes from upload to video, a little more when several were made at once, and about $0.15 in model calls: $0.05 for Muse Spark,
+          $0.07 for seven Muse Image scenes, about three cents for SAM 3.1, about a cent each for the voice and the render on Modal. Every lesson page shows
           its own times and costs, step by step.
         </p>
         <Link href="/create" className="mt-6 inline-flex rounded-lg bg-spoken px-6 py-3 font-extrabold text-board">

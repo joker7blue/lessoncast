@@ -15,15 +15,16 @@ can replay with the child in the evening, helps where a printed page doesn't.
 | Draw the scenes | **Muse Image** `muse-image-1.0`, Meta Model API | Draws scene 1 from a fixed style prompt (Illustrated, Realistic, Diagram or Comic), then every other scene as an edit of scene 1, so the characters stay the same. |
 | Speak | **MMS-TTS** `facebook/mms-tts-fra`, `facebook/mms-tts-pcm`, open weights on Modal | Reads the narration aloud. |
 | Time every word | **MMS forced alignment** (torchaudio `MMS_FA`), open weights on Modal | Gives each word its start and end: the karaoke subtitles and the length of every scene. |
-| Edit the video | Remotion 4, on Modal | Title card, scenes with slow zooms and crossfades, subtitles that light up the spoken word, end card. 854 × 480 H.264 at 300 kbit/s. |
+| Cut out the objects | **SAM 3.1** `sam-3.1`, Meta Model API | Finds each object a scene's narration names ("the heart", "the map") in its drawing and returns its outline. When the voice says the word, the rest of the scene dims and the object lifts, outlined in yellow, with its word underlined in the subtitles. An object SAM can't find is left out; SAM never fails a lesson. |
+| Edit the video | Remotion 4, on Modal | Title card, scenes with slow zooms and crossfades, the SAM cut-outs lit on their words, subtitles that light up the spoken word, end card. 854 × 480 H.264 at 300 kbit/s. |
 
-Coming next: SAM 3.1 lights up the objects the voice names, and the quiz is narrated at the end of the video.
+Coming next: the quiz is narrated at the end of the video.
 
 ## What a lesson costs
 
 Measured on real lessons made from one page: about four minutes from upload to video, up to about five and a
-half when two lessons run at once, about $0.13 of model calls ($0.05 for Muse Spark, $0.07 for seven Muse Image scenes, about a cent each
-for the voice and the render), and about 6 MB for two and a half minutes of video. Every lesson page shows its
+half when two lessons run at once, about $0.15 of model calls ($0.05 for Muse Spark, $0.07 for seven Muse Image scenes, about 3 cents
+for SAM 3.1 on 13 objects in 31 s, about a cent each for the voice and the render), and about 6 MB for two and a half minutes of video. Every lesson page shows its
 own times and costs as a live graph of the pipeline. The derisk tests that set these choices are in
 [`docs/derisk.md`](docs/derisk.md).
 
@@ -42,6 +43,7 @@ Trigger.dev
   generate-lesson ─┬─ write-script      Muse Spark → lesson (Zod); warms the voice
                    ├─ draw-scenes  ┐    Muse Image: scene 1, then the others as edits of it, 4 at a time
                    │  narrate      ┘    Modal lessoncast-voice: MMS-TTS + MMS_FA → WAV + word timings
+                   ├─ find-highlights   SAM 3.1: one request per named object → highlights.json
                    └─ render-video      Modal lessoncast-render: Remotion → MP4
   ▼
 Supabase: the lessons table (RLS on, server only) and the public "lessons" bucket
@@ -95,5 +97,5 @@ requests show each step.
 ## Licenses
 
 The code is under the [MIT license](LICENSE). The MMS-TTS voices are released by Meta under CC-BY-NC 4.0, for
-non-commercial use. Muse Spark and Muse Image are used through the Meta Model API under its terms. Remotion has
+non-commercial use. Muse Spark, Muse Image and SAM 3.1 are used through the Meta Model API under its terms. Remotion has
 its own license, free for individuals and small teams. Nunito is under the SIL Open Font License.

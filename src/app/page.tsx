@@ -13,7 +13,7 @@ const SECONDARY = "inline-flex items-center justify-center rounded-lg border bor
 
 const FACTS = [
   { icon: Clock, text: "About four minutes from photo to video." },
-  { icon: Wallet, text: "About thirteen cents of model calls per lesson." },
+  { icon: Wallet, text: "About fifteen cents of model calls per lesson." },
   { icon: HardDrive, text: "Six megabytes for a lesson of two and a half minutes." },
   { icon: Languages, text: "French and Pidgin today; MMS speaks over a thousand languages." },
 ];
