@@ -4,6 +4,7 @@
 // its content) shows scene 1 again rather than failing the lesson.
 
 import type { Lesson } from "../lesson/schema";
+import { forEachLimit } from "../limit";
 import { openingPrompt, scenePrompt } from "../meta/images";
 
 const EDIT_ATTEMPTS = 2;
@@ -47,14 +48,6 @@ export async function drawScene(lesson: Lesson, index: number, deps: ImageDeps &
     }
   }
   return deps.generateImage(prompt);
-}
-
-async function forEachLimit<T>(items: T[], limit: number, fn: (item: T) => Promise<void>): Promise<void> {
-  const queue = [...items];
-  const worker = async () => {
-    for (let item = queue.shift(); item !== undefined; item = queue.shift()) await fn(item);
-  };
-  await Promise.all(Array.from({ length: Math.min(limit, queue.length) }, worker));
 }
 
 /**
