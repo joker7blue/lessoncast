@@ -65,6 +65,7 @@ describe("GET /api/lessons/:id", () => {
       voice: null,
       videoUrl: null,
       metrics: {},
+      book: null,
     });
   });
 

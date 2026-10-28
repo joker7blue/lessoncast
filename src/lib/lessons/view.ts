@@ -19,4 +19,6 @@ export type LessonView = {
   voice: { seconds: number; words: number } | null;
   videoUrl: string | null;
   metrics: Record<string, StepMetrics>;
+  /** For a lesson made from a book: the book, the lesson's number in it and its pages. */
+  book: { id: string; title: string | null; n: number; firstPage: number; lastPage: number } | null;
 };
