@@ -1,50 +1,21 @@
 "use client";
 
-// The lesson being made: polls GET /api/lessons/:id every 2 s, lights the current step the way the
-// video lights the word being spoken, shows the scenes as they are drawn, then the video.
+// The lesson being made: polls GET /api/lessons/:id every 2 s and shows the pipeline graph live, the
+// scenes filling their slots as Muse Image draws them, then the video.
 
-import Image, { getImageProps } from "next/image";
+import { Download } from "lucide-react";
+import { getImageProps } from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import type { Language } from "@/lib/lesson/schema";
-import { STYLES, type StyleChoice } from "@/lib/lesson/styles";
-import type { LessonStatus as Status } from "@/lib/lessons/repo";
-
-type LessonView = {
-  status: Status;
-  language: Language;
-  error: string | null;
-  title: string | null;
-  style: StyleChoice;
-  sceneCount: number | null;
-  sceneImageUrls: string[];
-  videoUrl: string | null;
-};
+import { formatSeconds, formatUsd } from "@/lib/format";
+import { STYLES } from "@/lib/lesson/styles";
+import { modelSeconds, nodeStates } from "@/lib/lessons/graph";
+import type { LessonView } from "@/lib/lessons/view";
+import { lessonNodes } from "./pipeline/nodes";
+import { PipelineGraph } from "./pipeline/PipelineGraph";
+import { SceneImage } from "./SceneImage";
 
 const POLL_MS = 2000;
-const STEPS = ["reading", "drawing", "rendering", "done"] as const;
-type StepStatus = (typeof STEPS)[number];
-
-function stepIndex(status: Status): number {
-  if (status === "queued") return -1;
-  if (status === "voicing" || status === "highlighting") return 1;
-  return STEPS.indexOf(status as StepStatus);
-}
-
-function describe(step: StepStatus, lesson: LessonView): { title: string; detail: string } {
-  switch (step) {
-    case "reading":
-      return { title: "Reading the pages", detail: "Muse Spark reads the pages and writes the lesson." };
-    case "drawing": {
-      const drawn = lesson.sceneCount ? ` (${lesson.sceneImageUrls.length} of ${lesson.sceneCount})` : "";
-      return { title: "Pictures and voice", detail: `Muse Image draws the scenes${drawn} while MMS records the voice.` };
-    }
-    case "rendering":
-      return { title: "Putting it together", detail: "Remotion assembles the scenes, the voice and the subtitles." };
-    case "done":
-      return { title: "Ready", detail: "The video is ready to watch and send." };
-  }
-}
 
 function subtitle(lesson: LessonView): string {
   const language = lesson.language === "fr" ? "In French" : "In Pidgin";
@@ -52,12 +23,9 @@ function subtitle(lesson: LessonView): string {
   return `${language}, ${STYLES[lesson.style].label.toLowerCase()} style.`;
 }
 
-export function LessonStatus({ id }: { id: string }) {
+function useLesson(id: string): { lesson: LessonView | null; missing: boolean } {
   const [lesson, setLesson] = useState<LessonView | null>(null);
   const [missing, setMissing] = useState(false);
-  // The step that was running when the lesson failed: the API only says "failed".
-  const [lastStep, setLastStep] = useState(-1);
-
   useEffect(() => {
     let stopped = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -69,7 +37,6 @@ export function LessonStatus({ id }: { id: string }) {
           const next = (await res.json()) as LessonView;
           if (stopped) return;
           setLesson(next);
-          if (next.status !== "failed") setLastStep(stepIndex(next.status));
           if (next.status === "done" || next.status === "failed") return;
         }
       } catch {
@@ -83,12 +50,53 @@ export function LessonStatus({ id }: { id: string }) {
       clearTimeout(timer);
     };
   }, [id]);
+  return { lesson, missing };
+}
+
+/** Seconds since the lesson was created, ticking while it is being made. */
+function useElapsed(createdAt: string | undefined, running: boolean): number {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!running) return;
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, [running]);
+  return createdAt ? Math.max(0, (now - Date.parse(createdAt)) / 1000) : 0;
+}
+
+function SceneSlots({ lesson }: { lesson: LessonView }) {
+  const slots = Math.max(lesson.sceneCount ?? 0, lesson.sceneImageUrls.length);
+  if (slots === 0) return null;
+  return (
+    <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3" aria-label="Scenes">
+      {Array.from({ length: slots }, (_, i) => {
+        const url = lesson.sceneImageUrls[i];
+        return (
+          <li key={i}>
+            {url ? (
+              <SceneImage src={url} alt={`Scene ${i + 1}`} sizes="(max-width: 640px) 50vw, 240px" />
+            ) : (
+              <div className="grid aspect-video place-items-center rounded-lg border border-dashed border-line text-sm font-bold text-dust">
+                Scene {i + 1}
+              </div>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+export function LessonStatus({ id }: { id: string }) {
+  const { lesson, missing } = useLesson(id);
+  const running = lesson !== null && lesson.status !== "done" && lesson.status !== "failed";
+  const elapsed = useElapsed(lesson?.createdAt, running);
 
   if (missing) {
     return (
       <div>
         <p className="text-lg">This lesson doesn&apos;t exist.</p>
-        <Link href="/" className="mt-4 inline-block font-bold text-spoken underline underline-offset-4">
+        <Link href="/create" className="mt-4 inline-block font-bold text-spoken underline underline-offset-4">
           Create a lesson
         </Link>
       </div>
@@ -96,92 +104,60 @@ export function LessonStatus({ id }: { id: string }) {
   }
   if (!lesson) return <p className="text-dust">Loading the lesson…</p>;
 
+  const done = lesson.status === "done";
   const failed = lesson.status === "failed";
-  const current = failed ? lastStep : stepIndex(lesson.status);
+  const states = nodeStates({ status: lesson.status, metrics: lesson.metrics, scenesDrawn: lesson.sceneImageUrls.length });
+  const cost = Object.values(lesson.metrics).reduce((sum, m) => sum + m.costUsd, 0);
+  const footer = running
+    ? `Started ${formatSeconds(elapsed)} ago. A lesson takes about four minutes.`
+    : `Model time ${formatSeconds(modelSeconds(lesson.metrics))}. Estimated cost ${formatUsd(cost)}.`;
   const poster = lesson.sceneImageUrls[0]
     ? getImageProps({ src: lesson.sceneImageUrls[0], alt: "", width: 320, height: 180 }).props.src // 640 px at 2x
     : undefined;
 
   return (
-    <div>
-      <h1 className="text-3xl font-extrabold tracking-tight">{lesson.title ?? "Your lesson"}</h1>
-      <p className="mt-2 text-dust">{subtitle(lesson)}</p>
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_27rem] lg:gap-10">
+      <header className="lg:col-span-2">
+        <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">{lesson.title ?? "Your lesson"}</h1>
+        <p className="mt-2 text-lg text-dust">{subtitle(lesson)}</p>
+      </header>
 
-      {lesson.videoUrl && (
-        <section className="mt-8">
-          <video
-            controls
-            playsInline
-            preload="metadata"
-            poster={poster}
-            src={lesson.videoUrl}
-            className="aspect-video w-full rounded-lg bg-panel"
-          />
-          <a
-            href={`${lesson.videoUrl}?download=lessoncast.mp4`}
-            className="mt-4 block w-full rounded-lg bg-spoken py-4 text-center text-lg font-extrabold text-board"
-          >
-            Download the video
-          </a>
-        </section>
-      )}
+      <section className={`space-y-6 ${done ? "order-1" : "order-2"} lg:order-none`}>
+        {lesson.videoUrl && (
+          <div>
+            <video
+              controls
+              playsInline
+              preload="metadata"
+              poster={poster}
+              src={lesson.videoUrl}
+              className="aspect-video w-full rounded-xl bg-panel"
+            />
+            <a
+              href={`${lesson.videoUrl}?download=lessoncast.mp4`}
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-spoken py-4 text-lg font-extrabold text-board sm:w-auto sm:px-8"
+            >
+              <Download aria-hidden className="size-5" strokeWidth={2.5} />
+              Download the video
+            </a>
+          </div>
+        )}
+        {failed && (
+          <div role="alert" className="rounded-xl border border-danger/40 px-4 py-3">
+            <p className="text-danger">{lesson.error ?? "The lesson couldn't be made."}</p>
+            <Link href="/create" className="mt-3 inline-block font-bold text-chalk underline underline-offset-4">
+              Try again with other photos
+            </Link>
+          </div>
+        )}
+        {lesson.status === "queued" && <p className="text-dust">The lesson starts in a few seconds.</p>}
+        <SceneSlots lesson={lesson} />
+      </section>
 
-      {failed && (
-        <div role="alert" className="mt-8 rounded-lg border border-danger/40 px-4 py-3">
-          <p className="text-danger">{lesson.error ?? "The lesson couldn't be made."}</p>
-          <Link href="/" className="mt-3 inline-block font-bold text-chalk underline underline-offset-4">
-            Try again with other photos
-          </Link>
-        </div>
-      )}
-
-      <ol className="mt-8 space-y-5">
-        {STEPS.map((step, i) => {
-          const { title, detail } = describe(step, lesson);
-          const state = i < current || lesson.status === "done" ? "done" : i === current ? (failed ? "failed" : "active") : "pending";
-          return (
-            <li key={step} className={`flex gap-4 ${state === "pending" ? "opacity-45" : ""}`} aria-current={state === "active" ? "step" : undefined}>
-              <span
-                aria-hidden
-                className={`grid size-8 shrink-0 place-items-center rounded-full text-sm font-extrabold ${
-                  state === "active"
-                    ? "bg-spoken text-board motion-safe:animate-pulse"
-                    : state === "done"
-                      ? "bg-chalk/15 text-chalk"
-                      : state === "failed"
-                        ? "bg-danger text-board"
-                        : "border border-line text-dust"
-                }`}
-              >
-                {state === "done" ? "✓" : state === "failed" ? "!" : i + 1}
-              </span>
-              <div>
-                <p className={`font-extrabold ${state === "active" ? "text-spoken" : ""}`}>{title}</p>
-                <p className="text-dust">{detail}</p>
-              </div>
-            </li>
-          );
-        })}
-      </ol>
-
-      {lesson.sceneImageUrls.length > 0 && (
-        <ul className="mt-8 grid grid-cols-2 gap-3" aria-label="Scenes drawn">
-          {lesson.sceneImageUrls.map((url, i) => (
-            <li key={url}>
-              <Image
-                src={url}
-                alt={`Scene ${i + 1}`}
-                width={854}
-                height={480}
-                sizes="(max-width: 480px) 50vw, 220px"
-                className="aspect-video w-full rounded-md object-cover"
-              />
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {lesson.status === "queued" && <p className="mt-6 text-dust">The lesson starts in a few seconds.</p>}
+      <aside className={`${done ? "order-2" : "order-1"} lg:order-none`}>
+        <h2 className="mb-4 text-xl font-extrabold">{done ? "How this video was made" : "Being made now"}</h2>
+        <PipelineGraph states={states} nodes={lessonNodes(lesson)} footer={footer} />
+      </aside>
     </div>
   );
 }

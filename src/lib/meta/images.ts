@@ -4,8 +4,9 @@
 import type { Lesson } from "../lesson/schema";
 import { STYLES } from "../lesson/styles";
 import { postJson } from "./client";
+import { IMAGE_MODEL } from "./models";
 
-const MODEL = "muse-image-1.0";
+const MODEL = IMAGE_MODEL;
 // Sets the aspect ratio only (16:9); the API picks the pixel size (2048 × 1152 in the derisk run).
 const SIZE = "1280x720";
 

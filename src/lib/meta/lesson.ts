@@ -3,9 +3,10 @@
 import { Lesson, lessonJsonSchema, MAX_PAGES } from "../lesson/schema";
 import { ArtStyle, STYLES, type StyleChoice } from "../lesson/styles";
 import { postJson } from "./client";
+import { SPARK_MODEL } from "./models";
 import { type SparkUsage, sparkCostUsd } from "./prices";
 
-const MODEL = "muse-spark-1.3";
+const MODEL = SPARK_MODEL;
 
 export const LESSON_INSTRUCTIONS = `You turn one to four photographed pages of a Cameroonian school textbook, given in page order, into the script of one short narrated, illustrated video lesson for pupils. Parents and pupils will replay it at home in the evening, so it must be clear when heard without the book.
 
@@ -15,7 +16,7 @@ Rules:
 - Write 7 scenes (between 5 and 8 only if the pages clearly need it), however many pages there are: condense rather than lengthen. Each narration is 3 to 4 short sentences, 40–50 words in French. The whole lesson should last about 2 minutes when read aloud.
 - narration.fr: French at the level of the pages. For nursery and primary school, simple words for children. For secondary school, the subject's exact vocabulary, still in short sentences made to be heard.
 - narration.pcm: the same content in Cameroonian Pidgin English (Kamtok), the way a parent in Douala or Bamenda would explain it at home, spelled in plain Latin letters as it sounds. Do not translate word for word.
-- A text-to-speech voice reads the titles, the narrations and the quiz: never write digits or symbols in them (write numbers and units in words), and avoid abbreviations, parentheses and lists.
+- A text-to-speech voice reads the titles, the narrations and the quiz: never write digits or symbols in them (write numbers and units in words), and avoid abbreviations, parentheses and lists. Keep the normal spelling of each language, with its accents and apostrophes (l'histoire, d'un, c'est): an apostrophe is not a symbol.
 - imagePrompt (English): one illustration for the scene, which must show clearly every highlight object of the scene; describe subject, setting and composition. Show Cameroonian people and places when people or places appear, with pupils of the age the pages are written for. Never ask for text, letters, labels or numbers in the image. Leave the art style out: it is set by style.
 - visualNotes (English): the recurring characters (age, look, clothes), places and objects, described once so every image draws them the same way. No art style.
 - highlights: 1 to 3 objects per scene that the narration names. samPrompt is a short English noun phrase for one concrete, visible object ("heart", "river", "red blood cell"), never a group, a place or an idea. fr and pcm copy the exact word or phrase used in each narration.
