@@ -50,13 +50,29 @@ describe("GET /api/lessons/:id", () => {
     expect(await (await get(ID)).json()).toEqual({
       status: "queued",
       language: "pcm",
+      createdAt: "2026-10-28T12:00:00Z",
+      pageCount: 1,
       error: null,
       title: null,
       style: "auto",
       sceneCount: null,
       sceneImageUrls: [],
+      voice: null,
       videoUrl: null,
+      metrics: {},
     });
+  });
+
+  test("the graph gets each step's metrics and the voice's length and word count", async () => {
+    const metrics = { "write-script": { seconds: 40.7, costUsd: 0.047 }, narrate: { seconds: 51.1, costUsd: 0.006 } };
+    const words = [
+      { word: "Heart", start: 0, end: 0.4, score: 0.9, group: 0 },
+      { word: "na", start: 3.6, end: 3.8, score: 0.9, group: 1 },
+    ];
+    repo.getLesson.mockResolvedValue(row({ status: "drawing", script: makeLesson(6), metrics, words }));
+    const body = await (await get(ID)).json();
+    expect(body.metrics).toEqual(metrics);
+    expect(body.voice).toEqual({ seconds: 3.8, words: 2 });
   });
 
   test("returns the title in the lesson's language and only the scene images already drawn", async () => {

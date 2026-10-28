@@ -3,9 +3,10 @@
 import { Lesson, lessonJsonSchema, MAX_PAGES } from "../lesson/schema";
 import { ArtStyle, STYLES, type StyleChoice } from "../lesson/styles";
 import { postJson } from "./client";
+import { SPARK_MODEL } from "./models";
 import { type SparkUsage, sparkCostUsd } from "./prices";
 
-const MODEL = "muse-spark-1.3";
+const MODEL = SPARK_MODEL;
 
 export const LESSON_INSTRUCTIONS = `You turn one to four photographed pages of a Cameroonian school textbook, given in page order, into the script of one short narrated, illustrated video lesson for pupils. Parents and pupils will replay it at home in the evening, so it must be clear when heard without the book.
 

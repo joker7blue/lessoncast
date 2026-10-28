@@ -30,3 +30,27 @@ body {
     transition: none !important;
   }
 }
+
+/* Pipeline graph: the path into a running model flows in the spoken-word yellow. */
+@keyframes edge-flow {
+  to {
+    stroke-dashoffset: -12;
+  }
+}
+
+.edge {
+  fill: none;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  stroke: var(--color-line);
+}
+
+.edge-done {
+  stroke: color-mix(in srgb, var(--color-chalk) 35%, transparent);
+}
+
+.edge-active {
+  stroke: var(--color-spoken);
+  stroke-dasharray: 6 6;
+  animation: edge-flow 0.8s linear infinite;
+}
