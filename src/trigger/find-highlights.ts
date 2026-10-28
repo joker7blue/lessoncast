@@ -2,26 +2,29 @@
 // render. An object SAM can't find is dropped; generate-lesson renders without highlights if this fails.
 
 import { AbortTaskRunError, logger, schemaTask } from "@trigger.dev/sdk";
+import { jpegSizeAt } from "../lib/image/size";
 import { findAllHighlights } from "../lib/lessons/highlights";
 import { recordMetrics, updateLesson } from "../lib/lessons/repo";
 import { SAM_COST_USD } from "../lib/meta/prices";
 import { segment } from "../lib/meta/sam";
-import { downloadFile, lessonPaths, uploadFile } from "../lib/supabase/storage";
+import { lessonPaths, publicUrl, uploadFile } from "../lib/supabase/storage";
 import { LessonPayload, loadScript } from "./shared";
 
 export const findHighlights = schemaTask({
   id: "find-highlights",
   schema: LessonPayload,
-  // About 25 s: 14 requests of 4 to 15 s, 4 at a time.
+  // About 25 s: 14 requests of 3 to 15 s, 4 at a time.
   maxDuration: 300,
   run: async ({ lessonId }) => {
     const { row, lesson } = await loadScript(lessonId);
     const start = performance.now();
+    // SAM fetches each scene at its public URL: the task only reads the start of each file, for its size.
     const images = await Promise.all(
-      lesson.scenes.map((_, i) => {
+      lesson.scenes.map(async (_, i) => {
         const path = row.scenePaths[i];
         if (!path) throw new AbortTaskRunError(`Scene ${i + 1} of lesson ${lessonId} has no image`);
-        return downloadFile(path);
+        const url = publicUrl(path);
+        return { url, ...(await jpegSizeAt(url)) };
       }),
     );
     const { scenes, found, requested } = await findAllHighlights(lesson, images, { segment, warn: (message) => logger.warn(message) });

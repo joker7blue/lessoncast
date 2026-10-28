@@ -5,6 +5,7 @@
 
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { jpegSizeAt } from "../src/lib/image/size";
 import { findAllHighlights } from "../src/lib/lessons/highlights";
 import { Lesson } from "../src/lib/lesson/schema";
 import { postJson } from "../src/lib/meta/client";
@@ -37,7 +38,7 @@ async function recordStream(lesson: Lesson, sceneUrls: string[]) {
 }
 
 async function recordScenes(lesson: Lesson, sceneUrls: string[]) {
-  const images = await Promise.all(sceneUrls.map(download));
+  const images = await Promise.all(sceneUrls.map(async (url) => ({ url, ...(await jpegSizeAt(url)) })));
   const { scenes, found, requested } = await findAllHighlights(lesson, images, { segment, warn: console.warn });
   await writeFile(path.join(FIXTURES, "highlights.json"), `${JSON.stringify(scenes, null, 2)}\n`);
   for (const [i, scene] of scenes.entries()) console.log(`scene ${i + 1}: ${scene.objects.map((o) => o.samPrompt).join(", ") || "-"}`);

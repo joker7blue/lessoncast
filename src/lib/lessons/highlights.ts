@@ -1,7 +1,6 @@
 // Finds the objects each scene's narration names with SAM 3.1, one request per object, 4 at a time.
 // An object SAM can't find, or whose request fails, is dropped: a highlight never fails a lesson.
 
-import { jpegSize } from "../image/size";
 import type { Lesson } from "../lesson/schema";
 import { forEachLimit } from "../limit";
 import type { SamMatch } from "../meta/sam";
@@ -35,24 +34,25 @@ export function keepShapes(matches: SamMatch[], image: { width: number; height: 
 }
 
 type SegmentDeps = {
-  segment(imageDataUrl: string, prompt: string): Promise<SamMatch[]>;
+  segment(imageUrl: string, prompt: string): Promise<SamMatch[]>;
   warn?(message: string): void;
 };
 
-/** `images[i]` is scene i's JPEG. `requested` counts the objects asked for, `found` those kept. */
+/** A scene image SAM fetches itself, at its public URL, and its size in pixels. */
+export type SceneImage = { url: string; width: number; height: number };
+
+/** `images[i]` is scene i's image. `requested` counts the objects asked for, `found` those kept. */
 export async function findAllHighlights(
   lesson: Lesson,
-  images: Uint8Array[],
+  images: SceneImage[],
   deps: SegmentDeps,
 ): Promise<{ scenes: SceneHighlights[]; found: number; requested: number }> {
   const jobs = lesson.scenes.flatMap((scene, s) => scene.highlights.map((highlight, h) => ({ s, h, highlight })));
   const shapes = new Map<string, Shape[]>();
-  const dataUrls = images.map((bytes) => `data:image/jpeg;base64,${Buffer.from(bytes).toString("base64")}`);
-  const sizes = images.map(jpegSize);
 
   await forEachLimit(jobs, CONCURRENCY, async ({ s, h, highlight }) => {
     try {
-      const kept = keepShapes(await deps.segment(dataUrls[s]!, highlight.samPrompt), sizes[s]!);
+      const kept = keepShapes(await deps.segment(images[s]!.url, highlight.samPrompt), images[s]!);
       if (kept.length > 0) shapes.set(`${s}:${h}`, kept);
     } catch (error) {
       deps.warn?.(`Scene ${s + 1}: SAM failed on "${highlight.samPrompt}" (${reason(error)}), no highlight`);
@@ -60,8 +60,8 @@ export async function findAllHighlights(
   });
 
   const scenes = lesson.scenes.map((scene, s) => ({
-    imageWidth: sizes[s]!.width,
-    imageHeight: sizes[s]!.height,
+    imageWidth: images[s]!.width,
+    imageHeight: images[s]!.height,
     objects: scene.highlights.flatMap(({ samPrompt, fr, pcm }, h): FoundObject[] => {
       const found = shapes.get(`${s}:${h}`);
       return found ? [{ samPrompt, fr, pcm, shapes: found }] : [];

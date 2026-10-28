@@ -14,3 +14,22 @@ export function jpegSize(bytes: Uint8Array): { width: number; height: number } {
   }
   throw new Error("JPEG file has no frame header");
 }
+
+// A JPEG's frame header comes right after its first segments, well inside the first 64 KB.
+const HEAD_BYTES = 65_536;
+
+async function download(url: string, fetchFn: typeof fetch, headers?: Record<string, string>): Promise<Uint8Array> {
+  const res = await fetchFn(url, { headers, signal: AbortSignal.timeout(30_000) });
+  if (!res.ok) throw new Error(`Download of ${url} failed: HTTP ${res.status}`);
+  return new Uint8Array(await res.arrayBuffer());
+}
+
+/** The size of the JPEG at `url`, from the start of the file; the whole file only if its header comes later. */
+export async function jpegSizeAt(url: string, fetchFn: typeof fetch = fetch): Promise<{ width: number; height: number }> {
+  const head = await download(url, fetchFn, { Range: `bytes=0-${HEAD_BYTES - 1}` });
+  try {
+    return jpegSize(head);
+  } catch {
+    return jpegSize(await download(url, fetchFn));
+  }
+}

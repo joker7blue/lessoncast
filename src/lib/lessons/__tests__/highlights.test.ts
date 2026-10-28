@@ -1,5 +1,4 @@
 import { describe, expect, test, vi } from "vitest";
-import { jpegHeader } from "../../image/__tests__/jpeg.fixture";
 import { makeLesson } from "../../lesson/lesson.fixture";
 import type { SamMatch } from "../../meta/sam";
 import { findAllHighlights, keepShapes, loadHighlights } from "../highlights";
@@ -42,20 +41,20 @@ describe("findAllHighlights", () => {
     l.scenes[0]!.highlights.push({ samPrompt: "lungs", fr: "poumons", pcm: "lungs" });
     return l;
   }
-  const images = [jpegHeader(2048, 1152), jpegHeader(1280, 720)];
+  const images = [
+    { url: "https://x/lessons/abc/scenes/1.jpg", width: 2048, height: 1152 },
+    { url: "https://x/lessons/abc/scenes/2.jpg", width: 1280, height: 720 },
+  ];
 
-  test("sends one request per highlight with its scene image and samPrompt", async () => {
+  test("sends one request per highlight with its scene image URL and samPrompt", async () => {
     const segment = vi.fn(async () => [match(0.9)]);
     await findAllHighlights(lesson(), images, { segment });
     expect(segment).toHaveBeenCalledTimes(3);
-    const calls = segment.mock.calls as unknown as [string, string][];
-    const sent = calls.map(([url, prompt]) => [url.slice(0, 23), prompt, url.slice(23)]);
-    const b64 = (i: number) => Buffer.from(images[i]!).toString("base64");
-    expect(sent).toEqual(
+    expect(segment.mock.calls).toEqual(
       expect.arrayContaining([
-        ["data:image/jpeg;base64,", "heart", b64(0)],
-        ["data:image/jpeg;base64,", "lungs", b64(0)],
-        ["data:image/jpeg;base64,", "heart", b64(1)],
+        [images[0]!.url, "heart"],
+        [images[0]!.url, "lungs"],
+        [images[1]!.url, "heart"],
       ]),
     );
   });

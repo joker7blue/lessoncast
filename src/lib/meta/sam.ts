@@ -19,8 +19,9 @@ export type SamMatch = {
   d: string;
 };
 
-/** The Responses API body for one object in one image, with each match's confidence. */
-export function samRequestBody(imageDataUrl: string, prompt: string) {
+/** The Responses API body for one object in one image, with each match's confidence. The image is a
+ * public URL, which SAM fetches itself, or a data URL. */
+export function samRequestBody(imageUrl: string, prompt: string) {
   return {
     model: SAM_MODEL,
     stream: true,
@@ -31,7 +32,7 @@ export function samRequestBody(imageDataUrl: string, prompt: string) {
         role: "user",
         content: [
           { type: "input_text", text: prompt },
-          { type: "input_image", image_url: imageDataUrl },
+          { type: "input_image", image_url: imageUrl },
         ],
       },
     ],
@@ -39,8 +40,8 @@ export function samRequestBody(imageDataUrl: string, prompt: string) {
 }
 
 /** Every match of `prompt` in the image, an empty list when SAM finds none. */
-export async function segment(imageDataUrl: string, prompt: string): Promise<SamMatch[]> {
-  const res = await postJson("/responses", samRequestBody(imageDataUrl, prompt), { timeoutMs: TIMEOUT_MS, accept: "text/event-stream" });
+export async function segment(imageUrl: string, prompt: string): Promise<SamMatch[]> {
+  const res = await postJson("/responses", samRequestBody(imageUrl, prompt), { timeoutMs: TIMEOUT_MS, accept: "text/event-stream" });
   const { records } = await parseImageStream(sseData(res) as AsyncIterable<ResponsesEvent>).finalResult;
   const boxes = new Map(recordsOfKind(records, "box").map((b) => [b.objectId, b]));
   return recordsOfKind(records, "mask").map((m) => ({
