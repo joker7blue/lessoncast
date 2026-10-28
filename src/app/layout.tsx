@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Nunito } from "next/font/google";
+import { Sidebar } from "@/components/shell/Sidebar";
 import "./globals.css";
 
 // The videos use Nunito too. latin-ext carries "œ" (cœur, sœur).
@@ -15,7 +16,10 @@ export const viewport: Viewport = { themeColor: "#141b18" };
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${nunito.variable} h-full antialiased`}>
-      <body className="min-h-full font-sans">{children}</body>
+      <body className="min-h-full font-sans">
+        <Sidebar />
+        <div className="lg:pl-64">{children}</div>
+      </body>
     </html>
   );
 }
