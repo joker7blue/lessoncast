@@ -27,7 +27,8 @@ export function activeCaption(captions: Caption[], frame: number): Caption | nul
   return captions.find((c) => frame >= c.startFrame && frame < c.endFrame) ?? null;
 }
 
-/** Index of the word being spoken at `frame`, or -1. Zero-length words stay lit for one frame. */
+/** Index of the last word whose speech has started at `frame`, or -1 before the first one. It stays
+ * lit through the short silences between words (100 ms is common), so the highlight never flickers. */
 export function activeWordIndex(caption: Caption, frame: number): number {
-  return caption.words.findIndex((w) => frame >= w.startFrame && frame < Math.max(w.endFrame, w.startFrame + 1));
+  return caption.words.findLastIndex((w) => frame >= w.startFrame);
 }

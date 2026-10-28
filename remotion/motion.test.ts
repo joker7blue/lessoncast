@@ -56,13 +56,20 @@ describe("activeCaption and activeWordIndex", () => {
     expect(activeCaption(captions, 70)).toBeNull();
   });
 
-  test("the active word is the one being spoken, or -1 between words", () => {
+  test("the spoken word stays lit through the short silence before the next one", () => {
     expect(activeWordIndex(captions[0]!, 12)).toBe(0);
-    expect(activeWordIndex(captions[0]!, 19)).toBe(-1);
+    expect(activeWordIndex(captions[0]!, 19)).toBe(0);
     expect(activeWordIndex(captions[0]!, 25)).toBe(1);
+    expect(activeWordIndex(captions[0]!, 35)).toBe(1);
   });
 
-  test("a zero-length (unaligned) word is lit for one frame", () => {
-    expect(activeWordIndex({ startFrame: 0, endFrame: 10, words: [{ text: "!", startFrame: 5, endFrame: 5 }] }, 5)).toBe(0);
+  test("no word is lit before the first one is spoken", () => {
+    expect(activeWordIndex({ startFrame: 0, endFrame: 20, words: [{ text: "Le", startFrame: 5, endFrame: 9 }] }, 3)).toBe(-1);
+  });
+
+  test("a zero-length (unaligned) word is lit until the next word starts", () => {
+    const caption = { startFrame: 5, endFrame: 20, words: [{ text: "12", startFrame: 5, endFrame: 5 }, { text: "fois", startFrame: 8, endFrame: 12 }] };
+    expect(activeWordIndex(caption, 6)).toBe(0);
+    expect(activeWordIndex(caption, 8)).toBe(1);
   });
 });
