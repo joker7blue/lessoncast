@@ -27,6 +27,9 @@ export type LessonRow = {
   videoPath: string | null;
   /** The objects SAM found, stored at lessonPaths.highlights(id); null until find-highlights ran. */
   highlightsPath: string | null;
+  /** The book the lesson's pages come from, and the lesson's number in it; null for photographed pages. */
+  bookId: string | null;
+  bookLesson: number | null;
   words: TimedWord[] | null;
   metrics: Record<string, StepMetrics>;
   ipHash: string | null;
@@ -46,6 +49,8 @@ type Columns = {
   audio_path: string | null;
   video_path: string | null;
   highlights_path: string | null;
+  book_id: string | null;
+  book_lesson: number | null;
   words: TimedWord[] | null;
   metrics: Record<string, StepMetrics>;
   ip_hash: string | null;
@@ -79,6 +84,8 @@ function toRow(c: Columns): LessonRow {
     audioPath: c.audio_path,
     videoPath: c.video_path,
     highlightsPath: c.highlights_path,
+    bookId: c.book_id ?? null,
+    bookLesson: c.book_lesson ?? null,
     words: c.words,
     metrics: c.metrics,
     ipHash: c.ip_hash,
@@ -92,11 +99,19 @@ function fail(action: string, error: { message: string }): never {
 
 const lessons = () => supabase().from("lessons");
 
-export type NewLesson = { language: Language; ipHash: string | null; pageCount: number; style: StyleChoice };
+export type NewLesson = {
+  language: Language;
+  ipHash: string | null;
+  pageCount: number;
+  style: StyleChoice;
+  /** For a lesson made from a book: the book and the lesson's number in it. */
+  book?: { id: string; lesson: number };
+};
 
-export async function createLesson({ language, ipHash, pageCount, style }: NewLesson): Promise<LessonRow> {
+export async function createLesson({ language, ipHash, pageCount, style, book }: NewLesson): Promise<LessonRow> {
   const { data, error } = await lessons()
-    .insert({ language, ip_hash: ipHash, page_count: pageCount, style })
+    // The book columns only for a book lesson: photo lessons don't depend on the books migration.
+    .insert({ language, ip_hash: ipHash, page_count: pageCount, style, ...(book && { book_id: book.id, book_lesson: book.lesson }) })
     .select()
     .single<Columns>();
   if (error) fail("create a lesson", error);
