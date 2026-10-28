@@ -12,7 +12,8 @@
     "derisk:3": "node --env-file=.env --disable-warning=ExperimentalWarning scripts/derisk/03-sam.mts",
     "derisk:typecheck": "tsc -p scripts/derisk",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "trigger:dev": "npx trigger.dev@4.8.1 dev"
   },
   "dependencies": {
     "@meta-sam/parser": "^0.1.0",
