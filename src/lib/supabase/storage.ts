@@ -38,6 +38,13 @@ export async function downloadFile(path: string): Promise<Uint8Array> {
   return new Uint8Array(await data.arrayBuffer());
 }
 
+/** The size of the file at `path`, or null when there is none. */
+export async function fileSize(path: string): Promise<number | null> {
+  const { data, error } = await supabase().storage.from(BUCKET).info(path);
+  if (error) return null;
+  return data.size ?? null;
+}
+
 export function publicUrl(path: string): string {
   return supabase().storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
 }
