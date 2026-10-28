@@ -12,6 +12,7 @@ const STATUS_NOTE: Record<string, string> = {
   queued: "Starting",
   reading: "Being made: reading the pages",
   drawing: "Being made: pictures and voice",
+  highlighting: "Being made: lighting up the objects",
   rendering: "Being made: putting it together",
   failed: "Couldn't be made",
 };
