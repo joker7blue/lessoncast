@@ -125,7 +125,8 @@ describe("writeLesson", () => {
     await writeLesson({ photoUrls: [PHOTO] }, "auto", "hau", 120);
     const text = userContent()[0]!.text!;
     expect(text).toContain("Write the lesson in Hausa: Hausa as spoken in northern Cameroon");
-    expect(text).toContain("The video lasts about 2 minutes: write 4 scenes, each narration about 45 words.");
+    // Hausa's voice is slower: fewer words for the same 2 minutes.
+    expect(text).toContain("The video lasts about 2 minutes: write 4 scenes, each narration about 26 words.");
     const schema = JSON.parse(fetchMock.mock.calls[0]![1].body).response_format.json_schema.schema;
     expect(Object.keys(schema.properties.title.properties)).toEqual(["hau"]);
     expect(schema.properties.videoText).toBeDefined();

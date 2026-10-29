@@ -41,3 +41,10 @@ test("VideoLength accepts only the offered lengths", () => {
   expect(VideoLength.safeParse(60).success).toBe(true);
   expect(VideoLength.safeParse(45).success).toBe(false);
 });
+
+test("a slower voice gets fewer words for the same time", () => {
+  // Hausa's voice reads about 1.6 words a second, Pidgin's 2.7.
+  expect(lengthPlan(60, 1.6).wordsPerScene).toBeLessThan(lengthPlan(60, 2.7).wordsPerScene);
+  expect(lengthPlan(60, 1.6)).toMatchObject({ scenes: 2, wordsPerScene: 29, quizQuestions: 1 });
+});
+

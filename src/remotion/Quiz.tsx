@@ -32,7 +32,7 @@ function QuestionView({ question, total, frame }: { question: Question; total: n
       <div style={{ display: "flex", alignItems: "flex-start", gap: 24 }}>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 17, fontWeight: 800, color: HIGHLIGHT_COLOR, letterSpacing: 0.5 }}>
-            Question {question.number}/{total}
+            {question.number}/{total}
           </div>
           <div style={{ marginTop: 8, fontSize: 28, fontWeight: 800, lineHeight: 1.2, textShadow: "0 2px 10px rgba(0,0,0,.5)" }}>{question.text}</div>
         </div>

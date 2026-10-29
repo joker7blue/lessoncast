@@ -16,6 +16,8 @@ type LanguageInfo = {
   voice: string;
   /** How Muse Spark writes the narration in it. */
   writing: string;
+  /** Words its voice reads per second, pauses included: measured on real lessons, or estimated. */
+  wordsPerSecond: number;
 };
 
 export const LANGUAGES: Record<LanguageCode, LanguageInfo> = {
@@ -24,6 +26,7 @@ export const LANGUAGES: Record<LanguageCode, LanguageInfo> = {
     native: "Français",
     where: "Official language",
     voice: "facebook/mms-tts-fra",
+    wordsPerSecond: 2.5, // estimated from French lessons
     writing:
       "French at the level of the pages. For nursery and primary school, simple words for children. For secondary school, the subject's exact vocabulary, still in short sentences made to be heard.",
   },
@@ -32,6 +35,7 @@ export const LANGUAGES: Record<LanguageCode, LanguageInfo> = {
     native: "English",
     where: "Official language",
     voice: "facebook/mms-tts-eng",
+    wordsPerSecond: 2.6, // estimated
     writing:
       "English at the level of the pages, as in the textbooks of Cameroon's English-speaking schools: simple words for primary school, the subject's exact vocabulary in short spoken sentences for secondary school.",
   },
@@ -40,6 +44,7 @@ export const LANGUAGES: Record<LanguageCode, LanguageInfo> = {
     native: "Kamtok",
     where: "Cameroon, Nigeria",
     voice: "facebook/mms-tts-pcm",
+    wordsPerSecond: 2.7, // measured: 330 words in 122 s
     writing:
       "Cameroonian Pidgin English (Kamtok), the way a parent in Douala or Bamenda would explain it at home, spelled in plain Latin letters as it sounds.",
   },
@@ -48,6 +53,7 @@ export const LANGUAGES: Record<LanguageCode, LanguageInfo> = {
     native: "Hausa",
     where: "Northern Cameroon, Nigeria, Niger",
     voice: "facebook/mms-tts-hau",
+    wordsPerSecond: 1.6, // measured: 138 words in 85 s
     writing:
       "Hausa as spoken in northern Cameroon, Nigeria and Niger, in the standard Latin spelling (boko) with its hooked letters ɓ, ɗ and ƙ, the way a parent would explain it at home.",
   },
@@ -56,6 +62,7 @@ export const LANGUAGES: Record<LanguageCode, LanguageInfo> = {
     native: "Fulfulde",
     where: "Northern Cameroon, the Sahel",
     voice: "facebook/mms-tts-ful",
+    wordsPerSecond: 2.0, // measured: 73 words in 37 s
     writing:
       "Fulfulde as spoken in northern Cameroon (Adamawa Fulfulde, around Maroua, Garoua and Ngaoundéré), in the standard Latin spelling with ɓ, ɗ, ŋ and ƴ, the way a parent would explain it at home.",
   },
@@ -64,6 +71,7 @@ export const LANGUAGES: Record<LanguageCode, LanguageInfo> = {
     native: "Yorùbá",
     where: "Benin, Nigeria",
     voice: "facebook/mms-tts-yor",
+    wordsPerSecond: 2.2, // estimated
     writing: "Yoruba as spoken in Benin and Nigeria, in the standard spelling with its tone marks and underdots (ẹ, ọ, ṣ), the way a parent would explain it at home.",
   },
   fon: {
@@ -71,6 +79,7 @@ export const LANGUAGES: Record<LanguageCode, LanguageInfo> = {
     native: "Fɔngbè",
     where: "Benin",
     voice: "facebook/mms-tts-fon",
+    wordsPerSecond: 2.2, // estimated
     writing: "Fon (Fɔngbè) as spoken in Benin, in its standard Latin spelling with ɖ, ɛ and ɔ and its tone marks, the way a parent would explain it at home.",
   },
   swh: {
@@ -78,6 +87,7 @@ export const LANGUAGES: Record<LanguageCode, LanguageInfo> = {
     native: "Kiswahili",
     where: "DR Congo, East Africa",
     voice: "facebook/mms-tts-swh",
+    wordsPerSecond: 1.8, // estimated: long words
     writing: "Standard Swahili (Kiswahili sanifu), as taught in the schools of the DR Congo and East Africa, in simple spoken sentences.",
   },
 };

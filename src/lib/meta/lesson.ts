@@ -71,8 +71,8 @@ function pagesContent(source: LessonPages): { intro: string; parts: unknown[] } 
 
 /** The language and the length the request asks for. */
 function videoRequest(language: Language, seconds: number): string {
-  const { scenes, wordsPerScene } = lengthPlan(seconds);
-  const { label, writing } = LANGUAGES[language];
+  const { label, writing, wordsPerSecond } = LANGUAGES[language];
+  const { scenes, wordsPerScene } = lengthPlan(seconds, wordsPerSecond);
   const length = seconds < 60 ? `${seconds} seconds` : `${seconds / 60} minute${seconds > 60 ? "s" : ""}`;
   return `Write the lesson in ${label}: ${writing} The video lasts about ${length}: write ${scenes} scene${scenes > 1 ? "s" : ""}, each narration about ${wordsPerScene} words.`;
 }
