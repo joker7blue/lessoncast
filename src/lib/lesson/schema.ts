@@ -67,7 +67,7 @@ function lessonSchema<T extends z.ZodType<Localized>, P extends z.ZodRawShape, V
   });
   return z.object({
     page: z.object({
-      isTextbookPage: z.boolean().describe("false when any page is not a readable page of a textbook"),
+      isTextbookPage: z.boolean().describe("false when any page is not a readable page of school material (a textbook, an exercise book, a curriculum, a teacher's guide)"),
       subject: z.string(),
       level: z.string().describe("School level printed on or implied by the page, e.g. CM1, 6e, Form 1"),
       topic: z.string(),

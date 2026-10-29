@@ -173,6 +173,12 @@ describe("LESSON_INSTRUCTIONS", () => {
     expect(LESSON_INSTRUCTIONS).toMatch(/digits/);
   });
 
+  test("take any readable page of school material, and still turn down a photo of something else", () => {
+    const rule = LESSON_INSTRUCTIONS.split("\n").find((line) => line.includes("isTextbookPage"))!;
+    for (const kind of ["textbook", "exercise book", "curriculum", "teacher's guide"]) expect(rule).toContain(kind);
+    for (const kind of ["selfie", "blurred", "screen"]) expect(rule).toContain(kind);
+  });
+
   test("ask for the recurring characters and places, and every text in the request's language", () => {
     expect(LESSON_INSTRUCTIONS).toMatch(/visualNotes/);
     expect(LESSON_INSTRUCTIONS).not.toMatch(/artStyle/);
