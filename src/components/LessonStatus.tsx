@@ -123,6 +123,11 @@ export function LessonStatus({ id }: { id: string }) {
       <header className="lg:col-span-2">
         <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">{lesson.title ?? "Your lesson"}</h1>
         <p className="mt-2 text-lg text-dust">{subtitle(lesson)}</p>
+        {lesson.book && (
+          <Link href={`/books/${lesson.book.id}`} className="mt-2 inline-block font-bold text-spoken underline underline-offset-4">
+            Lesson {lesson.book.n} of {lesson.book.title ?? "the book"}, pages {lesson.book.firstPage}–{lesson.book.lastPage}
+          </Link>
+        )}
       </header>
 
       <section className={`space-y-6 ${done ? "order-1" : "order-2"} lg:order-none`}>
@@ -148,9 +153,15 @@ export function LessonStatus({ id }: { id: string }) {
         {failed && (
           <div role="alert" className="rounded-xl border border-danger/40 px-4 py-3">
             <p className="text-danger">{lesson.error ?? "The lesson couldn't be made."}</p>
-            <Link href="/create" className="mt-3 inline-block font-bold text-chalk underline underline-offset-4">
-              Try again with other photos
-            </Link>
+            {lesson.book ? (
+              <Link href={`/books/${lesson.book.id}`} className="mt-3 inline-block font-bold text-chalk underline underline-offset-4">
+                Back to the book to try again
+              </Link>
+            ) : (
+              <Link href="/create" className="mt-3 inline-block font-bold text-chalk underline underline-offset-4">
+                Try again with other photos
+              </Link>
+            )}
           </div>
         )}
         {lesson.status === "queued" && <p className="text-dust">The lesson starts in a few seconds.</p>}

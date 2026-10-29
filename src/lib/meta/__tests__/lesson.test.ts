@@ -39,7 +39,7 @@ afterEach(() => {
 describe("writeLesson", () => {
   test("sends the photo URL and the strict Lesson schema to Muse Spark", async () => {
     fetchMock.mockResolvedValue(completion(makeLesson(7)));
-    await writeLesson([PHOTO], "auto");
+    await writeLesson({ photoUrls: [PHOTO] }, "auto");
     const [url, init] = fetchMock.mock.calls[0]!;
     expect(String(url)).toMatch(/\/chat\/completions$/);
     expect(init.headers.Authorization).toBe("Bearer test-key");
@@ -56,43 +56,58 @@ describe("writeLesson", () => {
   test("returns the parsed lesson", async () => {
     const lesson = makeLesson(7);
     fetchMock.mockResolvedValue(completion(lesson));
-    expect(await lessonOf(writeLesson([PHOTO], "auto"))).toEqual(lesson);
+    expect(await lessonOf(writeLesson({ photoUrls: [PHOTO] }, "auto"))).toEqual(lesson);
   });
 
   test("computes the cost from the token usage", async () => {
     fetchMock.mockResolvedValue(completion(makeLesson(7)));
-    expect((await writeLesson([PHOTO], "auto")).costUsd).toBeCloseTo(0.0333, 4);
+    expect((await writeLesson({ photoUrls: [PHOTO] }, "auto")).costUsd).toBeCloseTo(0.0333, 4);
   });
 
   test("throws ApiError with the HTTP status on a billing error", async () => {
     fetchMock.mockImplementation(async () => new Response('{"error":{"code":"billing_not_configured"}}', { status: 402 }));
-    await expect(writeLesson([PHOTO], "auto")).rejects.toMatchObject({ name: "ApiError", status: 402 });
-    await expect(writeLesson([PHOTO], "auto")).rejects.toBeInstanceOf(ApiError);
+    await expect(writeLesson({ photoUrls: [PHOTO] }, "auto")).rejects.toMatchObject({ name: "ApiError", status: 402 });
+    await expect(writeLesson({ photoUrls: [PHOTO] }, "auto")).rejects.toBeInstanceOf(ApiError);
   });
 
   test("sends every page as an image, in page order", async () => {
     fetchMock.mockResolvedValue(completion(makeLesson(7)));
-    await writeLesson(PAGES, "auto");
+    await writeLesson({ photoUrls: PAGES }, "auto");
     expect(userContent().filter((part) => part.type === "image_url").map((part) => part.image_url?.url)).toEqual(PAGES);
     expect(userContent()[0]!.text).toMatch(/3 pages of the lesson, in order/);
   });
 
   test("refuses 0 or 5 pages without calling the API", async () => {
-    await expect(writeLesson([], "auto")).rejects.toThrow(RangeError);
-    await expect(writeLesson([...PAGES, ...PAGES].slice(0, 5), "auto")).rejects.toThrow(RangeError);
+    await expect(writeLesson({ photoUrls: [] }, "auto")).rejects.toThrow(RangeError);
+    await expect(writeLesson({ photoUrls: [...PAGES, ...PAGES].slice(0, 5) }, "auto")).rejects.toThrow(RangeError);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  test("sends a book lesson's pages as one inline PDF", async () => {
+    fetchMock.mockResolvedValue(completion(makeLesson(7)));
+    const pdf = new TextEncoder().encode("%PDF-1.7 pages");
+    await writeLesson({ pdf, pageCount: 6 }, "auto");
+    const content = userContent() as unknown as { type: string; text?: string; file?: { filename: string; file_data: string } }[];
+    expect(content[0]!.text).toMatch(/6 pages of the lesson, as a PDF, in order/);
+    expect(content[1]).toEqual({ type: "file", file: { filename: "lesson.pdf", file_data: `data:application/pdf;base64,${Buffer.from(pdf).toString("base64")}` } });
+    expect(content.some((part) => part.type === "image_url")).toBe(false);
+  });
+
+  test("refuses a book lesson of more than 20 pages without calling the API", async () => {
+    await expect(writeLesson({ pdf: new Uint8Array([1]), pageCount: 21 }, "auto")).rejects.toThrow(RangeError);
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
   test("a forced style wins over the model's choice", async () => {
     fetchMock.mockResolvedValue(completion({ ...makeLesson(7), style: "comic" }));
-    const lesson = await lessonOf(writeLesson([PHOTO], "realistic"));
+    const lesson = await lessonOf(writeLesson({ photoUrls: [PHOTO] }, "realistic"));
     expect(lesson.style).toBe("realistic");
     expect(userContent()[0]!.text).toContain('Use the image style "realistic".');
   });
 
   test("in Automatique the model's style is kept and every rule is sent", async () => {
     fetchMock.mockResolvedValue(completion({ ...makeLesson(7), style: "diagram" }));
-    const lesson = await lessonOf(writeLesson([PHOTO], "auto"));
+    const lesson = await lessonOf(writeLesson({ photoUrls: [PHOTO] }, "auto"));
     expect(lesson.style).toBe("diagram");
     for (const [key, style] of Object.entries(STYLES)) expect(userContent()[0]!.text).toContain(`${key}: ${style.when}`);
   });
@@ -100,14 +115,14 @@ describe("writeLesson", () => {
   test("a page that isn't a textbook is reported even when the rest of the answer is incomplete", async () => {
     const page = { isTextbookPage: false, subject: "", level: "", topic: "", keyText: "" };
     fetchMock.mockResolvedValue(completion({ page, title: { fr: "", pcm: "" }, scenes: [], quiz: [] }));
-    const written = await writeLesson([PHOTO], "auto");
+    const written = await writeLesson({ photoUrls: [PHOTO] }, "auto");
     expect(written.isTextbookPage).toBe(false);
     expect(written.costUsd).toBeGreaterThan(0);
   });
 
   test("rejects an answer that does not match the schema", async () => {
     fetchMock.mockResolvedValue(completion({ title: "nope" }));
-    await expect(writeLesson([PHOTO], "auto")).rejects.toThrow();
+    await expect(writeLesson({ photoUrls: [PHOTO] }, "auto")).rejects.toThrow();
   });
 });
 

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
-import { rememberedLessons, rememberLesson } from "../remembered";
+import { rememberBook, rememberedBooks, rememberedLessons, rememberLesson } from "../remembered";
 
 let store: Record<string, string>;
 beforeEach(() => {
@@ -33,4 +33,12 @@ test("blocked or broken storage reads as no lessons and never throws", () => {
   });
   expect(() => rememberLesson("a")).not.toThrow();
   expect(rememberedLessons()).toEqual([]);
+});
+
+test("books are remembered apart from lessons", () => {
+  rememberLesson("lesson");
+  rememberBook("book-1");
+  rememberBook("book-2");
+  expect(rememberedBooks()).toEqual(["book-2", "book-1"]);
+  expect(rememberedLessons()).toEqual(["lesson"]);
 });

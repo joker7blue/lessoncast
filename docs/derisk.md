@@ -15,6 +15,7 @@ call for are listed under [Next: the full pipeline](#next-the-full-pipeline).
 | 4 | MMS-TTS: French + Pidgin voices | `voice_modal.py` | ✅ go |
 | 5 | MMS forced alignment: word timestamps | `voice_modal.py` | ✅ go |
 | 6 | Remotion render on Modal (no Lambda) | spike, not kept | ✅ go |
+| 7 | Muse Spark: a textbook PDF → its lessons | `07-spark-pdf.mts` | ✅ go (30-page slices) |
 
 ## How to run
 
@@ -22,6 +23,7 @@ call for are listed under [Next: the full pipeline](#next-the-full-pipeline).
 pnpm derisk:1 scripts/derisk/input/<page>.jpg   # Muse Spark, writes out/01/lesson.json
 pnpm derisk:2                                   # Muse Image, reads out/01, writes out/02/contact-sheet.html
 pnpm derisk:3                                   # SAM 3.1, reads out/01 + out/02, writes out/03/index.html
+pnpm derisk:7 [--scan-only]                     # Muse Spark on a PDF book, writes out/07/answer.json
 scripts/derisk/.venv/bin/modal run scripts/derisk/voice_modal.py   # tests 4 + 5, writes out/04 + out/05/karaoke.html
 ```
 
@@ -222,6 +224,30 @@ image build time; the function runs `renderMedia` on the bundle with 8 CPUs and 
 
 **Decision: go.** Render on Modal with `videoBitrate: "300k"`, `x264Preset: "slow"`, AAC 48 kbit/s;
 Remotion Lambda stays the fallback (already used in BuildStory AI).
+
+## 7. Muse Spark: a textbook PDF → its lessons
+
+Added on 28 October, for books: a teacher uploads a whole textbook or ebook, and Muse Spark lists its
+lessons so the teacher can pick one to film.
+
+Setup: the script builds a 10-page PDF with pdf-lib (a cover, a table of contents, two typed lessons, one
+real photographed textbook page as a scanned page, and a page of exercises) and sends it inline to
+`muse-spark-1.3` through Chat Completions, as a `file` part (`file_data`, a base64 data URL), with a strict
+JSON schema: the book's title, subject and level, and each lesson's title, first and last page, a
+one-sentence summary and whether it continues from before the file.
+
+- **Chat Completions takes the PDF inline with strict structured output.** The two typed lessons came
+  back with their exact pages (3–4 and 7–8), and the cover, contents and exercises were left out. 14 s,
+  24 k tokens in, 2.5 k out, **$0.04**.
+- **Muse Spark reads the page images, not just the text layer**: on a PDF of the scanned page alone
+  (`--scan-only`), it read the title printed in the photo ("Histoire géographie, enseignement commun,
+  classe de seconde"). It listed no lesson there, rightly: that page is a curriculum overview.
+- About 2,500 input tokens per page, so about $1 to read a 300-page book.
+- The Files API docs set the limits: an inline file is at most 50 MB, and the model reads the text of a
+  PDF's first 100 pages and the images of its first 50.
+
+**Decision: go**, with the book sent in slices of 30 pages, so Muse Spark sees every page, text and
+image; pages are counted from 1 in each slice and mapped back in code.
 
 ## Next: the full pipeline
 

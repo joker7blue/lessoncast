@@ -37,7 +37,13 @@ export function lessonNodes(lesson: LessonView): Record<NodeId, NodeContent> {
   const m = lesson.metrics;
   const picked = lesson.style === "auto" ? null : STYLES[lesson.style].label;
   return {
-    pages: { ...nodes.pages, output: `${lesson.pageCount} ${lesson.pageCount === 1 ? "page" : "pages"} sent` },
+    pages: lesson.book
+      ? {
+          title: "Textbook PDF",
+          role: "One lesson of a book that Muse Spark split into lessons.",
+          output: `Pages ${lesson.book.firstPage}–${lesson.book.lastPage}${lesson.book.title ? ` of ${lesson.book.title}` : ""}`,
+        }
+      : { ...nodes.pages, output: `${lesson.pageCount} ${lesson.pageCount === 1 ? "page" : "pages"} sent` },
     spark: {
       ...nodes.spark,
       output: lesson.title ? `“${lesson.title}”${picked ? `, drawn as ${picked.toLowerCase()}` : ""}` : undefined,

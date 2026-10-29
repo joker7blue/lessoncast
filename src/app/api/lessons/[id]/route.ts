@@ -1,9 +1,18 @@
 // GET /api/lessons/:id: what the lesson page polls every 2 s while the lesson is being made.
 
-import { getLesson } from "@/lib/lessons/repo";
+import { getBook } from "@/lib/books/repo";
+import { getLesson, type LessonRow } from "@/lib/lessons/repo";
 import { isStalled, STALLED_MESSAGE } from "@/lib/lessons/stalled";
 import type { LessonView } from "@/lib/lessons/view";
 import { publicUrl } from "@/lib/supabase/storage";
+
+async function bookOf(lesson: LessonRow): Promise<LessonView["book"]> {
+  if (!lesson.bookId || !lesson.bookLesson) return null;
+  const book = await getBook(lesson.bookId);
+  const pages = book?.lessons[lesson.bookLesson - 1];
+  if (!book || !pages) return null;
+  return { id: book.id, title: book.title, n: lesson.bookLesson, firstPage: pages.firstPage, lastPage: pages.lastPage };
+}
 
 export async function GET(_request: Request, ctx: RouteContext<"/api/lessons/[id]">) {
   const { id } = await ctx.params;
@@ -29,5 +38,6 @@ export async function GET(_request: Request, ctx: RouteContext<"/api/lessons/[id
     videoUrl: lesson.videoPath ? publicUrl(lesson.videoPath) : null,
     // Each finished step's duration and estimated cost, for the pipeline graph.
     metrics: lesson.metrics,
+    book: await bookOf(lesson),
   } satisfies LessonView);
 }

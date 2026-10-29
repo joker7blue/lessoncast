@@ -1,6 +1,8 @@
-// Muse Spark reads one to four textbook page photos and writes the lesson (strict structured output).
+// Muse Spark reads the pages of one lesson and writes its script (strict structured output): one to four
+// photographed pages, or the pages of a book lesson as a PDF.
 
 import { z } from "zod";
+import { MAX_LESSON_PAGES } from "../books/pdf";
 import { Lesson, lessonJsonSchema, MAX_PAGES } from "../lesson/schema";
 import { ArtStyle, STYLES, type StyleChoice } from "../lesson/styles";
 import { postJson } from "./client";
@@ -11,10 +13,10 @@ const MODEL = SPARK_MODEL;
 // Writing a lesson takes 40–55 s; past this, the step is retried.
 const TIMEOUT_MS = 150_000;
 
-export const LESSON_INSTRUCTIONS = `You turn one to four photographed pages of a Cameroonian school textbook, given in page order, into the script of one short narrated, illustrated video lesson for pupils. Parents and pupils will replay it at home in the evening, so it must be clear when heard without the book.
+export const LESSON_INSTRUCTIONS = `You turn the pages of one lesson of a Cameroonian school textbook, photographed or from the book's PDF, given in page order, into the script of one short narrated, illustrated video lesson for pupils. Parents and pupils will replay it at home in the evening, so it must be clear when heard without the book.
 
 Rules:
-- First decide page.isTextbookPage: true only when every photo is a readable page of a school textbook or exercise book. If any photo is something else (a selfie, a blurred or partial photo, a screen, an object), set it to false and keep every other field as short as the schema allows.
+- First decide page.isTextbookPage: true only when every page is a readable page of a school textbook, an educational ebook or an exercise book. If any page is something else (a selfie, a blurred or partial photo, a screen, an object), set it to false and keep every other field as short as the schema allows.
 - Read every page carefully, in order, as one lesson. Teach only what the pages teach, and do not invent facts. Copy their title and main definitions into page.keyText as printed.
 - Write 7 scenes (between 5 and 8 only if the pages clearly need it), however many pages there are: condense rather than lengthen. Each narration is 3 to 4 short sentences, 40–50 words in French. The whole lesson should last about 2 minutes when read aloud.
 - narration.fr: French at the level of the pages. For nursery and primary school, simple words for children. For secondary school, the subject's exact vocabulary, still in short sentences made to be heard.
@@ -41,12 +43,33 @@ const PageCheck = z.object({ page: z.object({ isTextbookPage: z.boolean() }) });
 
 export type WrittenLesson = { seconds: number; costUsd: number } & ({ isTextbookPage: true; lesson: Lesson } | { isTextbookPage: false });
 
-/** Writes the lesson from 1 to 4 page photos, in page order; a forced style always wins. */
-export async function writeLesson(photoUrls: string[], style: StyleChoice): Promise<WrittenLesson> {
+/** A lesson's pages: the teacher's photos (public URLs), or a book lesson's pages cut into one PDF. */
+export type LessonPages = { photoUrls: string[] } | { pdf: Uint8Array; pageCount: number };
+
+function pagesContent(source: LessonPages): { intro: string; parts: unknown[] } {
+  if ("pdf" in source) {
+    if (source.pageCount < 1 || source.pageCount > MAX_LESSON_PAGES) {
+      throw new RangeError(`A book lesson takes 1 to ${MAX_LESSON_PAGES} pages, got ${source.pageCount}`);
+    }
+    const file_data = `data:application/pdf;base64,${Buffer.from(source.pdf).toString("base64")}`;
+    return {
+      intro: source.pageCount === 1 ? "Here is the page of the lesson, as a PDF." : `Here are the ${source.pageCount} pages of the lesson, as a PDF, in order.`,
+      parts: [{ type: "file", file: { filename: "lesson.pdf", file_data } }],
+    };
+  }
+  const { photoUrls } = source;
   if (photoUrls.length < 1 || photoUrls.length > MAX_PAGES) {
     throw new RangeError(`A lesson takes 1 to ${MAX_PAGES} pages, got ${photoUrls.length}`);
   }
-  const pages = photoUrls.length === 1 ? "Here is the page of the lesson." : `Here are the ${photoUrls.length} pages of the lesson, in order.`;
+  return {
+    intro: photoUrls.length === 1 ? "Here is the page of the lesson." : `Here are the ${photoUrls.length} pages of the lesson, in order.`,
+    parts: photoUrls.map((url) => ({ type: "image_url", image_url: { url } })),
+  };
+}
+
+/** Writes the lesson from its pages, in page order; a forced style always wins. */
+export async function writeLesson(source: LessonPages, style: StyleChoice): Promise<WrittenLesson> {
+  const { intro, parts } = pagesContent(source);
   const start = performance.now();
   const res = await postJson("/chat/completions", {
     model: MODEL,
@@ -56,8 +79,8 @@ export async function writeLesson(photoUrls: string[], style: StyleChoice): Prom
       {
         role: "user",
         content: [
-          { type: "text", text: `${pages} ${styleRequest(style)} Write the lesson.` },
-          ...photoUrls.map((url) => ({ type: "image_url", image_url: { url } })),
+          { type: "text", text: `${intro} ${styleRequest(style)} Write the lesson.` },
+          ...parts,
         ],
       },
     ],
