@@ -21,12 +21,17 @@ export function say(text: Localized, language: Language): string {
   return text[language] ?? Object.values(text).find(Boolean) ?? "";
 }
 
+// A quiz holds up to five questions; scripts from before the choice hold three.
+const MAX_QUIZ = 5;
+
 /** The words the video says and shows around the quiz and at the end, in the lesson's language. */
-const VideoText = z.object({
+const videoTextSchema = (questions?: number) => z.object({
   quizTitle: z.string().describe('The quiz card\'s title, two or three words, like "Petit quiz" in French'),
   quizSubtitle: z.string().describe('Under the title, like "Trois questions" in French'),
   quizIntro: z.string().describe('The sentence the voice says before the quiz, like "Petit quiz ! Trois questions pour voir si tu as bien compris." in French'),
-  questionLeads: z.array(z.string()).length(3).describe('What the voice says before each question, like "Question un.", "Question deux.", "Question trois." in French'),
+  questionLeads: (questions === undefined ? z.array(z.string()).max(MAX_QUIZ) : z.array(z.string()).length(questions)).describe(
+    'What the voice says before each quiz question, one per question, like "Question un.", "Question deux." in French',
+  ),
   letterNames: z
     .array(z.string())
     .length(3)
@@ -34,9 +39,15 @@ const VideoText = z.object({
   answerIntro: z.string().describe('The words the voice says before the right answer, like "La bonne réponse est" in French'),
   endCard: z.string().describe('The last words on screen, asking the child to watch again with their parents, like "Revois cette leçon ce soir avec tes parents" in French'),
 });
+const VideoText = videoTextSchema();
 export type VideoText = z.infer<typeof VideoText>;
 
-function lessonSchema<T extends z.ZodType<Localized>, P extends z.ZodRawShape, V extends z.ZodType<VideoText | undefined>>(text: T, phrase: P, videoText: V) {
+function lessonSchema<T extends z.ZodType<Localized>, P extends z.ZodRawShape, V extends z.ZodType<VideoText | undefined>>(
+  text: T,
+  phrase: P,
+  videoText: V,
+  quizQuestions?: number,
+) {
   const Highlight = z.object({
     samPrompt: z
       .string()
@@ -70,7 +81,7 @@ function lessonSchema<T extends z.ZodType<Localized>, P extends z.ZodRawShape, V
         "English description of the recurring characters (age, look, clothes), places and objects shared by every image, without any art style",
       ),
     scenes: z.array(Scene).min(1).max(8),
-    quiz: z.array(QuizQuestion).length(3),
+    quiz: quizQuestions === undefined ? z.array(QuizQuestion).max(MAX_QUIZ) : z.array(QuizQuestion).length(quizQuestions),
     videoText,
   });
 }
@@ -82,19 +93,21 @@ const phrases = Object.fromEntries(LANGUAGE_CODES.map((l) => [l, z.string().opti
 export const Lesson = lessonSchema(Localized, phrases, VideoText.optional());
 export type Lesson = z.infer<typeof Lesson>;
 
-/** The script Muse Spark writes for a video in `language`: every text in that language, and nothing else. */
-export function lessonSchemaFor(language: Language) {
+/** The script Muse Spark writes for a video in `language`, with `quizQuestions` quiz questions: every text in
+ * that language, and nothing else. */
+export function lessonSchemaFor(language: Language, quizQuestions = 3) {
   const name = LANGUAGES[language].label;
   return lessonSchema(
     z.object({ [language]: z.string().describe(name) }) as unknown as z.ZodType<Localized>,
     { [language]: z.string().describe(`The exact word or phrase of the ${name} narration that names this object`) },
-    VideoText,
+    videoTextSchema(quizQuestions),
+    quizQuestions,
   );
 }
 
 /** JSON Schema for the API's structured output, without the `$schema` key. */
-export function lessonJsonSchema(language: Language): Record<string, unknown> {
-  const schema = z.toJSONSchema(lessonSchemaFor(language)) as Record<string, unknown>;
+export function lessonJsonSchema(language: Language, quizQuestions = 3): Record<string, unknown> {
+  const schema = z.toJSONSchema(lessonSchemaFor(language, quizQuestions)) as Record<string, unknown>;
   delete schema.$schema;
   return schema;
 }

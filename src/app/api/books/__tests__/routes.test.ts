@@ -140,6 +140,7 @@ describe("POST /api/books/:id/lessons", () => {
       pageCount: 4,
       book: { id: ID, lesson: 1 },
       targetSeconds: 180,
+      quizQuestions: 3,
     });
     expect(trigger.tasks.trigger).toHaveBeenCalledWith("generate-lesson", { lessonId: "lesson-1" }, { idempotencyKey: "lesson-1" });
   });
@@ -147,9 +148,17 @@ describe("POST /api/books/:id/lessons", () => {
   test("makes the video in the language and length the teacher picked", async () => {
     books.getBook.mockResolvedValue(book());
     await post({ lesson: 1, language: "hau", style: "auto", length: 30 });
-    expect(lessons.createLesson).toHaveBeenCalledWith(expect.objectContaining({ language: "hau", targetSeconds: 30 }));
+    expect(lessons.createLesson).toHaveBeenCalledWith(expect.objectContaining({ language: "hau", targetSeconds: 30, quizQuestions: 0 }));
   });
 
+  test("ends the video with the number of quiz questions chosen, if the length has room", async () => {
+    books.getBook.mockResolvedValue(book());
+    await post({ lesson: 1, language: "fr", style: "auto", length: 120, quiz: 5 });
+    expect(lessons.createLesson).toHaveBeenCalledWith(expect.objectContaining({ targetSeconds: 120, quizQuestions: 5 }));
+    const res = await post({ lesson: 1, language: "fr", style: "auto", length: 60, quiz: 3 });
+    expect(res.status).toBe(400);
+    expect((await res.json()).error).toBe("This video has room for 2 quiz questions at most.");
+  });
 
   test("counts at most 20 pages for a long lesson", async () => {
     books.getBook.mockResolvedValue(book());

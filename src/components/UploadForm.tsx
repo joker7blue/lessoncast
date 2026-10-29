@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { LessonOptions, Step } from "@/components/LessonOptions";
 import { describeVideo } from "@/lib/lesson/describe";
 import { resizeToJpeg, UnsupportedImageError } from "@/lib/image/resize";
-import { defaultLength, type VideoLength } from "@/lib/lesson/length";
+import { defaultLength, maxQuizQuestions, quizQuestionsFor, type VideoLength } from "@/lib/lesson/length";
 import { type Language, MAX_PAGES } from "@/lib/lesson/schema";
 import type { StyleChoice } from "@/lib/lesson/styles";
 import { rememberLesson } from "@/lib/lessons/remembered";
@@ -28,6 +28,9 @@ export function UploadForm() {
   const [chosenLength, setChosenLength] = useState<VideoLength | null>(null);
   const recommendedLength = defaultLength(Math.max(1, pages.length));
   const length = chosenLength ?? recommendedLength;
+  // The quiz follows the length until the teacher sets it, and never asks more than the length has room for.
+  const [chosenQuiz, setChosenQuiz] = useState<number | null>(null);
+  const quizQuestions = Math.min(chosenQuiz ?? quizQuestionsFor(length), maxQuizQuestions(length));
   const [adding, setAdding] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -67,6 +70,7 @@ export function UploadForm() {
     form.append("language", language);
     form.append("style", style);
     form.append("length", String(length));
+    form.append("quiz", String(quizQuestions));
     try {
       const res = await fetch("/api/lessons", { method: "POST", body: form });
       const body = (await res.json().catch(() => ({}))) as { id?: string; error?: string };
@@ -130,6 +134,8 @@ export function UploadForm() {
         length={length}
         onLength={setChosenLength}
         recommendedLength={recommendedLength}
+        quizQuestions={quizQuestions}
+        onQuizQuestions={setChosenQuiz}
         style={style}
         onStyle={setStyle}
         firstStep={2}
@@ -148,7 +154,7 @@ export function UploadForm() {
         >
           {sending ? "Sending the pages…" : "Create the lesson"}
         </button>
-        <p className="mt-3 text-center text-dust">{describeVideo({ language, length, style })} Ready in about four minutes.</p>
+        <p className="mt-3 text-center text-dust">{describeVideo({ language, length, style, quizQuestions })} Ready in about four minutes.</p>
       </div>
     </form>
   );

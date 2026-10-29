@@ -8,6 +8,7 @@ import { StyleChoice } from "@/lib/lesson/styles";
 import { hashIp } from "@/lib/lessons/ip";
 import { checkRateLimit } from "@/lib/lessons/rate-limit";
 import { createLesson, updateLesson } from "@/lib/lessons/repo";
+import { quizChoice } from "@/lib/lessons/video-choice";
 import { lessonPaths, uploadFile } from "@/lib/supabase/storage";
 import type { generateLesson } from "@/trigger/generate-lesson";
 
@@ -44,12 +45,14 @@ export async function POST(request: Request) {
   const lengthField = form.get("length");
   const length = lengthField === null ? { success: true as const, data: defaultLength(pages.length) } : VideoLength.safeParse(Number(lengthField));
   if (!length.success) return fail(400, "Choose a video length.");
+  const quiz = quizChoice(form.get("quiz") ?? undefined, length.data);
+  if (!quiz.ok) return fail(400, quiz.error);
 
   const ipHash = hashIp(request);
   const limited = await checkRateLimit(ipHash);
   if (limited) return fail(429, limited);
 
-  const lesson = await createLesson({ language: language.data, ipHash, pageCount: pages.length, style: style.data, targetSeconds: length.data });
+  const lesson = await createLesson({ language: language.data, ipHash, pageCount: pages.length, style: style.data, targetSeconds: length.data, quizQuestions: quiz.quizQuestions });
   try {
     await Promise.all(pages.map((bytes, i) => uploadFile(lessonPaths.page(lesson.id, i + 1), bytes, "image/jpeg")));
     const run = await tasks.trigger<typeof generateLesson>("generate-lesson", { lessonId: lesson.id }, { idempotencyKey: lesson.id });

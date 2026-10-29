@@ -77,7 +77,7 @@ describe("POST /api/lessons", () => {
     expect(res.status).toBe(201);
     expect(await res.json()).toEqual({ id: ID });
     // No length sent: the one that fits three pages.
-    expect(repo.createLesson).toHaveBeenCalledWith({ language: "fr", ipHash: null, pageCount: 3, style: "realistic", targetSeconds: 180 });
+    expect(repo.createLesson).toHaveBeenCalledWith({ language: "fr", ipHash: null, pageCount: 3, style: "realistic", targetSeconds: 180, quizQuestions: 3 });
     const stored = storage.uploadFile.mock.calls.map(([path, bytes, type]) => [path, (bytes as Uint8Array).length, type]);
     expect(stored).toEqual([
       [`${ID}/pages/1.jpg`, 900, "image/jpeg"],

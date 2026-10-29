@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MAX_LESSON_PAGES } from "@/lib/books/pdf";
 import type { BookView } from "@/lib/books/view";
-import { defaultLength, type VideoLength } from "@/lib/lesson/length";
+import { defaultLength, maxQuizQuestions, quizQuestionsFor, type VideoLength } from "@/lib/lesson/length";
 import type { Language } from "@/lib/lesson/schema";
 import type { StyleChoice } from "@/lib/lesson/styles";
 import { bookEditKey, rememberLesson } from "@/lib/lessons/remembered";
@@ -78,6 +78,8 @@ function MakeVideo({ bookId, bookLanguage, lesson, onCancel }: { bookId: string;
   const [style, setStyle] = useState<StyleChoice>("auto");
   const recommendedLength = defaultLength(Math.min(lesson.lastPage - lesson.firstPage + 1, MAX_LESSON_PAGES));
   const [length, setLength] = useState<VideoLength>(recommendedLength);
+  const [chosenQuiz, setChosenQuiz] = useState<number | null>(null);
+  const quizQuestions = Math.min(chosenQuiz ?? quizQuestionsFor(length), maxQuizQuestions(length));
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -88,7 +90,7 @@ function MakeVideo({ bookId, bookLanguage, lesson, onCancel }: { bookId: string;
       const res = await fetch(`/api/books/${bookId}/lessons`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lesson: lesson.n, language, style, length }),
+        body: JSON.stringify({ lesson: lesson.n, language, style, length, quiz: quizQuestions }),
       });
       const body = (await res.json().catch(() => ({}))) as { id?: string; error?: string };
       if (!res.ok || !body.id) throw new Error(body.error ?? OFFLINE);
@@ -108,6 +110,8 @@ function MakeVideo({ bookId, bookLanguage, lesson, onCancel }: { bookId: string;
         length={length}
         onLength={setLength}
         recommendedLength={recommendedLength}
+        quizQuestions={quizQuestions}
+        onQuizQuestions={setChosenQuiz}
         style={style}
         onStyle={setStyle}
         firstStep={1}
@@ -131,7 +135,7 @@ function MakeVideo({ bookId, bookLanguage, lesson, onCancel }: { bookId: string;
             Cancel
           </button>
         </div>
-        <p className="mt-3 text-dust">{describeVideo({ language, length, style })} Ready in about four minutes.</p>
+        <p className="mt-3 text-dust">{describeVideo({ language, length, style, quizQuestions })} Ready in about four minutes.</p>
       </div>
     </div>
   );
