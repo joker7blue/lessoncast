@@ -17,6 +17,19 @@ body {
   color: var(--color-chalk);
 }
 
+/* The sidebar folded down to its icons, a choice kept on the device (Sidebar.tsx). */
+@custom-variant collapsed (&:where(html[data-sidebar="collapsed"] *));
+
+@media (min-width: 64rem) {
+  .shell-content {
+    padding-left: 16rem;
+    transition: padding-left 0.2s;
+  }
+  html[data-sidebar="collapsed"] .shell-content {
+    padding-left: 4.5rem;
+  }
+}
+
 :focus-visible {
   outline: 2px solid var(--color-spoken);
   outline-offset: 2px;
@@ -53,4 +66,40 @@ body {
   stroke: var(--color-spoken);
   stroke-dasharray: 6 6;
   animation: edge-flow 0.8s linear infinite;
+}
+
+/* A scene not drawn yet: a dotted veil over a blurred preview, swept by a light band while Muse Image
+   draws it. A scene that arrives comes into focus. */
+@keyframes scene-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes scene-focus {
+  from {
+    filter: blur(14px);
+    opacity: 0.4;
+  }
+  to {
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
+.scene-dots {
+  background-image: radial-gradient(color-mix(in srgb, var(--color-chalk) 28%, transparent) 1px, transparent 1.5px);
+  background-size: 9px 9px;
+}
+
+.scene-sweep {
+  background: linear-gradient(100deg, transparent 20%, color-mix(in srgb, var(--color-chalk) 14%, transparent) 50%, transparent 80%);
+  animation: scene-sweep 1.8s ease-in-out infinite;
+}
+
+.scene-focus {
+  animation: scene-focus 0.9s ease-out both;
 }

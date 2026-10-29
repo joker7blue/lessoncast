@@ -1,23 +1,24 @@
 "use client";
 
-// The lessons this device made, read back from the API. Kept in the browser: no account needed.
+// The lessons this device started that aren't finished yet, or couldn't be: finished lessons are
+// listed for everyone on the Lessons page.
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { rememberedLessons } from "@/lib/lessons/remembered";
 import type { LessonView } from "@/lib/lessons/view";
-import { LessonCard, type LessonCardData, describeLesson } from "./LessonCard";
+import { LessonCard, type LessonCardData } from "./LessonCard";
 
 const STATUS_NOTE: Record<string, string> = {
   queued: "Starting",
   reading: "Being made: reading the pages",
   drawing: "Being made: pictures and voice",
+  highlighting: "Being made: lighting up the objects",
   rendering: "Being made: putting it together",
   failed: "Couldn't be made",
 };
 
 export function MyLessons() {
-  const [lessons, setLessons] = useState<LessonCardData[] | null>(null);
+  const [lessons, setLessons] = useState<LessonCardData[]>([]);
 
   useEffect(() => {
     let stopped = false;
@@ -36,7 +37,7 @@ export function MyLessons() {
       if (stopped) return;
       setLessons(
         views.flatMap((entry) =>
-          entry
+          entry && entry.view.status !== "done"
             ? [
                 {
                   id: entry.id,
@@ -44,10 +45,7 @@ export function MyLessons() {
                   language: entry.view.language,
                   style: entry.view.style,
                   posterUrl: entry.view.sceneImageUrls.find((url) => url !== null) ?? null,
-                  note:
-                    entry.view.status === "done"
-                      ? describeLesson(entry.view.language, entry.view.style)
-                      : (STATUS_NOTE[entry.view.status] ?? entry.view.status),
+                  note: STATUS_NOTE[entry.view.status] ?? entry.view.status,
                 },
               ]
             : [],
@@ -60,25 +58,17 @@ export function MyLessons() {
     };
   }, []);
 
-  if (lessons === null) return <p className="mt-10 text-dust">Loading your lessons…</p>;
-  if (lessons.length === 0) {
-    return (
-      <div className="mt-10 rounded-2xl border border-dashed border-line p-8">
-        <p className="text-lg font-bold">No lessons on this device yet.</p>
-        <p className="mt-2 text-dust">Photograph a textbook page and your first lesson will appear here.</p>
-        <Link href="/create" className="mt-6 inline-flex rounded-lg bg-spoken px-6 py-3 font-extrabold text-board">
-          Create a lesson
-        </Link>
-      </div>
-    );
-  }
+  if (lessons.length === 0) return null;
   return (
-    <ul className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-      {lessons.map((lesson) => (
-        <li key={lesson.id}>
-          <LessonCard lesson={lesson} />
-        </li>
-      ))}
-    </ul>
+    <section className="mt-10">
+      <h2 className="text-xl font-extrabold">Being made on this device</h2>
+      <ul className="mt-4 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        {lessons.map((lesson) => (
+          <li key={lesson.id}>
+            <LessonCard lesson={lesson} />
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

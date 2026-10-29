@@ -12,6 +12,12 @@ export const lessonPaths = {
   highlights: (id: string) => `${id}/highlights.json`,
 };
 
+/** A book's files, under books/ so they never mix with a lesson's folder. */
+export const bookPaths = {
+  pdf: (id: string) => `books/${id}/book.pdf`,
+  slice: (id: string, firstPage: number, lastPage: number) => `books/${id}/slices/${firstPage}-${lastPage}.pdf`,
+};
+
 /** Uploads a file, replacing any file already at that path. */
 export async function uploadFile(path: string, bytes: Uint8Array, contentType: string): Promise<void> {
   const { error } = await supabase().storage.from(BUCKET).upload(path, bytes, { contentType, upsert: true });
@@ -30,6 +36,13 @@ export async function downloadFile(path: string): Promise<Uint8Array> {
   const { data, error } = await supabase().storage.from(BUCKET).download(path);
   if (error) throw new Error(`Download of ${path} failed: ${error.message}`);
   return new Uint8Array(await data.arrayBuffer());
+}
+
+/** The size of the file at `path`, or null when there is none. */
+export async function fileSize(path: string): Promise<number | null> {
+  const { data, error } = await supabase().storage.from(BUCKET).info(path);
+  if (error) return null;
+  return data.size ?? null;
 }
 
 export function publicUrl(path: string): string {

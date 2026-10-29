@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { makeLesson } from "../../lesson/lesson.fixture";
 import { narrationGroups } from "../../lesson/narration";
+import { quizGroups } from "../../lesson/quiz";
 import type { SceneHighlights } from "../highlights";
 import { FPS, VideoProps } from "../props";
 import { END_CARD_TEXT, buildVideoProps } from "../timeline";
@@ -16,12 +17,13 @@ function input(sceneCount = 6, language: "fr" | "pcm" = "pcm") {
 const frame = (seconds: number) => Math.round(seconds * FPS);
 
 describe("buildVideoProps", () => {
-  test("title, scenes and end card tile the timeline without gaps", () => {
+  test("title, scenes, quiz and end card tile the timeline without gaps", () => {
     const p = buildVideoProps(input());
     expect(p.title.startFrame).toBe(0);
     expect(p.scenes[0]!.startFrame).toBe(p.title.endFrame);
     p.scenes.slice(1).forEach((s, i) => expect(s.startFrame).toBe(p.scenes[i]!.endFrame));
-    expect(p.endCard.startFrame).toBe(p.scenes.at(-1)!.endFrame);
+    expect(p.quiz!.startFrame).toBe(p.scenes.at(-1)!.endFrame);
+    expect(p.endCard.startFrame).toBe(p.quiz!.endFrame);
     expect(p.endCard.endFrame - p.endCard.startFrame).toBe(50);
     expect(p.durationInFrames).toBe(p.endCard.endFrame);
   });
@@ -44,9 +46,9 @@ describe("buildVideoProps", () => {
     expect(p.title.endFrame).toBeGreaterThanOrEqual(75);
   });
 
-  test("the last scene covers the audio end plus 0.5 s", () => {
+  test("the quiz covers the audio end plus 0.5 s", () => {
     const args = input();
-    expect(buildVideoProps(args).scenes.at(-1)!.endFrame).toBe(frame(args.audioSeconds + 0.5));
+    expect(buildVideoProps(args).quiz!.endFrame).toBe(frame(args.audioSeconds + 0.5));
   });
 
   test("title, subject, level and end card are in the chosen language; the title background is scene 1", () => {
@@ -200,5 +202,65 @@ describe("buildVideoProps highlights", () => {
       }),
     };
     expect(VideoProps.safeParse(old).success).toBe(true);
+  });
+});
+
+describe("buildVideoProps quiz", () => {
+  const wordsOfGroup = (args: ReturnType<typeof input>, group: number) => args.words.filter((w) => w.group === group);
+
+  test("the last scene ends where the quiz starts, 0.25 s before its intro", () => {
+    const args = input(6, "fr");
+    const p = buildVideoProps(args);
+    const g = quizGroups(6);
+    const intro = wordsOfGroup(args, g.intro)[0]!;
+    expect(p.quiz!.startFrame).toBe(frame(intro.start - 0.25));
+    expect(p.scenes.at(-1)!.endFrame).toBe(p.quiz!.startFrame);
+    expect(p.quiz!.endFrame).toBe(frame(args.audioSeconds + 0.5));
+    expect(p.endCard.startFrame).toBe(p.quiz!.endFrame);
+    expect(p.quiz).toMatchObject({ title: "Petit quiz", subtitle: "Trois questions" });
+  });
+
+  test("each question shows its text and choices, lights each choice as it is read, then counts down and reveals", () => {
+    const args = input(6, "pcm");
+    args.lesson.quiz[1]!.answerIndex = 2;
+    const p = buildVideoProps(args);
+    const g = quizGroups(6);
+    const words = wordsOfGroup(args, g.question(1));
+    const answer = wordsOfGroup(args, g.answer(1))[0]!;
+    const q = p.quiz!.questions[1]!;
+    expect(q).toMatchObject({ number: 2, text: "Question 2?", answerIndex: 2 });
+    expect(q.choices.map((c) => c.text)).toEqual(["Yes", "No", "Maybe"]);
+    // The lead and the question take 2 + 2 words; each choice then starts on its letter.
+    expect(q.choices.map((c) => c.startFrame)).toEqual([4, 6, 8].map((i) => frame(words[i]!.start)));
+    expect(q.startFrame).toBe(frame(words[0]!.start - 0.25));
+    expect(q.countdownStartFrame).toBe(frame(words.at(-1)!.end + 0.35));
+    expect(q.revealFrame).toBe(frame(answer.start));
+    expect(q.endFrame).toBe(p.quiz!.questions[2]!.startFrame);
+  });
+
+  test("the quiz adds no subtitles", () => {
+    const args = input(6, "fr");
+    const p = buildVideoProps(args);
+    expect(Math.max(...p.captions.map((c) => c.endFrame))).toBeLessThanOrEqual(p.quiz!.startFrame);
+  });
+
+  test("the result with a quiz validates against VideoProps", () => {
+    expect(VideoProps.safeParse(buildVideoProps(input())).success).toBe(true);
+  });
+
+  test("a narration without the quiz, from before it, renders without one", () => {
+    const args = input(6);
+    const words = args.words.filter((w) => w.group <= 6);
+    const audioSeconds = words.at(-1)!.end;
+    const p = buildVideoProps({ ...args, words, audioSeconds });
+    expect(p.quiz).toBeNull();
+    expect(p.scenes.at(-1)!.endFrame).toBe(frame(audioSeconds + 0.5));
+  });
+
+  test("a question whose words don't match its text drops the quiz rather than mistiming it", () => {
+    const args = input(6);
+    const g = quizGroups(6);
+    const words = args.words.filter((w, i, all) => !(w.group === g.question(0) && all.findIndex((x) => x.group === g.question(0)) === i));
+    expect(buildVideoProps({ ...args, words }).quiz).toBeNull();
   });
 });

@@ -13,7 +13,14 @@ import { modelSeconds, nodeStates, scenesDrawn } from "@/lib/lessons/graph";
 import type { LessonView } from "@/lib/lessons/view";
 import { lessonNodes } from "./pipeline/nodes";
 import { PipelineGraph } from "./pipeline/PipelineGraph";
-import { SceneImage } from "./SceneImage";
+import { RenderingPreview } from "./RenderingPreview";
+import { SceneGallery } from "./SceneGallery";
+
+/** What the video slot says while the last steps run, before the MP4 exists. */
+const FINISHING: Partial<Record<LessonView["status"], string>> = {
+  highlighting: "SAM 3.1 is cutting out the objects",
+  rendering: "Remotion is putting the video together",
+};
 
 const POLL_MS = 2000;
 
@@ -64,29 +71,6 @@ function useElapsed(createdAt: string | undefined, running: boolean): number {
   return createdAt ? Math.max(0, (now - Date.parse(createdAt)) / 1000) : 0;
 }
 
-function SceneSlots({ lesson }: { lesson: LessonView }) {
-  const slots = Math.max(lesson.sceneCount ?? 0, lesson.sceneImageUrls.length);
-  if (slots === 0) return null;
-  return (
-    <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3" aria-label="Scenes">
-      {Array.from({ length: slots }, (_, i) => {
-        const url = lesson.sceneImageUrls[i];
-        return (
-          <li key={i}>
-            {url ? (
-              <SceneImage src={url} alt={`Scene ${i + 1}`} sizes="(max-width: 640px) 50vw, 240px" />
-            ) : (
-              <div className="grid aspect-video place-items-center rounded-lg border border-dashed border-line text-sm font-bold text-dust">
-                Scene {i + 1}
-              </div>
-            )}
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
-
 export function LessonStatus({ id }: { id: string }) {
   const { lesson, missing } = useLesson(id);
   const running = lesson !== null && lesson.status !== "done" && lesson.status !== "failed";
@@ -123,9 +107,18 @@ export function LessonStatus({ id }: { id: string }) {
       <header className="lg:col-span-2">
         <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">{lesson.title ?? "Your lesson"}</h1>
         <p className="mt-2 text-lg text-dust">{subtitle(lesson)}</p>
+        {lesson.book && (
+          <Link href={`/books/${lesson.book.id}`} className="mt-2 inline-block font-bold text-spoken underline underline-offset-4">
+            Lesson {lesson.book.n} of {lesson.book.title ?? "the book"}, pages {lesson.book.firstPage}–{lesson.book.lastPage}
+          </Link>
+        )}
       </header>
 
-      <section className={`space-y-6 ${done ? "order-1" : "order-2"} lg:order-none`}>
+      {/* On a phone, the pictures come first and the graph after them, at every step. */}
+      <section className="order-1 space-y-6 lg:order-none">
+        {!lesson.videoUrl && FINISHING[lesson.status] && (
+          <RenderingPreview urls={lesson.sceneImageUrls.flatMap((url) => (url ? [url] : []))} label={FINISHING[lesson.status]!} />
+        )}
         {lesson.videoUrl && (
           <div>
             <video
@@ -148,18 +141,28 @@ export function LessonStatus({ id }: { id: string }) {
         {failed && (
           <div role="alert" className="rounded-xl border border-danger/40 px-4 py-3">
             <p className="text-danger">{lesson.error ?? "The lesson couldn't be made."}</p>
-            <Link href="/create" className="mt-3 inline-block font-bold text-chalk underline underline-offset-4">
-              Try again with other photos
-            </Link>
+            {lesson.book ? (
+              <Link href={`/books/${lesson.book.id}`} className="mt-3 inline-block font-bold text-chalk underline underline-offset-4">
+                Back to the book to try again
+              </Link>
+            ) : (
+              <Link href="/create" className="mt-3 inline-block font-bold text-chalk underline underline-offset-4">
+                Try again with other photos
+              </Link>
+            )}
           </div>
         )}
         {lesson.status === "queued" && <p className="text-dust">The lesson starts in a few seconds.</p>}
-        <SceneSlots lesson={lesson} />
+        <SceneGallery
+          urls={lesson.sceneImageUrls}
+          slots={Math.max(lesson.sceneCount ?? 0, lesson.sceneImageUrls.length)}
+          drawing={running && lesson.status !== "reading" && lesson.status !== "queued"}
+        />
       </section>
 
-      <aside className={`${done ? "order-2" : "order-1"} lg:order-none`}>
+      <aside className="order-2 lg:sticky lg:top-6 lg:order-none lg:self-start">
         <h2 className="mb-4 text-xl font-extrabold">{done ? "How this video was made" : "Being made now"}</h2>
-        <PipelineGraph states={states} nodes={lessonNodes(lesson)} footer={footer} />
+        <PipelineGraph states={states} nodes={lessonNodes(lesson)} footer={footer} roles={false} />
       </aside>
     </div>
   );
