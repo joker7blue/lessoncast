@@ -31,7 +31,7 @@ export const writeScript = schemaTask({
     await warmVoice().catch((error: unknown) => logger.warn("Could not warm the voice", { error: String(error) }));
 
     const row = await loadLesson(lessonId);
-    const written = await writeLesson(await pagesOf(row), row.style, row.language, row.targetSeconds ?? undefined);
+    const written = await writeLesson(await pagesOf(row), row.style, row.language, row.targetSeconds ?? undefined, row.quizQuestions ?? undefined);
     const { seconds, costUsd } = written;
     await recordMetrics(lessonId, "write-script", { seconds, costUsd });
     if (!written.isTextbookPage) {

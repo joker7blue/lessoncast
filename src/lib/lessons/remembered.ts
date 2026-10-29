@@ -25,3 +25,28 @@ export const rememberedLessons = () => remembered("lessoncast:lessons");
 export const rememberLesson = (id: string) => remember("lessoncast:lessons", id);
 export const rememberedBooks = () => remembered("lessoncast:books");
 export const rememberBook = (id: string) => remember("lessoncast:books", id);
+
+const BOOK_KEYS = "lessoncast:book-keys";
+
+function bookKeys(): Record<string, string> {
+  try {
+    const keys: unknown = JSON.parse(localStorage.getItem(BOOK_KEYS) ?? "{}");
+    return keys && typeof keys === "object" ? (keys as Record<string, string>) : {};
+  } catch {
+    return {};
+  }
+}
+
+/** The key that lets this device edit the book it uploaded, null on any other device. */
+export function bookEditKey(id: string): string | null {
+  return bookKeys()[id] ?? null;
+}
+
+export function rememberBookEditKey(id: string, key: string): void {
+  try {
+    localStorage.setItem(BOOK_KEYS, JSON.stringify({ ...bookKeys(), [id]: key }));
+  } catch {
+    // Not kept: the book still works, it just can't be renamed from here.
+  }
+}
+

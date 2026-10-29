@@ -16,8 +16,8 @@ export const narrate = schemaTask({
   run: async ({ lessonId }) => {
     const { row, lesson } = await loadScript(lessonId);
     const path = lessonPaths.voice(lessonId);
-    // A lesson from before the length choice asks the whole quiz.
-    const quizQuestions = row.targetSeconds === null ? undefined : quizQuestionsFor(row.targetSeconds);
+    // The teacher's choice; before it, the quiz followed the length; before that, the whole quiz.
+    const quizQuestions = row.quizQuestions ?? (row.targetSeconds === null ? undefined : quizQuestionsFor(row.targetSeconds));
     const { groups, pauses } = narrationPlan(lesson, row.language, quizQuestions);
     const { words, audioSeconds, seconds } = await narrateOnModal({
       groups,

@@ -4,7 +4,7 @@
 import { z } from "zod";
 import { MAX_LESSON_PAGES } from "../books/pdf";
 import { LANGUAGES } from "../lesson/languages";
-import { lengthPlan } from "../lesson/length";
+import { lengthPlan, quizQuestionsFor } from "../lesson/length";
 import { type Language, Lesson, lessonJsonSchema, lessonSchemaFor, MAX_PAGES } from "../lesson/schema";
 import { ArtStyle, STYLES, type StyleChoice } from "../lesson/styles";
 import { postJson } from "./client";
@@ -26,8 +26,8 @@ Rules:
 - imagePrompt (English): one illustration for the scene, which must show clearly every highlight object of the scene; describe subject, setting and composition. Show Cameroonian people and places when people or places appear, with pupils of the age the pages are written for. Never ask for text, letters, labels or numbers in the image. Leave the art style out: it is set by style.
 - visualNotes (English): the recurring characters (age, look, clothes), places and objects, described once so every image draws them the same way. No art style.
 - highlights: 1 to 3 objects per scene that the narration names. samPrompt is a short English noun phrase for one concrete, visible object ("heart", "river", "red blood cell"), never a group, a place or an idea. The phrase copies the exact word or words of the narration that name it.
-- quiz: 3 multiple-choice questions on the lesson, 3 choices each, read aloud and shown at the end of the video. Each question is a full question in the normal spelling of its language, ending with a question mark (Qu'est-ce que le cœur ?, Où va le sang ?). Choices are short. answerIndex is the index of the correct choice; vary its position.
-- videoText: the few words the video says and shows around the quiz and at the end, written naturally in the request's language.`;
+- quiz: as many multiple-choice questions on the lesson as the request asks (none when it asks for none), 3 choices each, read aloud and shown at the end of the video. Each question is a full question in the normal spelling of its language, ending with a question mark (Qu'est-ce que le cœur ?, Où va le sang ?). Choices are short. answerIndex is the index of the correct choice; vary its position.
+- videoText: the few words the video says and shows around the quiz and at the end, written naturally in the request's language, with one question lead per quiz question.`;
 
 type ChatCompletion = {
   choices: { message: { content: string | null; refusal?: string | null }; finish_reason: string }[];
@@ -69,19 +69,27 @@ function pagesContent(source: LessonPages): { intro: string; parts: unknown[] } 
   };
 }
 
-/** The language and the length the request asks for. */
-function videoRequest(language: Language, seconds: number): string {
+/** The language, the length and the quiz the request asks for. */
+function videoRequest(language: Language, seconds: number, quizQuestions: number): string {
   const { label, writing, wordsPerSecond } = LANGUAGES[language];
-  const { scenes, wordsPerScene } = lengthPlan(seconds, wordsPerSecond);
+  const { scenes, wordsPerScene } = lengthPlan(seconds, wordsPerSecond, quizQuestions);
+  const quiz = quizQuestions === 0 ? "Write no quiz question: leave the quiz empty." : `Write ${quizQuestions} quiz question${quizQuestions > 1 ? "s" : ""}.`;
   const length = seconds < 60 ? `${seconds} seconds` : `${seconds / 60} minute${seconds > 60 ? "s" : ""}`;
-  return `Write the lesson in ${label}: ${writing} The video lasts about ${length}: write ${scenes} scene${scenes > 1 ? "s" : ""}, each narration about ${wordsPerScene} words.`;
+  return `Write the lesson in ${label}: ${writing} The video lasts about ${length}: write ${scenes} scene${scenes > 1 ? "s" : ""}, each narration about ${wordsPerScene} words. ${quiz}`;
 }
 
 // A script from before the teacher chose the length lasted about three minutes.
 const DEFAULT_SECONDS = 180;
 
-/** Writes the lesson from its pages, in page order, in `language`, for a video of about `seconds`; a forced style always wins. */
-export async function writeLesson(source: LessonPages, style: StyleChoice, language: Language, seconds: number = DEFAULT_SECONDS): Promise<WrittenLesson> {
+/** Writes the lesson from its pages, in page order, in `language`, for a video of about `seconds` ending with
+ * `quizQuestions` quiz questions; a forced style always wins. */
+export async function writeLesson(
+  source: LessonPages,
+  style: StyleChoice,
+  language: Language,
+  seconds: number = DEFAULT_SECONDS,
+  quizQuestions: number = quizQuestionsFor(seconds),
+): Promise<WrittenLesson> {
   const { intro, parts } = pagesContent(source);
   const start = performance.now();
   const res = await postJson("/chat/completions", {
@@ -92,12 +100,12 @@ export async function writeLesson(source: LessonPages, style: StyleChoice, langu
       {
         role: "user",
         content: [
-          { type: "text", text: `${intro} ${videoRequest(language, seconds)} ${styleRequest(style)} Write the lesson.` },
+          { type: "text", text: `${intro} ${videoRequest(language, seconds, quizQuestions)} ${styleRequest(style)} Write the lesson.` },
           ...parts,
         ],
       },
     ],
-    response_format: { type: "json_schema", json_schema: { name: "Lesson", strict: true, schema: lessonJsonSchema(language) } },
+    response_format: { type: "json_schema", json_schema: { name: "Lesson", strict: true, schema: lessonJsonSchema(language, quizQuestions) } },
   }, { timeoutMs: TIMEOUT_MS });
   const completion = (await res.json()) as ChatCompletion;
   const choice = completion.choices[0];
@@ -109,6 +117,6 @@ export async function writeLesson(source: LessonPages, style: StyleChoice, langu
   const check = PageCheck.safeParse(answer);
   if (check.success && !check.data.page.isTextbookPage) return { ...cost, isTextbookPage: false };
   // Every text in the video's language: checked with that language's schema, then read as any script.
-  const parsed = Lesson.parse(lessonSchemaFor(language).parse(answer));
+  const parsed = Lesson.parse(lessonSchemaFor(language, quizQuestions).parse(answer));
   return { ...cost, isTextbookPage: true, lesson: style === "auto" ? parsed : { ...parsed, style } };
 }

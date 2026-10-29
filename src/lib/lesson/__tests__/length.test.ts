@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { defaultLength, lengthPlan, quizQuestionsFor, VideoLength } from "../length";
+import { defaultLength, lengthPlan, maxQuizQuestions, quizQuestionsFor, VideoLength } from "../length";
 
 describe("lengthPlan", () => {
   test("a 15 s video is one short scene and no quiz", () => {
@@ -46,5 +46,14 @@ test("a slower voice gets fewer words for the same time", () => {
   // Hausa's voice reads about 1.6 words a second, Pidgin's 2.7.
   expect(lengthPlan(60, 1.6).wordsPerScene).toBeLessThan(lengthPlan(60, 2.7).wordsPerScene);
   expect(lengthPlan(60, 1.6)).toMatchObject({ scenes: 2, wordsPerScene: 29, quizQuestions: 1 });
+});
+
+test("maxQuizQuestions: what fits beside at least 10 s of lesson", () => {
+  expect([15, 30, 60, 120, 180].map(maxQuizQuestions)).toEqual([0, 0, 2, 5, 5]);
+});
+
+test("a quiz the teacher chose takes its part of the time from the scenes", () => {
+  expect(lengthPlan(120, 2.7, 5).wordsPerScene * lengthPlan(120, 2.7, 5).scenes).toBeLessThan(lengthPlan(120, 2.7, 0).wordsPerScene * lengthPlan(120, 2.7, 0).scenes);
+  expect(lengthPlan(120, 2.7, 0)).toMatchObject({ quizQuestions: 0 });
 });
 

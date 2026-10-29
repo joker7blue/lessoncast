@@ -1,8 +1,9 @@
 // POST /api/books: a teacher is about to upload a textbook or ebook PDF. The PDF never goes through
-// this server (Vercel refuses bodies over 4.5 MB): the answer is a signed URL the browser PUTs it to.
-// POST /api/books/:id/read then starts the reading.
+// this server (Vercel refuses bodies over 4.5 MB): the answer is a signed URL the browser PUTs it to,
+// and the key that lets this device edit the book later. POST /api/books/:id/read then starts the reading.
 
 import { z } from "zod";
+import { newEditKey } from "@/lib/books/edit-key";
 import { createBook } from "@/lib/books/repo";
 import { hashIp } from "@/lib/lessons/ip";
 import { checkRateLimit } from "@/lib/lessons/rate-limit";
@@ -26,6 +27,7 @@ export async function POST(request: Request) {
   const limited = await checkRateLimit(ipHash);
   if (limited) return fail(429, limited);
 
-  const book = await createBook({ fileName, fileBytes: bytes, ipHash });
-  return Response.json({ id: book.id, uploadUrl: await signedUploadUrl(bookPaths.pdf(book.id)) }, { status: 201 });
+  const editKey = newEditKey();
+  const book = await createBook({ fileName, fileBytes: bytes, ipHash, editKeyHash: editKey.hash });
+  return Response.json({ id: book.id, uploadUrl: await signedUploadUrl(bookPaths.pdf(book.id)), editKey: editKey.key }, { status: 201 });
 }

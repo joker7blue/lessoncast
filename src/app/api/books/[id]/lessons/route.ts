@@ -11,9 +11,10 @@ import { StyleChoice } from "@/lib/lesson/styles";
 import { hashIp } from "@/lib/lessons/ip";
 import { checkRateLimit } from "@/lib/lessons/rate-limit";
 import { createLesson, updateLesson } from "@/lib/lessons/repo";
+import { quizChoice } from "@/lib/lessons/video-choice";
 import type { generateLesson } from "@/trigger/generate-lesson";
 
-const Body = z.object({ lesson: z.int().positive(), language: Language, style: StyleChoice, length: VideoLength.optional() });
+const Body = z.object({ lesson: z.int().positive(), language: Language, style: StyleChoice, length: VideoLength.optional(), quiz: z.unknown().optional() });
 
 const fail = (status: number, error: string) => Response.json({ error }, { status });
 
@@ -32,13 +33,17 @@ export async function POST(request: Request, ctx: RouteContext<"/api/books/[id]/
   if (limited) return fail(429, limited);
 
   const pageCount = Math.min(lesson.lastPage - lesson.firstPage + 1, MAX_LESSON_PAGES);
+  const length = body.data.length ?? defaultLength(pageCount);
+  const quiz = quizChoice(body.data.quiz, length);
+  if (!quiz.ok) return fail(400, quiz.error);
   const created = await createLesson({
     language: body.data.language,
     style: body.data.style,
     ipHash,
     pageCount,
     book: { id, lesson: body.data.lesson },
-    targetSeconds: body.data.length ?? defaultLength(pageCount),
+    targetSeconds: length,
+    quizQuestions: quiz.quizQuestions,
   });
   try {
     const run = await tasks.trigger<typeof generateLesson>("generate-lesson", { lessonId: created.id }, { idempotencyKey: created.id });

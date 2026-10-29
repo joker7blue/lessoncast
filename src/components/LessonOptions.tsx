@@ -7,7 +7,7 @@ import { Check } from "lucide-react";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { LANGUAGE_CODES, LANGUAGES as LANGUAGE_INFO } from "@/lib/lesson/languages";
-import { formatLength, LENGTHS, type VideoLength } from "@/lib/lesson/length";
+import { formatLength, LENGTHS, maxQuizQuestions, type VideoLength } from "@/lib/lesson/length";
 import type { Language } from "@/lib/lesson/schema";
 import { ArtStyle, AUTO_STYLE, STYLES, type StyleChoice } from "@/lib/lesson/styles";
 
@@ -51,6 +51,8 @@ export function LessonOptions({
   length,
   onLength,
   recommendedLength,
+  quizQuestions,
+  onQuizQuestions,
   style,
   onStyle,
   firstStep,
@@ -61,11 +63,14 @@ export function LessonOptions({
   onLength(length: VideoLength): void;
   /** The length that fits these pages, marked as recommended. */
   recommendedLength: VideoLength;
+  quizQuestions: number;
+  onQuizQuestions(questions: number): void;
   style: StyleChoice;
   onStyle(style: StyleChoice): void;
-  /** The number of the language step; the length and style steps follow it. */
+  /** The number of the language step; the length, quiz and style steps follow it. */
   firstStep: number;
 }) {
+  const maxQuiz = maxQuizQuestions(length);
   return (
     <>
       <Step n={firstStep} title="Video language" hint="The language the children speak at home. Each one has its own Meta MMS voice.">
@@ -90,7 +95,7 @@ export function LessonOptions({
         </div>
       </Step>
 
-      <Step n={firstStep + 1} title="Video length" hint="Shorter videos have fewer scenes and fewer quiz questions.">
+      <Step n={firstStep + 1} title="Video length" hint="Shorter videos have fewer scenes, and room for fewer quiz questions.">
         <div role="radiogroup" aria-label="Video length" className="flex flex-wrap gap-2">
           {LENGTHS.map((seconds) => {
             const selected = length === seconds;
@@ -108,7 +113,41 @@ export function LessonOptions({
         </div>
       </Step>
 
-      <Step n={firstStep + 2} title="Picture style" hint="Each picture shows the same scene drawn in that style.">
+      <Step n={firstStep + 2} title="Quiz at the end" hint="Questions the voice asks after the lesson, each with a countdown and the right answer.">
+        {maxQuiz === 0 ? (
+          <p className="text-dust">A video this short has no room for a quiz. Choose 1 minute or more.</p>
+        ) : (
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="inline-flex cursor-pointer items-center gap-3 font-bold has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-4 has-[:focus-visible]:outline-spoken">
+              <input
+                type="checkbox"
+                checked={quizQuestions > 0}
+                onChange={(e) => onQuizQuestions(e.target.checked ? Math.min(3, maxQuiz) : 0)}
+                className="peer sr-only"
+              />
+              <span aria-hidden className="relative h-6 w-11 rounded-full bg-line transition-colors peer-checked:bg-spoken">
+                <span className={`absolute top-0.5 size-5 rounded-full bg-chalk transition-[left] ${quizQuestions > 0 ? "left-[1.375rem]" : "left-0.5"}`} />
+              </span>
+              Add a quiz
+            </label>
+            {quizQuestions > 0 && (
+              <div role="radiogroup" aria-label="Quiz questions" className="flex flex-wrap gap-2">
+                {Array.from({ length: maxQuiz }, (_, i) => i + 1).map((n) => (
+                  <label
+                    key={n}
+                    className={`cursor-pointer rounded-lg border-2 px-3 py-1.5 font-bold has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-spoken ${quizQuestions === n ? "border-spoken bg-panel" : "border-line text-dust hover:border-dust hover:text-chalk"}`}
+                  >
+                    <input type="radio" name="quiz" value={n} checked={quizQuestions === n} onChange={() => onQuizQuestions(n)} className="sr-only" />
+                    {n} {n === 1 ? "question" : "questions"}
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </Step>
+
+      <Step n={firstStep + 3} title="Picture style" hint="Each picture shows the same scene drawn in that style.">
         <div role="radiogroup" aria-label="Picture style" className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {STYLE_CHOICES.map((option) => {
             const selected = style === option.value;
