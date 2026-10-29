@@ -1,4 +1,5 @@
-// The lessons and books made on this device, newest first, so "My lessons" works without accounts.
+// The lessons and books made on this device, newest first, so the Lessons page can show what this
+// device is still making, without accounts.
 // Browser storage can be missing or blocked (private windows): every access is guarded.
 
 const MAX = 50;

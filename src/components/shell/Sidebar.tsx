@@ -40,7 +40,7 @@ function useCollapsed(): [boolean, () => void] {
 const LESSONS = [
   { href: "/", label: "Home", icon: House },
   { href: "/create", label: "Create a lesson", icon: Camera },
-  { href: "/lessons", label: "My lessons", icon: Clapperboard },
+  { href: "/lessons", label: "Lessons", icon: Clapperboard },
 ] as const;
 
 const ABOUT = [
