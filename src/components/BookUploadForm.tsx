@@ -8,7 +8,7 @@ import { FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { Step } from "@/components/LessonOptions";
-import { rememberBook } from "@/lib/lessons/remembered";
+import { rememberBook, rememberBookEditKey } from "@/lib/lessons/remembered";
 
 const MAX_BYTES = 50 * 1024 * 1024;
 const OFFLINE = "Sending failed. Check the internet connection and try again.";
@@ -34,9 +34,9 @@ function upload(url: string, file: File, onProgress: (percent: number) => void):
   });
 }
 
-async function postJson(url: string, body?: unknown): Promise<{ id?: string; uploadUrl?: string }> {
+async function postJson(url: string, body?: unknown): Promise<{ id?: string; uploadUrl?: string; editKey?: string }> {
   const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: body ? JSON.stringify(body) : undefined });
-  const answer = (await res.json().catch(() => ({}))) as { id?: string; uploadUrl?: string; error?: string };
+  const answer = (await res.json().catch(() => ({}))) as { id?: string; uploadUrl?: string; editKey?: string; error?: string };
   if (!res.ok) throw new Error(answer.error ?? OFFLINE);
   return answer;
 }
@@ -64,8 +64,9 @@ export function BookUploadForm() {
     setError(null);
     try {
       setPhase({ kind: "uploading", percent: 0 });
-      const { id, uploadUrl } = await postJson("/api/books", { fileName: file.name, bytes: file.size });
+      const { id, uploadUrl, editKey } = await postJson("/api/books", { fileName: file.name, bytes: file.size });
       if (!id || !uploadUrl) throw new Error(OFFLINE);
+      if (editKey) rememberBookEditKey(id, editKey);
       await upload(uploadUrl, file, (percent) => setPhase({ kind: "uploading", percent }));
       setPhase({ kind: "starting" });
       await postJson(`/api/books/${id}/read`);

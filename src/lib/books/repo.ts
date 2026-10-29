@@ -31,6 +31,8 @@ export type BookRow = {
   metrics: Record<string, StepMetrics>;
   ipHash: string | null;
   triggerRunId: string | null;
+  /** SHA-256 of the key the uploading device holds; null for books from before keys. */
+  editKeyHash: string | null;
 };
 
 type Columns = {
@@ -51,6 +53,7 @@ type Columns = {
   metrics: Record<string, StepMetrics>;
   ip_hash: string | null;
   trigger_run_id: string | null;
+  edit_key_hash: string | null;
 };
 
 const PATCH_COLUMNS = {
@@ -88,6 +91,7 @@ function toRow(c: Columns): BookRow {
     metrics: c.metrics,
     ipHash: c.ip_hash,
     triggerRunId: c.trigger_run_id,
+    editKeyHash: c.edit_key_hash ?? null,
   };
 }
 
@@ -97,8 +101,21 @@ function fail(action: string, error: { message: string }): never {
 
 const books = () => supabase().from("books");
 
-export async function createBook({ fileName, fileBytes, ipHash }: { fileName: string; fileBytes: number; ipHash: string | null }): Promise<BookRow> {
-  const { data, error } = await books().insert({ file_name: fileName, file_bytes: fileBytes, ip_hash: ipHash }).select().single<Columns>();
+export async function createBook({
+  fileName,
+  fileBytes,
+  ipHash,
+  editKeyHash,
+}: {
+  fileName: string;
+  fileBytes: number;
+  ipHash: string | null;
+  editKeyHash: string;
+}): Promise<BookRow> {
+  const { data, error } = await books()
+    .insert({ file_name: fileName, file_bytes: fileBytes, ip_hash: ipHash, edit_key_hash: editKeyHash })
+    .select()
+    .single<Columns>();
   if (error) fail("create a book", error);
   return toRow(data);
 }

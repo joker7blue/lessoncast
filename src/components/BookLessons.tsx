@@ -4,7 +4,7 @@
 // when the teacher asks for it, in the language and style they pick, and the videos already made are
 // listed under their lesson.
 
-import { BookOpen, LoaderCircle, Play, TriangleAlert } from "lucide-react";
+import { BookOpen, LoaderCircle, Pencil, Play, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -13,7 +13,7 @@ import type { BookView } from "@/lib/books/view";
 import { defaultLength, type VideoLength } from "@/lib/lesson/length";
 import type { Language } from "@/lib/lesson/schema";
 import type { StyleChoice } from "@/lib/lesson/styles";
-import { rememberLesson } from "@/lib/lessons/remembered";
+import { bookEditKey, rememberLesson } from "@/lib/lessons/remembered";
 import { describeLesson } from "./LessonCard";
 import { describeVideo } from "@/lib/lesson/describe";
 import { LessonOptions } from "./LessonOptions";
@@ -26,7 +26,7 @@ type Video = Lesson["videos"][number];
 
 const settled = (status: string) => status === "done" || status === "failed";
 
-function useBook(id: string): { book: BookView | null; missing: boolean } {
+function useBook(id: string): { book: BookView | null; missing: boolean; setBook(book: BookView): void } {
   const [book, setBook] = useState<BookView | null>(null);
   const [missing, setMissing] = useState(false);
   useEffect(() => {
@@ -55,7 +55,7 @@ function useBook(id: string): { book: BookView | null; missing: boolean } {
       clearTimeout(timer);
     };
   }, [id]);
-  return { book, missing };
+  return { book, missing, setBook };
 }
 
 function videoNote(video: Video): string {
@@ -196,9 +196,99 @@ function describeBook(book: BookView): string {
   return [parts, pages].filter(Boolean).join(". ") + ".";
 }
 
+/** The book's header and its lesson titles, as the device that uploaded it can rename them. */
+function EditBook({ id, book, editKey, onSaved, onCancel }: { id: string; book: BookView; editKey: string; onSaved(book: BookView): void; onCancel(): void }) {
+  const [title, setTitle] = useState(book.title ?? "");
+  const [subject, setSubject] = useState(book.subject ?? "");
+  const [level, setLevel] = useState(book.level ?? "");
+  const [titles, setTitles] = useState(book.lessons.map((lesson) => lesson.title));
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function save(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/books/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", "x-edit-key": editKey },
+        body: JSON.stringify({
+          title,
+          subject: subject.trim() || null,
+          level: level.trim() || null,
+          lessonTitles: titles.map((t, i) => ({ n: i + 1, title: t })).filter((t, i) => t.title !== book.lessons[i]!.title),
+        }),
+      });
+      const body = (await res.json().catch(() => ({}))) as BookView & { error?: string };
+      if (!res.ok) throw new Error(body.error ?? OFFLINE);
+      onSaved(body);
+    } catch (e) {
+      setError(e instanceof Error && e.message !== "Failed to fetch" ? e.message : OFFLINE);
+      setSaving(false);
+    }
+  }
+
+  const field = "mt-1 w-full rounded-lg border border-line bg-board px-3 py-2 font-bold focus:border-spoken focus:outline-none";
+  return (
+    <form onSubmit={save} className="mt-6 space-y-6 rounded-2xl border border-line bg-panel p-5 sm:p-6">
+      <div className="grid gap-4 sm:grid-cols-[2fr_1fr_1fr]">
+        <label className="block text-sm font-bold text-dust">
+          Title
+          <input required maxLength={160} value={title} onChange={(e) => setTitle(e.target.value)} className={`${field} text-lg text-chalk`} />
+        </label>
+        <label className="block text-sm font-bold text-dust">
+          Subject
+          <input maxLength={80} value={subject} onChange={(e) => setSubject(e.target.value)} className={`${field} text-chalk`} />
+        </label>
+        <label className="block text-sm font-bold text-dust">
+          Level
+          <input maxLength={40} value={level} onChange={(e) => setLevel(e.target.value)} className={`${field} text-chalk`} />
+        </label>
+      </div>
+      <fieldset>
+        <legend className="text-sm font-bold text-dust">Lesson titles</legend>
+        <ol className="mt-2 space-y-2">
+          {titles.map((t, i) => (
+            <li key={i} className="flex items-center gap-3">
+              <span aria-hidden className="w-6 shrink-0 text-right font-extrabold text-spoken">
+                {i + 1}
+              </span>
+              <input
+                required
+                maxLength={160}
+                aria-label={`Title of lesson ${i + 1}`}
+                value={t}
+                onChange={(e) => setTitles((all) => all.map((old, j) => (j === i ? e.target.value : old)))}
+                className={`${field} mt-0 text-chalk`}
+              />
+            </li>
+          ))}
+        </ol>
+      </fieldset>
+      {error && (
+        <p role="alert" className="rounded-lg border border-danger/40 px-4 py-3 text-danger">
+          {error}
+        </p>
+      )}
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <button type="submit" disabled={saving} className="rounded-lg bg-spoken px-6 py-3 font-extrabold text-board disabled:opacity-40">
+          {saving ? "Saving…" : "Save the titles"}
+        </button>
+        <button type="button" onClick={onCancel} disabled={saving} className="rounded-lg border border-line px-6 py-3 font-bold hover:bg-board">
+          Cancel
+        </button>
+      </div>
+    </form>
+  );
+}
+
 export function BookLessons({ id }: { id: string }) {
-  const { book, missing } = useBook(id);
+  const { book, missing, setBook } = useBook(id);
   const [open, setOpen] = useState<number | null>(null);
+  // Only the device that uploaded the book holds its key, and so can rename it.
+  const [editKey] = useState(() => bookEditKey(id));
+  const [editing, setEditing] = useState(false);
 
   if (missing) {
     return (
@@ -219,9 +309,34 @@ export function BookLessons({ id }: { id: string }) {
           <BookOpen aria-hidden className="size-4" />
           {book.fileName}
         </p>
-        <h1 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">{book.title ?? "Your book"}</h1>
+        <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
+          <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">{book.title ?? "Your book"}</h1>
+          {book.status === "ready" && editKey && !editing && (
+            <button
+              type="button"
+              onClick={() => setEditing(true)}
+              className="inline-flex items-center gap-2 rounded-lg border border-line px-4 py-2 font-bold text-dust hover:bg-panel hover:text-chalk"
+            >
+              <Pencil aria-hidden className="size-4" />
+              Edit the titles
+            </button>
+          )}
+        </div>
         {book.status === "ready" && <p className="mt-2 text-lg text-dust">{describeBook(book)}</p>}
       </header>
+
+      {editing && editKey && (
+        <EditBook
+          id={id}
+          book={book}
+          editKey={editKey}
+          onSaved={(saved) => {
+            setBook(saved);
+            setEditing(false);
+          }}
+          onCancel={() => setEditing(false)}
+        />
+      )}
 
       {(book.status === "uploading" || book.status === "reading") && (
         <section aria-live="polite" className="mt-8 rounded-2xl border border-line bg-panel p-6">
@@ -257,7 +372,7 @@ export function BookLessons({ id }: { id: string }) {
         </div>
       )}
 
-      {book.status === "ready" && (
+      {book.status === "ready" && !editing && (
         <section className="mt-10">
           <h2 className="text-xl font-extrabold">
             {book.lessons.length} {book.lessons.length === 1 ? "lesson" : "lessons"} in this book

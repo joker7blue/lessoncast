@@ -30,6 +30,7 @@ function book(patch: Partial<BookRow> = {}): BookRow {
     metrics: {},
     ipHash: null,
     triggerRunId: null,
+    editKeyHash: null,
     ...patch,
   };
 }
