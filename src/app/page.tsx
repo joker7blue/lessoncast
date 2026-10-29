@@ -18,7 +18,7 @@ const FACTS = [
   { icon: Clock, text: "About four minutes from photo to video." },
   { icon: Wallet, text: "About fifteen cents of model calls per lesson." },
   { icon: HardDrive, text: "Six megabytes for a lesson of two and a half minutes." },
-  { icon: Languages, text: "French and Pidgin today; MMS speaks over a thousand languages." },
+  { icon: Languages, text: "Eight languages today, from Hausa to Swahili; MMS speaks over a thousand." },
 ];
 
 export default async function Home() {
@@ -34,7 +34,7 @@ export default async function Home() {
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-dust">
             A teacher photographs a page, or uploads a whole textbook as a PDF that Muse Spark splits into lessons. In
-            about four minutes, Meta&apos;s models write, draw and narrate a short lesson in French or Pidgin, small enough
+            about four minutes, Meta&apos;s models write, draw and narrate a short lesson in the language of home, small enough
             to share in the parents&apos; WhatsApp group.
           </p>
           <ul aria-label="Meta models used" className="mt-7 flex flex-wrap gap-1.5">

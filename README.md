@@ -1,7 +1,7 @@
 # LessonCast
 
 A teacher in Cameroon photographs one to four pages of a textbook and gets back a two-to-three-minute
-narrated, illustrated video lesson in French or Pidgin, small enough to share in the parents' WhatsApp group.
+narrated, illustrated video lesson in the language of home, small enough to share in the parents' WhatsApp group: French, English, Pidgin, Hausa, Fulfulde, Yoruba, Fon or Swahili.
 
 Many Cameroonian children learn in French or English, a language they don't speak at home, in crowded
 classes with few textbooks and expensive mobile data. A short video in the language of home, which a parent
@@ -12,9 +12,9 @@ can replay with the child in the evening, helps where a printed page doesn't.
 | Step | Model | What it does |
 |---|---|---|
 | Split a book into lessons | **Muse Spark** `muse-spark-1.3`, PDF input | Reads an uploaded textbook or ebook PDF (typed or scanned, up to 50 MB and 400 pages) in slices of 30 pages, and lists its lessons with their pages and a summary. No video is made until the teacher picks a lesson. |
-| Write the lesson | **Muse Spark** `muse-spark-1.3`, Meta Model API | Reads the photographed pages in one request, checks they are textbook pages, and writes the lesson as strict JSON: seven scenes, the narration in French and Pidgin, an image prompt per scene, the objects each scene names, a three-question quiz. In *Automatic* it also picks the picture style from the level and the subject. |
+| Write the lesson | **Muse Spark** `muse-spark-1.3`, Meta Model API | Reads the photographed pages in one request, checks they are textbook pages, and writes the lesson as strict JSON in the language the teacher picked: as many scenes as the chosen length allows, their narration, an image prompt per scene, the objects each scene names, a three-question quiz and the video's own words. In *Automatic* it also picks the picture style from the level and the subject. |
 | Draw the scenes | **Muse Image** `muse-image-1.0`, Meta Model API | Draws scene 1 from a fixed style prompt (Illustrated, Realistic, Diagram or Comic), then every other scene as an edit of scene 1, so the characters stay the same. |
-| Speak | **MMS-TTS** `facebook/mms-tts-fra`, `facebook/mms-tts-pcm`, open weights on Modal | Reads the narration aloud. |
+| Speak | **MMS-TTS** `facebook/mms-tts-{fra,eng,pcm,hau,ful,yor,fon,swh}`, open weights on Modal | Reads the narration aloud in French, English, Pidgin, Hausa, Fulfulde, Yoruba, Fon or Swahili. Each voice loads the first time its language is used. |
 | Time every word | **MMS forced alignment** (torchaudio `MMS_FA`), open weights on Modal | Gives each word its start and end: the karaoke subtitles and the length of every scene. |
 | Cut out the objects | **SAM 3.1** `sam-3.1`, Meta Model API | Finds each object a scene's narration names ("the heart", "the map") in its drawing and returns its outline. When the voice says the word, the rest of the scene dims and the object lifts, outlined in yellow, with its word underlined in the subtitles. An object SAM can't find is left out; SAM never fails a lesson. |
 | Edit the video | Remotion 4, on Modal | Title card, scenes with slow zooms and crossfades, the SAM cut-outs lit on their words, subtitles that light up the spoken word, end card. 854 × 480 H.264 at 300 kbit/s. |

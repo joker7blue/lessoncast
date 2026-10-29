@@ -8,7 +8,7 @@ const nunito = Nunito({ variable: "--font-nunito", subsets: ["latin", "latin-ext
 
 export const metadata: Metadata = {
   title: "LessonCast",
-  description: "A textbook page becomes a short illustrated video lesson, narrated in French or Pidgin.",
+  description: "A textbook page or a whole ebook becomes short illustrated video lessons, narrated in French, English or a home language such as Pidgin, Hausa or Fulfulde.",
 };
 
 export const viewport: Viewport = { themeColor: "#141b18" };
