@@ -4,7 +4,7 @@
 // when the teacher asks for it, in the language and style they pick, and the videos already made are
 // listed under their lesson.
 
-import { BookOpen, Clapperboard } from "lucide-react";
+import { BookOpen, LoaderCircle, Play, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -62,6 +62,13 @@ function videoNote(video: Video): string {
   if (video.status === "done") return "ready to watch";
   if (video.status === "failed") return "couldn't be made";
   return "being made";
+}
+
+/** A spinner while the video is being made, a play button once it's ready, a warning if it failed. */
+function VideoIcon({ status }: { status: Video["status"] }) {
+  if (status === "done") return <Play aria-hidden className="size-4 fill-current" />;
+  if (status === "failed") return <TriangleAlert aria-hidden className="size-4 text-danger" />;
+  return <LoaderCircle aria-hidden className="size-4 motion-safe:animate-spin" />;
 }
 
 function MakeVideo({ bookId, bookLanguage, lesson, onCancel }: { bookId: string; bookLanguage: BookView["language"]; lesson: Lesson; onCancel(): void }) {
@@ -160,8 +167,11 @@ function LessonItem({
             <ul className="mt-3 space-y-1">
               {lesson.videos.map((video) => (
                 <li key={video.id}>
-                  <Link href={`/lessons/${video.id}`} className="inline-flex items-center gap-2 font-bold text-spoken underline underline-offset-4">
-                    <Clapperboard aria-hidden className="size-4" />
+                  <Link
+                    href={`/lessons/${video.id}`}
+                    className={`inline-flex items-center gap-2 font-bold underline underline-offset-4 ${video.status === "failed" ? "text-dust" : "text-spoken"}`}
+                  >
+                    <VideoIcon status={video.status} />
                     {describeLesson(video.language, video.style)}: {videoNote(video)}
                   </Link>
                 </li>
