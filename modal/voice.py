@@ -16,7 +16,21 @@ import wave
 
 import modal
 
-VOICES = {"fr": "facebook/mms-tts-fra", "pcm": "facebook/mms-tts-pcm"}
+# Mirrors LANGUAGES in src/lib/lesson/languages.ts. Each voice reads its language's Latin spelling.
+VOICES = {
+    "fr": "facebook/mms-tts-fra",
+    "en": "facebook/mms-tts-eng",
+    "pcm": "facebook/mms-tts-pcm",
+    "hau": "facebook/mms-tts-hau",
+    "ful": "facebook/mms-tts-ful",
+    "yor": "facebook/mms-tts-yor",
+    "fon": "facebook/mms-tts-fon",
+    "swh": "facebook/mms-tts-swh",
+}
+# uroman's language codes, for the alignment's romanization (it strips the accents and tones).
+UROMAN_CODES = {"fr": "fra", "en": "eng", "hau": "hau", "ful": "ful", "yor": "yor", "fon": "fon", "swh": "swa"}
+# Loaded at start: the languages most lessons use. The others load on their first sentence.
+PRELOADED = ("fr", "pcm")
 SAMPLE_RATE = 16_000  # MMS-TTS output rate, and the rate MMS_FA expects
 SENTENCE_PAUSE = 0.35  # silence after every sentence
 GROUP_PAUSE = 0.6  # extra silence between groups (title → scene, scene → scene)
@@ -81,13 +95,11 @@ class Voice:
         import torch
         import torchaudio
         import uroman
-        from transformers import AutoTokenizer, VitsModel
 
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.tts = {
-            lang: (AutoTokenizer.from_pretrained(repo), VitsModel.from_pretrained(repo).to(self.device).eval())
-            for lang, repo in VOICES.items()
-        }
+        self.tts = {}
+        for lang in PRELOADED:
+            self.voice(lang)
         bundle = torchaudio.pipelines.MMS_FA
         self.aligner_model = bundle.get_model(with_star=False).to(self.device).eval()
         self.aligner_tokenizer = bundle.get_tokenizer()
@@ -96,8 +108,18 @@ class Voice:
         self.uroman = uroman.Uroman()
         cache.commit()
         # The first call of each model is slow (CUDA warm-up on a GPU): pay it here, not in a lesson.
-        for lang in VOICES:
+        for lang in PRELOADED:
             self.speak("Bonjour.", lang)
+
+    def voice(self, lang: str):
+        """The tokenizer and model of a language, loaded (and cached in the volume) on first use."""
+        if lang not in self.tts:
+            from transformers import AutoTokenizer, VitsModel
+
+            repo = VOICES[lang]
+            self.tts[lang] = (AutoTokenizer.from_pretrained(repo), VitsModel.from_pretrained(repo).to(self.device).eval())
+            cache.commit()
+        return self.tts[lang]
 
     @modal.method()
     def warm(self) -> None:
@@ -106,7 +128,7 @@ class Voice:
     def speak(self, sentence: str, lang: str):
         import torch
 
-        tokenizer, model = self.tts[lang]
+        tokenizer, model = self.voice(lang)
         torch.manual_seed(0)  # VITS samples noise: keep runs reproducible
         with torch.inference_mode():
             inputs = tokenizer(sentence, return_tensors="pt").to(self.device)
@@ -114,7 +136,7 @@ class Voice:
 
     def normalize(self, word: str, lang: str) -> str:
         """The aligner only knows lowercase Latin letters and the apostrophe."""
-        romanized = self.uroman.romanize_string(word, lcode="fra" if lang == "fr" else None)
+        romanized = self.uroman.romanize_string(word, lcode=UROMAN_CODES.get(lang))
         return "".join(c for c in romanized.lower() if c in self.alphabet)
 
     def align(self, waveform, words: list[str], lang: str, offset: float) -> dict[int, tuple[float, float, float]]:

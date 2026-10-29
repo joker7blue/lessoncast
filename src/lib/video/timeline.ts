@@ -4,15 +4,17 @@
 // then a 2 s end card. A SAM cut-out is lit when the voice says the phrase that names it, within its scene.
 
 import { asQuestion, quizGroups, quizScript } from "../lesson/quiz";
-import type { Language, Lesson } from "../lesson/schema";
+import { type Language, type Lesson, say } from "../lesson/schema";
 import type { SceneHighlights } from "./highlights";
 import { findPhrase } from "./phrase";
 import { FPS, type Motion, type VideoProps } from "./props";
 import type { TimedWord } from "./words";
 
-export const END_CARD_TEXT: Record<Language, string> = {
+/** The end card of scripts from before Muse Spark wrote it in the lesson's language (videoText). */
+export const END_CARD_TEXT: Partial<Record<Language, string>> = {
   fr: "Revois cette leçon ce soir avec tes parents",
   pcm: "Watch dis lesson again tonight with your papa and mama",
+  en: "Watch this lesson again tonight with your parents",
 };
 
 const MOTIONS: Motion[] = ["zoom-in", "pan-left", "zoom-out", "pan-right"];
@@ -31,8 +33,9 @@ const SENTENCE_PAUSE_SECONDS = 0.35;
 
 const tokenCount = (text: string) => text.split(/\s+/).filter(Boolean).length;
 
-/** The quiz in frames, from the words of its groups; null when the narration has no quiz (it predates
- * it) or its words don't match the quiz's text, which would mistime every choice. */
+/** The quiz in frames, from the words of its groups: as many questions as the voice read (a shorter video
+ * asks fewer). Null when the narration has no quiz (it predates it, or the video is too short for one) or
+ * its words don't match the quiz's text, which would mistime every choice. */
 function quizFor(lesson: Lesson, language: Language, wordsOf: (group: number) => TimedWord[], endFrame: number): VideoProps["quiz"] {
   const g = quizGroups(lesson.scenes.length);
   const intro = wordsOf(g.intro)[0];
@@ -42,6 +45,7 @@ function quizFor(lesson: Lesson, language: Language, wordsOf: (group: number) =>
   const questions: NonNullable<VideoProps["quiz"]>["questions"] = [];
   for (const [q, spoken] of script.questions.entries()) {
     const words = wordsOf(g.question(q));
+    if (words.length === 0) break; // the video asks no more questions
     const answer = wordsOf(g.answer(q))[0];
     const counts = spoken.pieces.map(tokenCount);
     if (!answer || words.length !== counts.reduce((a, b) => a + b, 0)) return null;
@@ -50,8 +54,8 @@ function quizFor(lesson: Lesson, language: Language, wordsOf: (group: number) =>
     const quiz = lesson.quiz[q]!;
     questions.push({
       number: q + 1,
-      text: asQuestion(quiz.question[language], language),
-      choices: quiz.choices.map((choice, c) => ({ text: choice[language], startFrame: toFrame(words[choiceStarts[c]!]!.start) })),
+      text: asQuestion(say(quiz.question, language), language),
+      choices: quiz.choices.map((choice, c) => ({ text: say(choice, language), startFrame: toFrame(words[choiceStarts[c]!]!.start) })),
       answerIndex: quiz.answerIndex,
       startFrame: Math.max(toFrame(words[0]!.start - SCENE_LEAD_SECONDS), (questions.at(-1)?.startFrame ?? startFrame) + 1),
       endFrame: 0, // set below, from the next question
@@ -59,6 +63,7 @@ function quizFor(lesson: Lesson, language: Language, wordsOf: (group: number) =>
       revealFrame: toFrame(answer.start),
     });
   }
+  if (questions.length === 0) return null;
   questions.forEach((question, i) => (question.endFrame = questions[i + 1]?.startFrame ?? endFrame));
   return { title: script.title, subtitle: script.subtitle, startFrame, endFrame, questions };
 }
@@ -75,7 +80,7 @@ function overlayFor(
 ): Scene["overlay"] {
   if (!found) return null;
   const highlights = found.objects.flatMap((object) => {
-    const match = findPhrase(words, object[language]);
+    const match = findPhrase(words, object[language] ?? "");
     if (!match) return [];
     const start = words[match.first]!.start - LIT_LEAD_SECONDS;
     const end = Math.max(words[match.last]!.end + LIT_TAIL_SECONDS, start + LIT_MIN_SECONDS);
@@ -144,14 +149,15 @@ export function buildVideoProps(input: {
     const overlay = overlayFor(highlights?.[i], wordsOf(i + 1), language, window, litUntil);
     return { imageUrl: sceneImageUrls[i]!, motion: MOTIONS[i % MOTIONS.length]!, ...window, overlay };
   });
-  const endCard = { text: END_CARD_TEXT[language], startFrame: voiceEnd, endFrame: voiceEnd + END_CARD_FRAMES };
+  const endCardText = lesson.videoText?.endCard ?? END_CARD_TEXT[language] ?? END_CARD_TEXT.en!;
+  const endCard = { text: endCardText, startFrame: voiceEnd, endFrame: voiceEnd + END_CARD_FRAMES };
 
   return {
     language,
     durationInFrames: endCard.endFrame,
     audioUrl,
     title: {
-      text: lesson.title[language],
+      text: say(lesson.title, language),
       subject: lesson.page.subject,
       level: lesson.page.level,
       backgroundUrl: sceneImageUrls[0]!,

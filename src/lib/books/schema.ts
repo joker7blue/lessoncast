@@ -10,8 +10,13 @@ const SliceLesson = z.object({
   continuesPrevious: z.boolean().describe("true only for a lesson that started before the first page of this file"),
 });
 
+/** The language a book is written in: French and English books get a video in their language by default. */
+export const BookLanguage = z.enum(["fr", "en", "other"]);
+export type BookLanguage = z.infer<typeof BookLanguage>;
+
 export const BookSlice = z.object({
   isTextbook: z.boolean().describe("false when these pages are not from a school textbook or an educational ebook"),
+  language: BookLanguage.describe("The language these pages are written in: fr for French, en for English, other for any other"),
   book: z.object({
     title: z.string().describe("The book's title, as printed, or an empty string if these pages don't show it"),
     subject: z.string(),

@@ -8,7 +8,7 @@ const slices: Slice[] = [
   { firstPage: 31, lastPage: 60, bytes: new Uint8Array([2]) },
   { firstPage: 61, lastPage: 65, bytes: new Uint8Array([3]) },
 ];
-const answer: BookSlice = { isTextbook: true, book: { title: "T", subject: "S", level: "L" }, lessons: [] };
+const answer: BookSlice = { isTextbook: true, language: "fr", book: { title: "T", subject: "S", level: "L" }, lessons: [] };
 
 describe("readAllSlices", () => {
   test("reads every slice and adds up their cost", async () => {

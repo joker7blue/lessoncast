@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { makeLesson } from "../../lesson/lesson.fixture";
-import { narrationGroups } from "../../lesson/narration";
+import { makeLesson, makeScript } from "../../lesson/lesson.fixture";
+import { narrationGroups, narrationPlan } from "../../lesson/narration";
 import { quizGroups } from "../../lesson/quiz";
 import type { SceneHighlights } from "../highlights";
 import { FPS, VideoProps } from "../props";
@@ -262,5 +262,31 @@ describe("buildVideoProps quiz", () => {
     const g = quizGroups(6);
     const words = args.words.filter((w, i, all) => !(w.group === g.question(0) && all.findIndex((x) => x.group === g.question(0)) === i));
     expect(buildVideoProps({ ...args, words }).quiz).toBeNull();
+  });
+});
+
+describe("buildVideoProps for a shorter video", () => {
+  test("a one-question quiz shows its one question", () => {
+    const lesson = makeLesson(2);
+    const { words, audioSeconds } = timedWordsFor(narrationPlan(lesson, "fr", 1).groups);
+    const p = buildVideoProps({ lesson, language: "fr", words, audioSeconds, audioUrl: "https://x/a.wav", sceneImageUrls: ["https://x/1.jpg", "https://x/2.jpg"] });
+    expect(p.quiz!.questions).toHaveLength(1);
+    expect(VideoProps.safeParse(p).success).toBe(true);
+  });
+
+  test("a video too short for a quiz ends its last scene with the voice", () => {
+    const lesson = makeLesson(1);
+    const { words, audioSeconds } = timedWordsFor(narrationPlan(lesson, "fr", 0).groups);
+    const p = buildVideoProps({ lesson, language: "fr", words, audioSeconds, audioUrl: "https://x/a.wav", sceneImageUrls: ["https://x/1.jpg"] });
+    expect(p.quiz).toBeNull();
+    expect(p.scenes[0]!.endFrame).toBe(frame(audioSeconds + 0.5));
+  });
+
+  test("the end card says what Muse Spark wrote in the lesson's language", () => {
+    const lesson = makeScript(2, "fr");
+    lesson.videoText!.endCard = "Regarde encore ce soir";
+    const { words, audioSeconds } = timedWordsFor(narrationPlan(lesson, "fr").groups);
+    const p = buildVideoProps({ lesson, language: "fr", words, audioSeconds, audioUrl: "https://x/a.wav", sceneImageUrls: ["https://x/1.jpg", "https://x/2.jpg"] });
+    expect(p.endCard.text).toBe("Regarde encore ce soir");
   });
 });

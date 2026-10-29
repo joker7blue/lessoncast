@@ -10,7 +10,12 @@ const lesson = (title: string, firstPage: number, lastPage: number, continuesPre
   summary: `${title}.`,
   continuesPrevious,
 });
-const answer = (lessons: BookSlice["lessons"], info = book, isTextbook = true): BookSlice => ({ isTextbook, book: info, lessons });
+const answer = (lessons: BookSlice["lessons"], info = book, isTextbook = true, language: BookSlice["language"] = "fr"): BookSlice => ({
+  isTextbook,
+  language,
+  book: info,
+  lessons,
+});
 
 describe("joinSlices", () => {
   test("maps each slice's pages back to the book's pages", () => {
@@ -74,4 +79,13 @@ describe("joinSlices", () => {
     const joined = joinSlices([{ firstPage: 1, lastPage: 3, answer: answer([], { title: "Roman", subject: "", level: "" }, false) }]);
     expect(joined).toMatchObject({ isTextbook: false, lessons: [] });
   });
+});
+
+test("the book's language is the one most of its slices are written in", () => {
+  const joined = joinSlices([
+    { firstPage: 1, lastPage: 30, answer: answer([], book, true, "en") },
+    { firstPage: 31, lastPage: 60, answer: answer([], book, true, "en") },
+    { firstPage: 61, lastPage: 70, answer: answer([], book, true, "fr") },
+  ]);
+  expect(joined.language).toBe("en");
 });

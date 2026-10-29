@@ -8,11 +8,14 @@ import { BookOpen, Clapperboard } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { MAX_LESSON_PAGES } from "@/lib/books/pdf";
 import type { BookView } from "@/lib/books/view";
+import { defaultLength, type VideoLength } from "@/lib/lesson/length";
 import type { Language } from "@/lib/lesson/schema";
 import type { StyleChoice } from "@/lib/lesson/styles";
 import { rememberLesson } from "@/lib/lessons/remembered";
 import { describeLesson } from "./LessonCard";
+import { describeVideo } from "@/lib/lesson/describe";
 import { LessonOptions } from "./LessonOptions";
 
 const POLL_MS = 3000;
@@ -61,10 +64,13 @@ function videoNote(video: Video): string {
   return "being made";
 }
 
-function MakeVideo({ bookId, lesson, onCancel }: { bookId: string; lesson: Lesson; onCancel(): void }) {
+function MakeVideo({ bookId, bookLanguage, lesson, onCancel }: { bookId: string; bookLanguage: BookView["language"]; lesson: Lesson; onCancel(): void }) {
   const router = useRouter();
-  const [language, setLanguage] = useState<Language>("fr");
+  // An English book makes English videos by default; any other, French ones.
+  const [language, setLanguage] = useState<Language>(bookLanguage === "en" ? "en" : "fr");
   const [style, setStyle] = useState<StyleChoice>("auto");
+  const recommendedLength = defaultLength(Math.min(lesson.lastPage - lesson.firstPage + 1, MAX_LESSON_PAGES));
+  const [length, setLength] = useState<VideoLength>(recommendedLength);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -75,7 +81,7 @@ function MakeVideo({ bookId, lesson, onCancel }: { bookId: string; lesson: Lesso
       const res = await fetch(`/api/books/${bookId}/lessons`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lesson: lesson.n, language, style }),
+        body: JSON.stringify({ lesson: lesson.n, language, style, length }),
       });
       const body = (await res.json().catch(() => ({}))) as { id?: string; error?: string };
       if (!res.ok || !body.id) throw new Error(body.error ?? OFFLINE);
@@ -89,7 +95,16 @@ function MakeVideo({ bookId, lesson, onCancel }: { bookId: string; lesson: Lesso
 
   return (
     <div className="mt-5 space-y-10 rounded-xl border border-line bg-board p-5 sm:p-6">
-      <LessonOptions language={language} onLanguage={setLanguage} style={style} onStyle={setStyle} firstStep={1} />
+      <LessonOptions
+        language={language}
+        onLanguage={setLanguage}
+        length={length}
+        onLength={setLength}
+        recommendedLength={recommendedLength}
+        style={style}
+        onStyle={setStyle}
+        firstStep={1}
+      />
       <div>
         {error && (
           <p role="alert" className="mb-4 rounded-lg border border-danger/40 px-4 py-3 text-danger">
@@ -109,13 +124,27 @@ function MakeVideo({ bookId, lesson, onCancel }: { bookId: string; lesson: Lesso
             Cancel
           </button>
         </div>
-        <p className="mt-3 text-dust">The video is ready in about four minutes.</p>
+        <p className="mt-3 text-dust">{describeVideo({ language, length, style })} Ready in about four minutes.</p>
       </div>
     </div>
   );
 }
 
-function LessonItem({ bookId, lesson, open, onOpen, onClose }: { bookId: string; lesson: Lesson; open: boolean; onOpen(): void; onClose(): void }) {
+function LessonItem({
+  bookId,
+  bookLanguage,
+  lesson,
+  open,
+  onOpen,
+  onClose,
+}: {
+  bookId: string;
+  bookLanguage: BookView["language"];
+  lesson: Lesson;
+  open: boolean;
+  onOpen(): void;
+  onClose(): void;
+}) {
   const pages = lesson.firstPage === lesson.lastPage ? `Page ${lesson.firstPage}` : `Pages ${lesson.firstPage}–${lesson.lastPage}`;
   return (
     <li className="rounded-2xl border border-line bg-panel p-5 sm:p-6">
@@ -146,7 +175,7 @@ function LessonItem({ bookId, lesson, open, onOpen, onClose }: { bookId: string;
           </button>
         )}
       </div>
-      {open && <MakeVideo bookId={bookId} lesson={lesson} onCancel={onClose} />}
+      {open && <MakeVideo bookId={bookId} bookLanguage={bookLanguage} lesson={lesson} onCancel={onClose} />}
     </li>
   );
 }
@@ -229,6 +258,7 @@ export function BookLessons({ id }: { id: string }) {
               <LessonItem
                 key={lesson.n}
                 bookId={id}
+                bookLanguage={book.language}
                 lesson={lesson}
                 open={open === lesson.n}
                 onOpen={() => setOpen(lesson.n)}

@@ -1,7 +1,7 @@
 // Finished lessons shown on the home page: real runs of the pipeline, read once an hour.
 
 import { cacheLife } from "next/cache";
-import type { Language } from "../lesson/schema";
+import { type Language, say } from "../lesson/schema";
 import type { ArtStyle } from "../lesson/styles";
 import { publicUrl } from "../supabase/storage";
 import { getLesson } from "./repo";
@@ -33,7 +33,7 @@ export async function exampleLessons(): Promise<ExampleLesson[]> {
       return [
         {
           id: row.id,
-          title: row.script.title[row.language],
+          title: say(row.script.title, row.language),
           source: EXAMPLES[i]!.source,
           language: row.language,
           style: row.script.style,

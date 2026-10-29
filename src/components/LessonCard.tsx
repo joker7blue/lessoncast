@@ -2,6 +2,7 @@
 
 import { Play } from "lucide-react";
 import Link from "next/link";
+import { LANGUAGES } from "@/lib/lesson/languages";
 import type { Language } from "@/lib/lesson/schema";
 import { STYLES, type StyleChoice } from "@/lib/lesson/styles";
 import { SceneImage } from "./SceneImage";
@@ -9,7 +10,7 @@ import { SceneImage } from "./SceneImage";
 export type LessonCardData = { id: string; title: string | null; language: Language; style: StyleChoice; posterUrl: string | null; note?: string };
 
 export function describeLesson(language: Language, style: StyleChoice): string {
-  const spoken = language === "fr" ? "In French" : "In Pidgin";
+  const spoken = `In ${LANGUAGES[language].label}`;
   return style === "auto" ? spoken : `${spoken}, ${STYLES[style].label.toLowerCase()} style`;
 }
 

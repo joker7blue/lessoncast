@@ -30,6 +30,8 @@ export type LessonRow = {
   /** The book the lesson's pages come from, and the lesson's number in it; null for photographed pages. */
   bookId: string | null;
   bookLesson: number | null;
+  /** The length the teacher chose, in seconds; null for lessons from before the choice. */
+  targetSeconds: number | null;
   words: TimedWord[] | null;
   metrics: Record<string, StepMetrics>;
   ipHash: string | null;
@@ -51,6 +53,7 @@ type Columns = {
   highlights_path: string | null;
   book_id: string | null;
   book_lesson: number | null;
+  target_seconds: number | null;
   words: TimedWord[] | null;
   metrics: Record<string, StepMetrics>;
   ip_hash: string | null;
@@ -86,6 +89,7 @@ function toRow(c: Columns): LessonRow {
     highlightsPath: c.highlights_path,
     bookId: c.book_id ?? null,
     bookLesson: c.book_lesson ?? null,
+    targetSeconds: c.target_seconds ?? null,
     words: c.words,
     metrics: c.metrics,
     ipHash: c.ip_hash,
@@ -106,12 +110,20 @@ export type NewLesson = {
   style: StyleChoice;
   /** For a lesson made from a book: the book and the lesson's number in it. */
   book?: { id: string; lesson: number };
+  /** The video's length, in seconds. */
+  targetSeconds: number;
 };
 
-export async function createLesson({ language, ipHash, pageCount, style, book }: NewLesson): Promise<LessonRow> {
+export async function createLesson({ language, ipHash, pageCount, style, book, targetSeconds }: NewLesson): Promise<LessonRow> {
   const { data, error } = await lessons()
-    // The book columns only for a book lesson: photo lessons don't depend on the books migration.
-    .insert({ language, ip_hash: ipHash, page_count: pageCount, style, ...(book && { book_id: book.id, book_lesson: book.lesson }) })
+    .insert({
+      language,
+      ip_hash: ipHash,
+      page_count: pageCount,
+      style,
+      target_seconds: targetSeconds,
+      ...(book && { book_id: book.id, book_lesson: book.lesson }),
+    })
     .select()
     .single<Columns>();
   if (error) fail("create a lesson", error);

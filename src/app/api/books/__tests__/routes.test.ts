@@ -32,6 +32,7 @@ function book(patch: Partial<BookRow> = {}): BookRow {
     title: "Sciences CM1",
     subject: "Sciences",
     level: "CM1",
+    language: "fr",
     lessons: [
       { title: "Le cœur", firstPage: 3, lastPage: 6, summary: "Le cœur pompe le sang." },
       { title: "Les volcans", firstPage: 40, lastPage: 70, summary: "Un très long chapitre." },
@@ -120,8 +121,21 @@ describe("POST /api/books/:id/lessons", () => {
     const res = await post({ lesson: 1, language: "pcm", style: "comic" });
     expect(res.status).toBe(201);
     expect(await res.json()).toEqual({ id: "lesson-1" });
-    expect(lessons.createLesson).toHaveBeenCalledWith({ language: "pcm", style: "comic", ipHash: null, pageCount: 4, book: { id: ID, lesson: 1 } });
+    expect(lessons.createLesson).toHaveBeenCalledWith({
+      language: "pcm",
+      style: "comic",
+      ipHash: null,
+      pageCount: 4,
+      book: { id: ID, lesson: 1 },
+      targetSeconds: 180,
+    });
     expect(trigger.tasks.trigger).toHaveBeenCalledWith("generate-lesson", { lessonId: "lesson-1" }, { idempotencyKey: "lesson-1" });
+  });
+
+  test("makes the video in the language and length the teacher picked", async () => {
+    books.getBook.mockResolvedValue(book());
+    await post({ lesson: 1, language: "hau", style: "auto", length: 30 });
+    expect(lessons.createLesson).toHaveBeenCalledWith(expect.objectContaining({ language: "hau", targetSeconds: 30 }));
   });
 
   test("counts at most 20 pages for a long lesson", async () => {
@@ -133,7 +147,8 @@ describe("POST /api/books/:id/lessons", () => {
   test("refuses a lesson the book doesn't have, a book not read yet, or a bad choice", async () => {
     books.getBook.mockResolvedValue(book());
     expect((await post({ lesson: 3, language: "fr", style: "auto" })).status).toBe(400);
-    expect((await post({ lesson: 1, language: "en", style: "auto" })).status).toBe(400);
+    expect((await post({ lesson: 1, language: "xx", style: "auto" })).status).toBe(400);
+    expect((await post({ lesson: 1, language: "fr", style: "auto", length: 45 })).status).toBe(400);
     books.getBook.mockResolvedValue(book({ status: "reading" }));
     expect((await post({ lesson: 1, language: "fr", style: "auto" })).status).toBe(409);
     expect(lessons.createLesson).not.toHaveBeenCalled();
