@@ -19,9 +19,9 @@ export function explainNodes(): Record<NodeId, NodeContent> {
       role: "Reads the pages and writes the lesson in the language picked: the scenes, their narration, a quiz.",
     },
     image: { title: "Muse Image", model: IMAGE_MODEL, role: "Draws every scene in one style, with the same characters." },
-    voice: { title: "MMS voice", model: "mms-tts + MMS_FA", role: "Speaks the lesson and times every word." },
+    voice: { title: "MMS voice", model: "mms-tts + MMS_FA", role: "Speaks the lesson and times every word, on Modal." },
     sam: { title: "SAM 3.1", model: SAM_MODEL, role: "Cuts out each object the voice names, to light it up on cue." },
-    render: { title: "Remotion", model: `remotion ${REMOTION_VERSION}`, role: "Edits scenes, voice and karaoke subtitles into a 480p video." },
+    render: { title: "Remotion on Modal", model: `remotion ${REMOTION_VERSION}`, role: "Edits scenes, voice and karaoke subtitles into a 480p video, on Modal." },
     video: { title: "WhatsApp video", role: "An MP4 under 10 MB that a parent can replay at night." },
   };
 }
