@@ -88,7 +88,7 @@ export async function writeLesson(
   style: StyleChoice,
   language: Language,
   seconds: number = DEFAULT_SECONDS,
-  quizQuestions: number = quizQuestionsFor(seconds),
+  quizQuestions: number = quizQuestionsFor(seconds, LANGUAGES[language].wordsPerSecond),
 ): Promise<WrittenLesson> {
   const { intro, parts } = pagesContent(source);
   const start = performance.now();

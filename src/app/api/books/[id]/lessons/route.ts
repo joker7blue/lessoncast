@@ -34,7 +34,7 @@ export async function POST(request: Request, ctx: RouteContext<"/api/books/[id]/
 
   const pageCount = Math.min(lesson.lastPage - lesson.firstPage + 1, MAX_LESSON_PAGES);
   const length = body.data.length ?? defaultLength(pageCount);
-  const quiz = quizChoice(body.data.quiz, length);
+  const quiz = quizChoice(body.data.quiz, length, body.data.language);
   if (!quiz.ok) return fail(400, quiz.error);
   const created = await createLesson({
     language: body.data.language,

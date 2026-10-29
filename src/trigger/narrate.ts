@@ -1,6 +1,7 @@
 // Step 2b, in parallel with the scenes: MMS reads the lesson on Modal and times every word.
 
 import { schemaTask } from "@trigger.dev/sdk";
+import { LANGUAGES } from "../lib/lesson/languages";
 import { quizQuestionsFor } from "../lib/lesson/length";
 import { narrationPlan } from "../lib/lesson/narration";
 import { recordMetrics, updateLesson } from "../lib/lessons/repo";
@@ -17,7 +18,7 @@ export const narrate = schemaTask({
     const { row, lesson } = await loadScript(lessonId);
     const path = lessonPaths.voice(lessonId);
     // The teacher's choice; before it, the quiz followed the length; before that, the whole quiz.
-    const quizQuestions = row.quizQuestions ?? (row.targetSeconds === null ? undefined : quizQuestionsFor(row.targetSeconds));
+    const quizQuestions = row.quizQuestions ?? (row.targetSeconds === null ? undefined : quizQuestionsFor(row.targetSeconds, LANGUAGES[row.language].wordsPerSecond));
     const { groups, pauses } = narrationPlan(lesson, row.language, quizQuestions);
     const { words, audioSeconds, seconds } = await narrateOnModal({
       groups,

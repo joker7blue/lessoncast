@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MAX_LESSON_PAGES } from "@/lib/books/pdf";
 import type { BookView } from "@/lib/books/view";
+import { LANGUAGES } from "@/lib/lesson/languages";
 import { defaultLength, maxQuizQuestions, quizQuestionsFor, type VideoLength } from "@/lib/lesson/length";
 import type { Language } from "@/lib/lesson/schema";
 import type { StyleChoice } from "@/lib/lesson/styles";
@@ -79,7 +80,8 @@ function MakeVideo({ bookId, bookLanguage, lesson, onCancel }: { bookId: string;
   const recommendedLength = defaultLength(Math.min(lesson.lastPage - lesson.firstPage + 1, MAX_LESSON_PAGES));
   const [length, setLength] = useState<VideoLength>(recommendedLength);
   const [chosenQuiz, setChosenQuiz] = useState<number | null>(null);
-  const quizQuestions = Math.min(chosenQuiz ?? quizQuestionsFor(length), maxQuizQuestions(length));
+  const pace = LANGUAGES[language].wordsPerSecond;
+  const quizQuestions = Math.min(chosenQuiz ?? quizQuestionsFor(length, pace), maxQuizQuestions(length, pace));
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

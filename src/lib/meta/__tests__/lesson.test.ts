@@ -121,12 +121,12 @@ describe("writeLesson", () => {
   });
 
   test("asks for the video's language, with its writing rule, and its length", async () => {
-    fetchMock.mockResolvedValue(completion(makeScript(4, "hau")));
+    fetchMock.mockResolvedValue(completion(makeScript(2, "hau")));
     await writeLesson({ photoUrls: [PHOTO] }, "auto", "hau", 120);
     const text = userContent()[0]!.text!;
     expect(text).toContain("Write the lesson in Hausa: Hausa as spoken in northern Cameroon");
-    // Hausa's voice is slower: fewer words for the same 2 minutes.
-    expect(text).toContain("The video lasts about 2 minutes: write 4 scenes, each narration about 26 words.");
+    // Hausa's voice is slower: fewer words for the same 2 minutes, and its three questions take longer.
+    expect(text).toContain("The video lasts about 2 minutes: write 2 scenes, each narration about 36 words. Write 3 quiz questions.");
     const schema = JSON.parse(fetchMock.mock.calls[0]![1].body).response_format.json_schema.schema;
     expect(Object.keys(schema.properties.title.properties)).toEqual(["hau"]);
     expect(schema.properties.videoText).toBeDefined();
@@ -135,7 +135,7 @@ describe("writeLesson", () => {
   test("a lesson from before the length choice asks for about three minutes", async () => {
     fetchMock.mockResolvedValue(completion(makeScript(7)));
     await writeLesson({ photoUrls: [PHOTO] }, "auto", "fr");
-    expect(userContent()[0]!.text).toContain("The video lasts about 3 minutes: write 8 scenes");
+    expect(userContent()[0]!.text).toContain("The video lasts about 3 minutes: write 7 scenes, each narration about 36 words. Write 3 quiz questions.");
   });
 
   test("rejects a script missing the video's language", async () => {

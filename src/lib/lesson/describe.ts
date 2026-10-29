@@ -17,7 +17,7 @@ export function describeVideo({
   style: StyleChoice;
   quizQuestions: number;
 }): string {
-  const { scenes } = lengthPlan(length, undefined, quizQuestions);
+  const { scenes } = lengthPlan(length, LANGUAGES[language].wordsPerSecond, quizQuestions);
   const drawn = style === "auto" ? "drawn in the style that fits the pages" : `drawn in the ${STYLES[style].label.toLowerCase()} style`;
   const quiz = quizQuestions === 0 ? "" : quizQuestions === 1 ? ", then a one-question quiz" : `, then a ${quizQuestions}-question quiz`;
   const about = length < 60 ? `About ${length} seconds` : `About ${length / 60} minute${length > 60 ? "s" : ""}`;
