@@ -112,12 +112,29 @@ describe("writeLesson", () => {
     for (const [key, style] of Object.entries(STYLES)) expect(userContent()[0]!.text).toContain(`${key}: ${style.when}`);
   });
 
-  test("a page that isn't a textbook is reported even when the rest of the answer is incomplete", async () => {
-    const page = { isTextbookPage: false, subject: "", level: "", topic: "", keyText: "" };
-    fetchMock.mockResolvedValue(completion({ page, title: { fr: "", pcm: "" }, scenes: [], quiz: [] }));
+  const notAPage = () => completion({ page: { isTextbookPage: false, subject: "", level: "", topic: "", keyText: "" }, title: { fr: "" }, scenes: [], quiz: [] });
+
+  test("a page that isn't a textbook is reported after a second look, even when the rest of the answer is incomplete", async () => {
+    fetchMock.mockImplementation(async () => notAPage());
     const written = await writeLesson({ photoUrls: [PHOTO] }, "auto", "fr");
     expect(written.isTextbookPage).toBe(false);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(written.costUsd).toBeGreaterThan(0);
+  });
+
+  test("a page turned down once and taken the second time makes its lesson, both answers paid for", async () => {
+    const lesson = makeScript(7);
+    fetchMock.mockResolvedValueOnce(notAPage()).mockResolvedValueOnce(completion(lesson));
+    const written = await writeLesson({ photoUrls: [PHOTO] }, "auto", "fr");
+    expect(await lessonOf(Promise.resolve(written))).toEqual(lesson);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(written.costUsd).toBeCloseTo(2 * 0.0333, 4);
+  });
+
+  test("a page taken the first time is asked about once", async () => {
+    fetchMock.mockResolvedValue(completion(makeScript(7)));
+    await writeLesson({ photoUrls: [PHOTO] }, "auto", "fr");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   test("asks for the video's language, with its writing rule, and its length", async () => {

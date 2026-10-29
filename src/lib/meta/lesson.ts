@@ -82,7 +82,8 @@ function videoRequest(language: Language, seconds: number, quizQuestions: number
 const DEFAULT_SECONDS = 180;
 
 /** Writes the lesson from its pages, in page order, in `language`, for a video of about `seconds` ending with
- * `quizQuestions` quiz questions; a forced style always wins. */
+ * `quizQuestions` quiz questions; a forced style always wins. Now and then Muse Spark turns down a real
+ * page: pages it turns down get a second look before the lesson is refused. */
 export async function writeLesson(
   source: LessonPages,
   style: StyleChoice,
@@ -90,6 +91,13 @@ export async function writeLesson(
   seconds: number = DEFAULT_SECONDS,
   quizQuestions: number = quizQuestionsFor(seconds, LANGUAGES[language].wordsPerSecond),
 ): Promise<WrittenLesson> {
+  const first = await askSpark(source, style, language, seconds, quizQuestions);
+  if (first.isTextbookPage) return first;
+  const second = await askSpark(source, style, language, seconds, quizQuestions);
+  return { ...second, seconds: first.seconds + second.seconds, costUsd: first.costUsd + second.costUsd };
+}
+
+async function askSpark(source: LessonPages, style: StyleChoice, language: Language, seconds: number, quizQuestions: number): Promise<WrittenLesson> {
   const { intro, parts } = pagesContent(source);
   const start = performance.now();
   const res = await postJson("/chat/completions", {
