@@ -3,10 +3,11 @@ import { Noto_Sans, Nunito } from "next/font/google";
 import { Sidebar } from "@/components/shell/Sidebar";
 import "./globals.css";
 
-// The videos use Nunito too. latin-ext carries "œ" (cœur, sœur).
-const nunito = Nunito({ variable: "--font-nunito", subsets: ["latin", "latin-ext"], weight: ["400", "700", "800"] });
-// Nunito has no ɓ ɗ ƙ ƴ ɛ ɔ (Hausa, Fulfulde, Fon, Yoruba): Noto Sans draws those letters.
-const notoSans = Noto_Sans({ variable: "--font-noto-sans", subsets: ["latin-ext"], weight: ["400", "700", "800"] });
+// The videos use Nunito too. latin-ext carries "œ" (cœur, sœur) and "ṣ"; vietnamese the "ẹ ọ" and tone
+// marks of Yoruba and Fon.
+const nunito = Nunito({ variable: "--font-nunito", subsets: ["latin", "latin-ext", "vietnamese"], weight: ["400", "700", "800"] });
+// Nunito has no ɓ ɗ ƙ ƴ ɛ ɔ (Hausa, Fulfulde, Fon, Yoruba): Noto Sans draws those letters, with their tone marks.
+const notoSans = Noto_Sans({ variable: "--font-noto-sans", subsets: ["latin-ext", "vietnamese"], weight: ["400", "700", "800"] });
 
 export const metadata: Metadata = {
   title: "LessonCast",
