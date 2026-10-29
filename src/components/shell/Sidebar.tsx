@@ -1,19 +1,46 @@
 "use client";
 
-// The left sidebar on wide screens, a top bar with a drawer on phones. The active entry needs the
-// pathname, which is runtime data on /lessons/[id]: it is read inside a Suspense boundary.
+// The left sidebar on wide screens, which folds down to its icons, and a top bar with a drawer on phones.
+// The active entry needs the pathname, which is runtime data on /lessons/[id]: it is read inside a
+// Suspense boundary. The folded state lives on <html data-sidebar>, set before the first paint by the
+// layout's script, so the CSS (the `collapsed:` variant) lays it out without waiting for React.
 
-import { Camera, Clapperboard, Github, HeartHandshake, House, Menu, Workflow, X } from "lucide-react";
+import { Camera, Clapperboard, Github, HeartHandshake, House, Menu, PanelLeftClose, PanelLeftOpen, Workflow, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useState, useSyncExternalStore } from "react";
 import { activeHref, type NavHref } from "@/lib/nav";
-import { Logo } from "./Logo";
+import { Logo, LogoMark } from "./Logo";
+
+const SIDEBAR_KEY = "lessoncast:sidebar";
+const SIDEBAR_EVENT = "lessoncast:sidebar";
+
+const subscribe = (onChange: () => void) => {
+  window.addEventListener(SIDEBAR_EVENT, onChange);
+  return () => window.removeEventListener(SIDEBAR_EVENT, onChange);
+};
+const isCollapsed = () => document.documentElement.dataset.sidebar === "collapsed";
+
+function useCollapsed(): [boolean, () => void] {
+  const collapsed = useSyncExternalStore(subscribe, isCollapsed, () => false);
+  const toggle = () => {
+    const next = !isCollapsed();
+    if (next) document.documentElement.dataset.sidebar = "collapsed";
+    else delete document.documentElement.dataset.sidebar;
+    try {
+      localStorage.setItem(SIDEBAR_KEY, next ? "collapsed" : "open");
+    } catch {
+      // Not remembered: the sidebar still folds for this visit.
+    }
+    window.dispatchEvent(new Event(SIDEBAR_EVENT));
+  };
+  return [collapsed, toggle];
+}
 
 const LESSONS = [
   { href: "/", label: "Home", icon: House },
   { href: "/create", label: "Create a lesson", icon: Camera },
-  { href: "/lessons", label: "My lessons", icon: Clapperboard },
+  { href: "/lessons", label: "Lessons", icon: Clapperboard },
 ] as const;
 
 const ABOUT = [
@@ -35,13 +62,14 @@ function NavList({ items, active, onNavigate }: { items: readonly Item[]; active
             <Link
               href={href}
               onClick={onNavigate}
+              title={label}
               aria-current={current ? "page" : undefined}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 font-bold transition-colors ${
+              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 font-bold transition-colors collapsed:lg:justify-center ${
                 current ? "bg-panel text-chalk" : "text-dust hover:bg-panel/60 hover:text-chalk"
               }`}
             >
-              <Icon aria-hidden className={`size-5 ${current ? "text-spoken" : ""}`} strokeWidth={2.2} />
-              {label}
+              <Icon aria-hidden className={`size-5 shrink-0 ${current ? "text-spoken" : ""}`} strokeWidth={2.2} />
+              <span className="collapsed:lg:sr-only">{label}</span>
             </Link>
           </li>
         );
@@ -55,7 +83,7 @@ function Nav({ active, onNavigate }: { active: NavHref | null; onNavigate?: () =
     <nav aria-label="Main" className="space-y-6">
       <NavList items={LESSONS} active={active} onNavigate={onNavigate} />
       <div>
-        <p className="px-3 pb-2 text-sm font-bold text-dust/70">About</p>
+        <p className="px-3 pb-2 text-sm font-bold text-dust/70 collapsed:lg:sr-only">About</p>
         <NavList items={ABOUT} active={active} onNavigate={onNavigate} />
       </div>
     </nav>
@@ -76,11 +104,11 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
 
 function SidebarFooter() {
   return (
-    <div className="space-y-3 border-t border-line px-3 pt-4 text-sm text-dust">
-      <p>Built at the Meta Global AI Developer Hackathon, October 2026.</p>
-      <a href={REPO_URL} className="inline-flex items-center gap-2 font-bold hover:text-chalk">
+    <div className="space-y-3 border-t border-line px-3 pt-4 text-sm text-dust collapsed:lg:px-0 collapsed:lg:text-center">
+      <p className="collapsed:lg:hidden">Built at the Meta Global AI Developer Hackathon, October 2026.</p>
+      <a href={REPO_URL} title="Source code" className="inline-flex items-center gap-2 font-bold hover:text-chalk">
         <Github aria-hidden className="size-4" />
-        Source code
+        <span className="collapsed:lg:sr-only">Source code</span>
       </a>
     </div>
   );
@@ -88,15 +116,34 @@ function SidebarFooter() {
 
 export function Sidebar() {
   const [open, setOpen] = useState(false);
+  const [collapsed, toggle] = useCollapsed();
   const close = () => setOpen(false);
+  const ToggleIcon = collapsed ? PanelLeftOpen : PanelLeftClose;
 
   return (
     <>
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col justify-between border-r border-line bg-board px-3 py-5 lg:flex">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col justify-between border-r border-line bg-board px-3 py-5 transition-[width] duration-200 lg:flex collapsed:w-[4.5rem] collapsed:px-2">
         <div className="space-y-8">
-          <Link href="/" className="block px-3">
-            <Logo />
-          </Link>
+          <div className="flex items-center justify-between gap-2 px-3 collapsed:flex-col collapsed:px-0">
+            <Link href="/" title="LessonCast home">
+              <span className="collapsed:hidden">
+                <Logo />
+              </span>
+              <span className="hidden collapsed:block">
+                <LogoMark />
+              </span>
+            </Link>
+            <button
+              type="button"
+              onClick={toggle}
+              aria-label={collapsed ? "Open the sidebar" : "Fold the sidebar"}
+              aria-expanded={!collapsed}
+              title={collapsed ? "Open the sidebar" : "Fold the sidebar"}
+              className="grid size-9 place-items-center rounded-lg text-dust hover:bg-panel hover:text-chalk"
+            >
+              <ToggleIcon aria-hidden className="size-5" />
+            </button>
+          </div>
           <SidebarNav />
         </div>
         <SidebarFooter />

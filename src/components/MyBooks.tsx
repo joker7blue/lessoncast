@@ -1,12 +1,12 @@
 "use client";
 
-// The books this device uploaded, read back from the API, each linking to its list of lessons.
+// The books this device uploaded that are still being read, or couldn't be: read books are listed
+// for everyone on the Lessons page.
 
-import { BookOpen } from "lucide-react";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { BookView } from "@/lib/books/view";
 import { rememberedBooks } from "@/lib/lessons/remembered";
+import { BookCard } from "./BookCard";
 
 const STATUS_NOTE: Record<BookView["status"], string> = {
   uploading: "Being uploaded",
@@ -16,7 +16,7 @@ const STATUS_NOTE: Record<BookView["status"], string> = {
 };
 
 export function MyBooks() {
-  const [books, setBooks] = useState<{ id: string; view: BookView }[] | null>(null);
+  const [books, setBooks] = useState<{ id: string; view: BookView }[]>([]);
 
   useEffect(() => {
     let stopped = false;
@@ -31,7 +31,7 @@ export function MyBooks() {
           }
         }),
       );
-      if (!stopped) setBooks(views.flatMap((entry) => (entry ? [entry] : [])));
+      if (!stopped) setBooks(views.flatMap((entry) => (entry && entry.view.status !== "ready" ? [entry] : [])));
     };
     load();
     return () => {
@@ -39,30 +39,16 @@ export function MyBooks() {
     };
   }, []);
 
-  // Books are an extra: nothing to say while loading or when there are none.
-  if (!books || books.length === 0) return null;
+  if (books.length === 0) return null;
   return (
-    <section className="mt-12">
-      <h2 className="text-xl font-extrabold">Books</h2>
+    <section className="mt-10">
+      <h2 className="text-xl font-extrabold">Books being read on this device</h2>
       <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {books.map(({ id, view }) => {
-          const videos = view.lessons.reduce((sum, l) => sum + l.videos.length, 0);
-          const note =
-            view.status === "ready"
-              ? `${view.lessons.length} lessons${videos ? `, ${videos} ${videos === 1 ? "video" : "videos"} made` : ""}`
-              : STATUS_NOTE[view.status];
-          return (
-            <li key={id}>
-              <Link href={`/books/${id}`} className="flex items-start gap-3 rounded-xl border border-line bg-panel p-4 hover:border-dust">
-                <BookOpen aria-hidden className="mt-0.5 size-5 shrink-0 text-spoken" />
-                <span className="min-w-0">
-                  <span className="block truncate font-extrabold">{view.title ?? view.fileName}</span>
-                  <span className="block text-sm text-dust">{note}</span>
-                </span>
-              </Link>
-            </li>
-          );
-        })}
+        {books.map(({ id, view }) => (
+          <li key={id}>
+            <BookCard id={id} title={view.title ?? view.fileName} note={STATUS_NOTE[view.status]} />
+          </li>
+        ))}
       </ul>
     </section>
   );
