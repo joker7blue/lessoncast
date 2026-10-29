@@ -13,12 +13,18 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { themeColor: "#141b18" };
 
+// Folds the sidebar before the first paint when the teacher folded it last time, so it never jumps.
+const SIDEBAR_SCRIPT = `try{if(localStorage.getItem("lessoncast:sidebar")==="collapsed")document.documentElement.dataset.sidebar="collapsed"}catch(e){}`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${nunito.variable} h-full antialiased`}>
+    <html lang="en" className={`${nunito.variable} h-full antialiased`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: SIDEBAR_SCRIPT }} />
+      </head>
       <body className="min-h-full font-sans">
         <Sidebar />
-        <div className="lg:pl-64">{children}</div>
+        <div className="shell-content">{children}</div>
       </body>
     </html>
   );
