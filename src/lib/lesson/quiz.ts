@@ -2,33 +2,55 @@
 // choices, a three-second countdown, and the right answer. The screen shows the letters A, B and C; the
 // voice says them as words, since MMS-TTS reads a lone letter as a bare sound.
 
-import type { Language, Lesson } from "./schema";
+import { type Language, type Lesson, say } from "./schema";
 
 export const COUNTDOWN_SECONDS = 3;
 export const QUIZ_LETTERS = ["A", "B", "C"] as const;
 
-type Copy = { title: string; subtitle: string; intro: string; numbers: string[]; letters: string[]; lead(n: string): string; answer(letter: string, choice: string): string };
+type Copy = { title: string; subtitle: string; intro: string; leads: string[]; letters: string[]; answerIntro: string };
 
-const COPY: Record<Language, Copy> = {
+// The quiz's words for scripts from before Muse Spark wrote them in the lesson's language (videoText).
+const FIXED: Partial<Record<Language, Copy>> = {
   fr: {
     title: "Petit quiz",
     subtitle: "Trois questions",
     intro: "Petit quiz ! Trois questions pour voir si tu as bien compris.",
-    numbers: ["un", "deux", "trois"],
+    leads: ["Question un.", "Question deux.", "Question trois."],
     letters: ["a", "bé", "cé"],
-    lead: (n) => `Question ${n}.`,
-    answer: (letter, choice) => `La bonne réponse est ${letter}, ${choice}`,
+    answerIntro: "La bonne réponse est",
   },
   pcm: {
     title: "Small quiz",
     subtitle: "Three question dem",
     intro: "Small quiz! Three question dem to check say you don understand.",
-    numbers: ["one", "two", "three"],
+    leads: ["Question one.", "Question two.", "Question three."],
     letters: ["ey", "bi", "si"],
-    lead: (n) => `Question ${n}.`,
-    answer: (letter, choice) => `Di correct answer na ${letter}, ${choice}`,
+    answerIntro: "Di correct answer na",
+  },
+  en: {
+    title: "Quick quiz",
+    subtitle: "Three questions",
+    intro: "Quick quiz! Three questions to check what you learned.",
+    leads: ["Question one.", "Question two.", "Question three."],
+    letters: ["ay", "bee", "see"],
+    answerIntro: "The right answer is",
   },
 };
+
+function copyFor(lesson: Lesson, language: Language): Copy {
+  const text = lesson.videoText;
+  if (text) {
+    return {
+      title: text.quizTitle,
+      subtitle: text.quizSubtitle,
+      intro: text.quizIntro,
+      leads: text.questionLeads,
+      letters: text.letterNames,
+      answerIntro: text.answerIntro,
+    };
+  }
+  return FIXED[language] ?? FIXED.en!;
+}
 
 const ended = (text: string) => /[.!?…]$/.test(text.trim());
 
@@ -46,19 +68,24 @@ export type SpokenQuestion = {
   answer: string;
 };
 
-export function quizScript(lesson: Lesson, language: Language): { title: string; subtitle: string; intro: string; questions: SpokenQuestion[] } {
-  const copy = COPY[language];
+/** The quiz as the voice reads it, with its first `count` questions (shorter videos ask fewer). */
+export function quizScript(
+  lesson: Lesson,
+  language: Language,
+  count = lesson.quiz.length,
+): { title: string; subtitle: string; intro: string; questions: SpokenQuestion[] } {
+  const copy = copyFor(lesson, language);
   return {
     title: copy.title,
     subtitle: copy.subtitle,
     intro: copy.intro,
-    questions: lesson.quiz.map((q, i) => ({
+    questions: lesson.quiz.slice(0, count).map((q, i) => ({
       pieces: [
-        copy.lead(copy.numbers[i] ?? String(i + 1)),
-        asQuestion(q.question[language], language),
-        ...q.choices.map((choice, c) => sentence(`${copy.letters[c]}, ${choice[language]}`)),
+        sentence(copy.leads[i] ?? `${i + 1}.`),
+        asQuestion(say(q.question, language), language),
+        ...q.choices.map((choice, c) => sentence(`${copy.letters[c]}, ${say(choice, language)}`)),
       ],
-      answer: sentence(copy.answer(copy.letters[q.answerIndex]!, q.choices[q.answerIndex]![language])),
+      answer: sentence(`${copy.answerIntro} ${copy.letters[q.answerIndex]}, ${say(q.choices[q.answerIndex]!, language)}`),
     })),
   };
 }

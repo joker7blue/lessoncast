@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { VERSION as REMOTION_VERSION } from "remotion/version";
 import { PipelineDemo } from "@/components/pipeline/PipelineDemo";
-import { ALIGNER_MODEL, IMAGE_MODEL, SAM_MODEL, SPARK_MODEL, VOICE_MODELS } from "@/lib/meta/models";
+import { LANGUAGE_CODES, LANGUAGES } from "@/lib/lesson/languages";
+import { ALIGNER_MODEL, IMAGE_MODEL, SAM_MODEL, SPARK_MODEL } from "@/lib/meta/models";
+
+const LANGUAGE_NAMES = LANGUAGE_CODES.map((code) => LANGUAGES[code].label).join(", ");
 
 export const metadata: Metadata = { title: "How it works · LessonCast" };
 
@@ -19,8 +22,8 @@ const STEPS = [
   },
   {
     title: "MMS speaks the lesson and times every word",
-    model: `${VOICE_MODELS.fr}, ${VOICE_MODELS.pcm}, ${ALIGNER_MODEL}, open weights on Modal`,
-    body: "Meta's Massively Multilingual Speech models run in our own container while the scenes are drawn. MMS-TTS reads each sentence, and MMS forced alignment finds when each word starts and ends, which gives the karaoke subtitles and the length of every scene.",
+    model: `facebook/mms-tts in ${LANGUAGE_CODES.length} languages, ${ALIGNER_MODEL}, open weights on Modal`,
+    body: `Meta's Massively Multilingual Speech models run in our own container while the scenes are drawn. MMS-TTS reads each sentence in the language the teacher picked (${LANGUAGE_NAMES}), and MMS forced alignment finds when each word starts and ends, which gives the karaoke subtitles and the length of every scene.`,
   },
   {
     title: "SAM 3.1 cuts out the objects the voice names",

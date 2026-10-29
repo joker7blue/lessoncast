@@ -2,6 +2,7 @@
 // the render reads them back. Both phrases are kept, so either language renders from the same file.
 
 import { z } from "zod";
+import { LANGUAGE_CODES, type LanguageCode } from "../lesson/languages";
 
 /** One SAM mask outline, `d` in the mask raster's pixels, placed on the image by
  * `translate(left top) scale(scaleX scaleY)`. */
@@ -15,10 +16,12 @@ export const Shape = z.object({
 });
 export type Shape = z.infer<typeof Shape>;
 
+/** The phrase that names the object, in each language the script was written in. */
+const phrases = Object.fromEntries(LANGUAGE_CODES.map((l) => [l, z.string().optional()])) as { [L in LanguageCode]: z.ZodOptional<z.ZodString> };
+
 export const FoundObject = z.object({
   samPrompt: z.string(),
-  fr: z.string(),
-  pcm: z.string(),
+  ...phrases,
   shapes: z.array(Shape).min(1),
 });
 export type FoundObject = z.infer<typeof FoundObject>;

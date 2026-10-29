@@ -6,6 +6,7 @@
 import { readFile } from "node:fs/promises";
 import { tasks } from "@trigger.dev/sdk";
 import { Language, MAX_PAGES } from "../src/lib/lesson/schema";
+import { defaultLength, quizQuestionsFor } from "../src/lib/lesson/length";
 import { StyleChoice } from "../src/lib/lesson/styles";
 import { createLesson, getLesson } from "../src/lib/lessons/repo";
 import { lessonPaths, publicUrl, uploadFile } from "../src/lib/supabase/storage";
@@ -20,7 +21,7 @@ async function main() {
   const style = StyleChoice.parse(styleArg);
   if (pages.length < 1 || pages.length > MAX_PAGES) throw new Error(`Give 1 to ${MAX_PAGES} page photos (JPEG)`);
 
-  const row = await createLesson({ language, ipHash: null, pageCount: pages.length, style });
+  const row = await createLesson({ language, ipHash: null, pageCount: pages.length, style, targetSeconds: defaultLength(pages.length), quizQuestions: quizQuestionsFor(defaultLength(pages.length)) });
   await Promise.all(pages.map(async (file, i) => uploadFile(lessonPaths.page(row.id, i + 1), await readFile(file), "image/jpeg")));
   const handle = await tasks.trigger<typeof generateLesson>("generate-lesson", { lessonId: row.id }, { idempotencyKey: row.id });
   console.log(`lesson ${row.id}, run ${handle.id}`);

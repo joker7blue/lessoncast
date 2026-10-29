@@ -5,6 +5,7 @@ const PDF = new TextEncoder().encode("%PDF-1.7 fake");
 const slice = { firstPage: 31, lastPage: 60, bytes: PDF };
 const answer = {
   isTextbook: true,
+  language: "fr",
   book: { title: "Sciences CM1", subject: "Sciences", level: "CM1" },
   lessons: [{ title: "Le cœur", firstPage: 2, lastPage: 5, summary: "Le cœur pompe le sang.", continuesPrevious: false }],
 };

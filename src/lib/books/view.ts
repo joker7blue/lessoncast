@@ -4,7 +4,7 @@ import type { LessonStatus } from "../lessons/repo";
 import type { Language } from "../lesson/schema";
 import type { StyleChoice } from "../lesson/styles";
 import type { BookRow, BookStatus, BookVideo } from "./repo";
-import type { BookLesson } from "./schema";
+import type { BookLanguage, BookLesson } from "./schema";
 
 export type BookView = {
   status: BookStatus;
@@ -15,6 +15,8 @@ export type BookView = {
   title: string | null;
   subject: string | null;
   level: string | null;
+  /** The book's language, which its videos are in by default. */
+  language: BookLanguage | null;
   /** While reading: how many of the book's slices Muse Spark has read. */
   progress: { read: number; slices: number } | null;
   /** Lesson n at index n - 1, with the videos already made from it, newest first. */
@@ -36,6 +38,7 @@ export function bookView(book: BookRow, videos: BookVideo[], now: number): BookV
     title: book.title,
     subject: book.subject,
     level: book.level,
+    language: book.language,
     progress: book.status === "reading" && book.slices.length > 0 ? { read: book.slicesRead, slices: book.slices.length } : null,
     lessons: book.lessons.map((lesson, i) => ({
       ...lesson,

@@ -53,7 +53,7 @@ export const readBook = schemaTask({
         onRead: () => countSliceRead(bookId),
         warn: (message) => logger.warn(message),
       });
-      const { isTextbook, book: info, lessons } = joinSlices(answers);
+      const { isTextbook, book: info, language, lessons } = joinSlices(answers);
       const seconds = (performance.now() - start) / 1000;
       const metrics = { "read-book": { seconds, costUsd } };
       if (lessons.length === 0) {
@@ -66,6 +66,7 @@ export const readBook = schemaTask({
         title: info?.title.trim() || book.fileName.replace(/\.pdf$/i, ""),
         subject: info?.subject.trim() || null,
         level: info?.level.trim() || null,
+        language,
         lessons,
         metrics,
       });

@@ -30,6 +30,10 @@ export type LessonRow = {
   /** The book the lesson's pages come from, and the lesson's number in it; null for photographed pages. */
   bookId: string | null;
   bookLesson: number | null;
+  /** The length the teacher chose, in seconds; null for lessons from before the choice. */
+  targetSeconds: number | null;
+  /** How many quiz questions end the video; null for lessons from before the choice. */
+  quizQuestions: number | null;
   words: TimedWord[] | null;
   metrics: Record<string, StepMetrics>;
   ipHash: string | null;
@@ -51,6 +55,8 @@ type Columns = {
   highlights_path: string | null;
   book_id: string | null;
   book_lesson: number | null;
+  target_seconds: number | null;
+  quiz_questions: number | null;
   words: TimedWord[] | null;
   metrics: Record<string, StepMetrics>;
   ip_hash: string | null;
@@ -86,6 +92,8 @@ function toRow(c: Columns): LessonRow {
     highlightsPath: c.highlights_path,
     bookId: c.book_id ?? null,
     bookLesson: c.book_lesson ?? null,
+    targetSeconds: c.target_seconds ?? null,
+    quizQuestions: c.quiz_questions ?? null,
     words: c.words,
     metrics: c.metrics,
     ipHash: c.ip_hash,
@@ -106,12 +114,23 @@ export type NewLesson = {
   style: StyleChoice;
   /** For a lesson made from a book: the book and the lesson's number in it. */
   book?: { id: string; lesson: number };
+  /** The video's length, in seconds. */
+  targetSeconds: number;
+  /** How many quiz questions end the video. */
+  quizQuestions: number;
 };
 
-export async function createLesson({ language, ipHash, pageCount, style, book }: NewLesson): Promise<LessonRow> {
+export async function createLesson({ language, ipHash, pageCount, style, book, targetSeconds, quizQuestions }: NewLesson): Promise<LessonRow> {
   const { data, error } = await lessons()
-    // The book columns only for a book lesson: photo lessons don't depend on the books migration.
-    .insert({ language, ip_hash: ipHash, page_count: pageCount, style, ...(book && { book_id: book.id, book_lesson: book.lesson }) })
+    .insert({
+      language,
+      ip_hash: ipHash,
+      page_count: pageCount,
+      style,
+      target_seconds: targetSeconds,
+      quiz_questions: quizQuestions,
+      ...(book && { book_id: book.id, book_lesson: book.lesson }),
+    })
     .select()
     .single<Columns>();
   if (error) fail("create a lesson", error);

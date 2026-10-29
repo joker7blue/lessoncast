@@ -17,6 +17,7 @@ function book(patch: Partial<BookRow> = {}): BookRow {
     title: "Sciences CM1",
     subject: "Sciences",
     level: "CM1",
+    language: "fr",
     lessons: [
       { title: "A", firstPage: 3, lastPage: 6, summary: "A." },
       { title: "B", firstPage: 7, lastPage: 9, summary: "B." },
@@ -29,6 +30,7 @@ function book(patch: Partial<BookRow> = {}): BookRow {
     metrics: {},
     ipHash: null,
     triggerRunId: null,
+    editKeyHash: null,
     ...patch,
   };
 }

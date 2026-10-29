@@ -65,8 +65,8 @@ describe("POST /api/lessons", () => {
     await expectError(await post({ photos: [jpeg("1.jpg", big), jpeg("2.jpg", big), jpeg("3.jpg", big)] }), 400);
   });
 
-  test("400 for language 'en' and for style 'watercolor'", async () => {
-    await expectError(await post({ photos: [jpeg("1.jpg")], language: "en" }), 400);
+  test("400 for language 'xx' and for style 'watercolor'", async () => {
+    await expectError(await post({ photos: [jpeg("1.jpg")], language: "xx" }), 400);
     await expectError(await post({ photos: [jpeg("1.jpg")], style: "watercolor" }), 400);
   });
 
@@ -76,7 +76,8 @@ describe("POST /api/lessons", () => {
 
     expect(res.status).toBe(201);
     expect(await res.json()).toEqual({ id: ID });
-    expect(repo.createLesson).toHaveBeenCalledWith({ language: "fr", ipHash: null, pageCount: 3, style: "realistic" });
+    // No length sent: the one that fits three pages.
+    expect(repo.createLesson).toHaveBeenCalledWith({ language: "fr", ipHash: null, pageCount: 3, style: "realistic", targetSeconds: 180, quizQuestions: 3 });
     const stored = storage.uploadFile.mock.calls.map(([path, bytes, type]) => [path, (bytes as Uint8Array).length, type]);
     expect(stored).toEqual([
       [`${ID}/pages/1.jpg`, 900, "image/jpeg"],

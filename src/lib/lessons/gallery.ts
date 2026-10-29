@@ -2,7 +2,7 @@
 // that Muse Spark has read, newest first. Read at most every few minutes.
 
 import { cacheLife } from "next/cache";
-import type { Language } from "../lesson/schema";
+import { type Language, type Localized, say } from "../lesson/schema";
 import type { StyleChoice } from "../lesson/styles";
 import { supabase } from "../supabase/server";
 import { publicUrl } from "../supabase/storage";
@@ -25,7 +25,7 @@ type LessonColumns = {
   id: string;
   language: Language;
   style: StyleChoice;
-  script: { title: Record<Language, string>; style: StyleChoice } | null;
+  script: { title: Localized; style: StyleChoice } | null;
   scene_paths: (string | null)[];
   book: { title: string | null } | null;
 };
@@ -47,7 +47,7 @@ export async function galleryLessons(): Promise<GalleryLesson[]> {
       const scene = row.scene_paths[0];
       return {
         id: row.id,
-        title: row.script?.title[row.language] ?? null,
+        title: row.script ? say(row.script.title, row.language) : null,
         language: row.language,
         style: row.script?.style ?? row.style,
         posterUrl: scene ? publicUrl(scene) : null,

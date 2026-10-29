@@ -8,6 +8,7 @@ import { getImageProps } from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { formatSeconds, formatUsd } from "@/lib/format";
+import { LANGUAGES } from "@/lib/lesson/languages";
 import { STYLES } from "@/lib/lesson/styles";
 import { modelSeconds, nodeStates, scenesDrawn } from "@/lib/lessons/graph";
 import type { LessonView } from "@/lib/lessons/view";
@@ -25,7 +26,7 @@ const FINISHING: Partial<Record<LessonView["status"], string>> = {
 const POLL_MS = 2000;
 
 function subtitle(lesson: LessonView): string {
-  const language = lesson.language === "fr" ? "In French" : "In Pidgin";
+  const language = `In ${LANGUAGES[lesson.language].label}`;
   if (lesson.style === "auto") return `${language}, style picked from the pages.`;
   return `${language}, ${STYLES[lesson.style].label.toLowerCase()} style.`;
 }

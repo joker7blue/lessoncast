@@ -6,7 +6,7 @@ import type { LessonStatus, StepMetrics } from "../lessons/repo";
 import type { Language } from "../lesson/schema";
 import type { StyleChoice } from "../lesson/styles";
 import { supabase } from "../supabase/server";
-import type { BookLesson } from "./schema";
+import type { BookLanguage, BookLesson } from "./schema";
 
 export type BookStatus = "uploading" | "reading" | "ready" | "failed";
 /** A slice of the book as stored: its pages in the book and its PDF's storage path. */
@@ -23,6 +23,7 @@ export type BookRow = {
   title: string | null;
   subject: string | null;
   level: string | null;
+  language: BookLanguage | null;
   /** Lesson n of the book at index n - 1, in page order. */
   lessons: BookLesson[];
   slices: StoredSlice[];
@@ -30,6 +31,8 @@ export type BookRow = {
   metrics: Record<string, StepMetrics>;
   ipHash: string | null;
   triggerRunId: string | null;
+  /** SHA-256 of the key the uploading device holds; null for books from before keys. */
+  editKeyHash: string | null;
 };
 
 type Columns = {
@@ -43,12 +46,14 @@ type Columns = {
   title: string | null;
   subject: string | null;
   level: string | null;
+  language: BookLanguage | null;
   lessons: BookLesson[];
   slices: StoredSlice[];
   slices_read: number;
   metrics: Record<string, StepMetrics>;
   ip_hash: string | null;
   trigger_run_id: string | null;
+  edit_key_hash: string | null;
 };
 
 const PATCH_COLUMNS = {
@@ -58,6 +63,7 @@ const PATCH_COLUMNS = {
   title: "title",
   subject: "subject",
   level: "level",
+  language: "language",
   lessons: "lessons",
   slices: "slices",
   metrics: "metrics",
@@ -78,12 +84,14 @@ function toRow(c: Columns): BookRow {
     title: c.title,
     subject: c.subject,
     level: c.level,
+    language: c.language ?? null,
     lessons: c.lessons,
     slices: c.slices,
     slicesRead: c.slices_read,
     metrics: c.metrics,
     ipHash: c.ip_hash,
     triggerRunId: c.trigger_run_id,
+    editKeyHash: c.edit_key_hash ?? null,
   };
 }
 
@@ -93,8 +101,21 @@ function fail(action: string, error: { message: string }): never {
 
 const books = () => supabase().from("books");
 
-export async function createBook({ fileName, fileBytes, ipHash }: { fileName: string; fileBytes: number; ipHash: string | null }): Promise<BookRow> {
-  const { data, error } = await books().insert({ file_name: fileName, file_bytes: fileBytes, ip_hash: ipHash }).select().single<Columns>();
+export async function createBook({
+  fileName,
+  fileBytes,
+  ipHash,
+  editKeyHash,
+}: {
+  fileName: string;
+  fileBytes: number;
+  ipHash: string | null;
+  editKeyHash: string;
+}): Promise<BookRow> {
+  const { data, error } = await books()
+    .insert({ file_name: fileName, file_bytes: fileBytes, ip_hash: ipHash, edit_key_hash: editKeyHash })
+    .select()
+    .single<Columns>();
   if (error) fail("create a book", error);
   return toRow(data);
 }

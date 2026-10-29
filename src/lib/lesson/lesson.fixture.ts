@@ -1,6 +1,6 @@
 // Test helper: a valid lesson in the shape Muse Spark returns, with as many scenes as needed.
 
-import type { Lesson } from "./schema";
+import type { Language, Lesson, Localized } from "./schema";
 
 const both = (fr: string, pcm: string) => ({ fr, pcm });
 
@@ -30,5 +30,33 @@ export function makeLesson(sceneCount = 6): Lesson {
       choices: [both("Oui", "Yes"), both("Non", "No"), both("Peut-être", "Maybe")],
       answerIndex: 0,
     })),
+  };
+}
+
+const VIDEO_TEXT_FR = {
+  quizTitle: "Petit quiz",
+  quizSubtitle: "Trois questions",
+  quizIntro: "Petit quiz ! Trois questions pour voir si tu as bien compris.",
+  questionLeads: ["Question un.", "Question deux.", "Question trois."],
+  letterNames: ["a", "bé", "cé"],
+  answerIntro: "La bonne réponse est",
+  endCard: "Revois cette leçon ce soir avec tes parents",
+};
+
+/** The lesson as Muse Spark now writes it: every text in one language only, with the video's own words. */
+export function makeScript(sceneCount = 6, language: Language = "fr"): Lesson {
+  const lesson = makeLesson(sceneCount);
+  const pick = (text: Localized): Localized => ({ [language]: text[language] ?? text.fr });
+  return {
+    ...lesson,
+    title: pick(lesson.title),
+    scenes: lesson.scenes.map((scene) => ({
+      ...scene,
+      title: pick(scene.title),
+      narration: pick(scene.narration),
+      highlights: scene.highlights.map((h) => ({ samPrompt: h.samPrompt, [language]: h[language] ?? h.fr })),
+    })),
+    quiz: lesson.quiz.map((q) => ({ ...q, question: pick(q.question), choices: q.choices.map(pick) })),
+    videoText: VIDEO_TEXT_FR,
   };
 }
