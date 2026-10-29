@@ -112,21 +112,38 @@ describe("writeLesson", () => {
     for (const [key, style] of Object.entries(STYLES)) expect(userContent()[0]!.text).toContain(`${key}: ${style.when}`);
   });
 
-  test("a page that isn't a textbook is reported even when the rest of the answer is incomplete", async () => {
-    const page = { isTextbookPage: false, subject: "", level: "", topic: "", keyText: "" };
-    fetchMock.mockResolvedValue(completion({ page, title: { fr: "", pcm: "" }, scenes: [], quiz: [] }));
+  const notAPage = () => completion({ page: { isTextbookPage: false, subject: "", level: "", topic: "", keyText: "" }, title: { fr: "" }, scenes: [], quiz: [] });
+
+  test("a page that isn't a textbook is reported after a second look, even when the rest of the answer is incomplete", async () => {
+    fetchMock.mockImplementation(async () => notAPage());
     const written = await writeLesson({ photoUrls: [PHOTO] }, "auto", "fr");
     expect(written.isTextbookPage).toBe(false);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(written.costUsd).toBeGreaterThan(0);
   });
 
+  test("a page turned down once and taken the second time makes its lesson, both answers paid for", async () => {
+    const lesson = makeScript(7);
+    fetchMock.mockResolvedValueOnce(notAPage()).mockResolvedValueOnce(completion(lesson));
+    const written = await writeLesson({ photoUrls: [PHOTO] }, "auto", "fr");
+    expect(await lessonOf(Promise.resolve(written))).toEqual(lesson);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(written.costUsd).toBeCloseTo(2 * 0.0333, 4);
+  });
+
+  test("a page taken the first time is asked about once", async () => {
+    fetchMock.mockResolvedValue(completion(makeScript(7)));
+    await writeLesson({ photoUrls: [PHOTO] }, "auto", "fr");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
   test("asks for the video's language, with its writing rule, and its length", async () => {
-    fetchMock.mockResolvedValue(completion(makeScript(4, "hau")));
+    fetchMock.mockResolvedValue(completion(makeScript(2, "hau")));
     await writeLesson({ photoUrls: [PHOTO] }, "auto", "hau", 120);
     const text = userContent()[0]!.text!;
     expect(text).toContain("Write the lesson in Hausa: Hausa as spoken in northern Cameroon");
-    // Hausa's voice is slower: fewer words for the same 2 minutes.
-    expect(text).toContain("The video lasts about 2 minutes: write 4 scenes, each narration about 26 words.");
+    // Hausa's voice is slower: fewer words for the same 2 minutes, and its three questions take longer.
+    expect(text).toContain("The video lasts about 2 minutes: write 2 scenes, each narration about 36 words. Write 3 quiz questions.");
     const schema = JSON.parse(fetchMock.mock.calls[0]![1].body).response_format.json_schema.schema;
     expect(Object.keys(schema.properties.title.properties)).toEqual(["hau"]);
     expect(schema.properties.videoText).toBeDefined();
@@ -135,7 +152,7 @@ describe("writeLesson", () => {
   test("a lesson from before the length choice asks for about three minutes", async () => {
     fetchMock.mockResolvedValue(completion(makeScript(7)));
     await writeLesson({ photoUrls: [PHOTO] }, "auto", "fr");
-    expect(userContent()[0]!.text).toContain("The video lasts about 3 minutes: write 8 scenes");
+    expect(userContent()[0]!.text).toContain("The video lasts about 3 minutes: write 7 scenes, each narration about 36 words. Write 3 quiz questions.");
   });
 
   test("rejects a script missing the video's language", async () => {
@@ -154,6 +171,12 @@ describe("LESSON_INSTRUCTIONS", () => {
     expect(LESSON_INSTRUCTIONS).toMatch(/number of scenes the request asks for/);
     expect(LESSON_INSTRUCTIONS).toMatch(/isTextbookPage/);
     expect(LESSON_INSTRUCTIONS).toMatch(/digits/);
+  });
+
+  test("take any readable page of school material, and still turn down a photo of something else", () => {
+    const rule = LESSON_INSTRUCTIONS.split("\n").find((line) => line.includes("isTextbookPage"))!;
+    for (const kind of ["textbook", "exercise book", "curriculum", "teacher's guide"]) expect(rule).toContain(kind);
+    for (const kind of ["selfie", "blurred", "screen"]) expect(rule).toContain(kind);
   });
 
   test("ask for the recurring characters and places, and every text in the request's language", () => {

@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { LessonOptions, Step } from "@/components/LessonOptions";
 import { describeVideo } from "@/lib/lesson/describe";
 import { resizeToJpeg, UnsupportedImageError } from "@/lib/image/resize";
+import { LANGUAGES } from "@/lib/lesson/languages";
 import { defaultLength, maxQuizQuestions, quizQuestionsFor, type VideoLength } from "@/lib/lesson/length";
 import { type Language, MAX_PAGES } from "@/lib/lesson/schema";
 import type { StyleChoice } from "@/lib/lesson/styles";
@@ -30,7 +31,8 @@ export function UploadForm() {
   const length = chosenLength ?? recommendedLength;
   // The quiz follows the length until the teacher sets it, and never asks more than the length has room for.
   const [chosenQuiz, setChosenQuiz] = useState<number | null>(null);
-  const quizQuestions = Math.min(chosenQuiz ?? quizQuestionsFor(length), maxQuizQuestions(length));
+  const pace = LANGUAGES[language].wordsPerSecond;
+  const quizQuestions = Math.min(chosenQuiz ?? quizQuestionsFor(length, pace), maxQuizQuestions(length, pace));
   const [adding, setAdding] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);

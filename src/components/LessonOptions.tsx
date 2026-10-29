@@ -70,7 +70,8 @@ export function LessonOptions({
   /** The number of the language step; the length, quiz and style steps follow it. */
   firstStep: number;
 }) {
-  const maxQuiz = maxQuizQuestions(length);
+  // A slower voice reads each question longer: fewer fit in the same length.
+  const maxQuiz = maxQuizQuestions(length, LANGUAGE_INFO[language].wordsPerSecond);
   return (
     <>
       <Step n={firstStep} title="Video language" hint="The language the children speak at home. Each one has its own Meta MMS voice.">
