@@ -3,7 +3,7 @@
 // gives the title card, scene and quiz boundaries in the video.
 
 import { COUNTDOWN_SECONDS, quizScript } from "./quiz";
-import type { Language, Lesson } from "./schema";
+import { type Language, type Lesson, say } from "./schema";
 
 export function splitSentences(text: string): string[] {
   return text
@@ -15,10 +15,11 @@ export function splitSentences(text: string): string[] {
 /** The groups, and for each one the silence after it when it isn't the usual one: the countdown after a question. */
 export type NarrationPlan = { groups: string[][]; pauses: (number | null)[] };
 
-export function narrationPlan(lesson: Lesson, language: Language): NarrationPlan {
-  const quiz = quizScript(lesson, language);
-  const lessonGroups = [[lesson.title[language]], ...lesson.scenes.map((scene) => splitSentences(scene.narration[language]))];
-  const quizGroups = [
+/** `quizQuestions` is how many of the quiz's questions the video asks: none in a short video. */
+export function narrationPlan(lesson: Lesson, language: Language, quizQuestions = lesson.quiz.length): NarrationPlan {
+  const quiz = quizScript(lesson, language, quizQuestions);
+  const lessonGroups = [[say(lesson.title, language)], ...lesson.scenes.map((scene) => splitSentences(say(scene.narration, language)))];
+  const quizGroups = quiz.questions.length === 0 ? [] : [
     { sentences: splitSentences(quiz.intro), pause: null },
     ...quiz.questions.flatMap((q) => [
       { sentences: q.pieces.flatMap(splitSentences), pause: COUNTDOWN_SECONDS },

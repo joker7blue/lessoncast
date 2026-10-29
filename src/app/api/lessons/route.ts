@@ -2,6 +2,7 @@
 // turned each photo into a JPEG of at most 1600 px, so anything else is refused.
 
 import { tasks } from "@trigger.dev/sdk";
+import { defaultLength, VideoLength } from "@/lib/lesson/length";
 import { Language, MAX_PAGES } from "@/lib/lesson/schema";
 import { StyleChoice } from "@/lib/lesson/styles";
 import { hashIp } from "@/lib/lessons/ip";
@@ -36,15 +37,19 @@ export async function POST(request: Request) {
   }
 
   const language = Language.safeParse(form.get("language"));
-  if (!language.success) return fail(400, "Choose French or Pidgin.");
+  if (!language.success) return fail(400, "Choose the video's language.");
   const style = StyleChoice.safeParse(form.get("style"));
   if (!style.success) return fail(400, "This image style doesn't exist.");
+  // A form from before the length choice sends none: the length that fits the pages.
+  const lengthField = form.get("length");
+  const length = lengthField === null ? { success: true as const, data: defaultLength(pages.length) } : VideoLength.safeParse(Number(lengthField));
+  if (!length.success) return fail(400, "Choose a video length.");
 
   const ipHash = hashIp(request);
   const limited = await checkRateLimit(ipHash);
   if (limited) return fail(429, limited);
 
-  const lesson = await createLesson({ language: language.data, ipHash, pageCount: pages.length, style: style.data });
+  const lesson = await createLesson({ language: language.data, ipHash, pageCount: pages.length, style: style.data, targetSeconds: length.data });
   try {
     await Promise.all(pages.map((bytes, i) => uploadFile(lessonPaths.page(lesson.id, i + 1), bytes, "image/jpeg")));
     const run = await tasks.trigger<typeof generateLesson>("generate-lesson", { lessonId: lesson.id }, { idempotencyKey: lesson.id });

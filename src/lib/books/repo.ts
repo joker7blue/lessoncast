@@ -6,7 +6,7 @@ import type { LessonStatus, StepMetrics } from "../lessons/repo";
 import type { Language } from "../lesson/schema";
 import type { StyleChoice } from "../lesson/styles";
 import { supabase } from "../supabase/server";
-import type { BookLesson } from "./schema";
+import type { BookLanguage, BookLesson } from "./schema";
 
 export type BookStatus = "uploading" | "reading" | "ready" | "failed";
 /** A slice of the book as stored: its pages in the book and its PDF's storage path. */
@@ -23,6 +23,7 @@ export type BookRow = {
   title: string | null;
   subject: string | null;
   level: string | null;
+  language: BookLanguage | null;
   /** Lesson n of the book at index n - 1, in page order. */
   lessons: BookLesson[];
   slices: StoredSlice[];
@@ -43,6 +44,7 @@ type Columns = {
   title: string | null;
   subject: string | null;
   level: string | null;
+  language: BookLanguage | null;
   lessons: BookLesson[];
   slices: StoredSlice[];
   slices_read: number;
@@ -58,6 +60,7 @@ const PATCH_COLUMNS = {
   title: "title",
   subject: "subject",
   level: "level",
+  language: "language",
   lessons: "lessons",
   slices: "slices",
   metrics: "metrics",
@@ -78,6 +81,7 @@ function toRow(c: Columns): BookRow {
     title: c.title,
     subject: c.subject,
     level: c.level,
+    language: c.language ?? null,
     lessons: c.lessons,
     slices: c.slices,
     slicesRead: c.slices_read,

@@ -6,7 +6,8 @@ import { formatSeconds } from "@/lib/format";
 import { STYLES } from "@/lib/lesson/styles";
 import { type NodeId, scenesDrawn } from "@/lib/lessons/graph";
 import type { LessonView } from "@/lib/lessons/view";
-import { IMAGE_MODEL, SAM_MODEL, SPARK_MODEL, VOICE_MODELS } from "@/lib/meta/models";
+import { LANGUAGES } from "@/lib/lesson/languages";
+import { IMAGE_MODEL, SAM_MODEL, SPARK_MODEL } from "@/lib/meta/models";
 import type { NodeContent } from "./PipelineGraph";
 
 export function explainNodes(): Record<NodeId, NodeContent> {
@@ -15,7 +16,7 @@ export function explainNodes(): Record<NodeId, NodeContent> {
     spark: {
       title: "Muse Spark",
       model: SPARK_MODEL,
-      role: "Reads the pages and writes the lesson: seven scenes, the narration in French and Pidgin, a quiz.",
+      role: "Reads the pages and writes the lesson in the language picked: the scenes, their narration, a quiz.",
     },
     image: { title: "Muse Image", model: IMAGE_MODEL, role: "Draws every scene in one style, with the same characters." },
     voice: { title: "MMS voice", model: "mms-tts + MMS_FA", role: "Speaks the lesson and times every word." },
@@ -56,7 +57,7 @@ export function lessonNodes(lesson: LessonView): Record<NodeId, NodeContent> {
     },
     voice: {
       ...nodes.voice,
-      model: VOICE_MODELS[lesson.language].replace("facebook/", ""),
+      model: LANGUAGES[lesson.language].voice.replace("facebook/", ""),
       output: lesson.voice ? `${formatSeconds(lesson.voice.seconds)}, ${lesson.voice.words} words timed` : undefined,
       metrics: m.narrate,
     },

@@ -6,7 +6,9 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { LessonOptions, Step } from "@/components/LessonOptions";
+import { describeVideo } from "@/lib/lesson/describe";
 import { resizeToJpeg, UnsupportedImageError } from "@/lib/image/resize";
+import { defaultLength, type VideoLength } from "@/lib/lesson/length";
 import { type Language, MAX_PAGES } from "@/lib/lesson/schema";
 import type { StyleChoice } from "@/lib/lesson/styles";
 import { rememberLesson } from "@/lib/lessons/remembered";
@@ -22,6 +24,10 @@ export function UploadForm() {
   const [pages, setPages] = useState<Page[]>([]);
   const [language, setLanguage] = useState<Language>("fr");
   const [style, setStyle] = useState<StyleChoice>("auto");
+  // The length follows the pages until the teacher picks one.
+  const [chosenLength, setChosenLength] = useState<VideoLength | null>(null);
+  const recommendedLength = defaultLength(Math.max(1, pages.length));
+  const length = chosenLength ?? recommendedLength;
   const [adding, setAdding] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -60,6 +66,7 @@ export function UploadForm() {
     pages.forEach((page, i) => form.append("photos", page.blob, `page-${i + 1}.jpg`));
     form.append("language", language);
     form.append("style", style);
+    form.append("length", String(length));
     try {
       const res = await fetch("/api/lessons", { method: "POST", body: form });
       const body = (await res.json().catch(() => ({}))) as { id?: string; error?: string };
@@ -117,7 +124,16 @@ export function UploadForm() {
         </ol>
       </Step>
 
-      <LessonOptions language={language} onLanguage={setLanguage} style={style} onStyle={setStyle} firstStep={2} />
+      <LessonOptions
+        language={language}
+        onLanguage={setLanguage}
+        length={length}
+        onLength={setChosenLength}
+        recommendedLength={recommendedLength}
+        style={style}
+        onStyle={setStyle}
+        firstStep={2}
+      />
 
       <div>
         {error && (
@@ -132,7 +148,7 @@ export function UploadForm() {
         >
           {sending ? "Sending the pages…" : "Create the lesson"}
         </button>
-        <p className="mt-3 text-center text-dust">The video is ready in about four minutes.</p>
+        <p className="mt-3 text-center text-dust">{describeVideo({ language, length, style })} Ready in about four minutes.</p>
       </div>
     </form>
   );

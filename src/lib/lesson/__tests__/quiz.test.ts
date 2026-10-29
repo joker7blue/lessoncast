@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { makeLesson } from "../lesson.fixture";
+import { makeLesson, makeScript } from "../lesson.fixture";
 import { narrationGroups, narrationPlan, splitSentences } from "../narration";
 import { asQuestion, COUNTDOWN_SECONDS, quizGroups, quizScript, QUIZ_LETTERS } from "../quiz";
 
@@ -61,5 +61,31 @@ describe("narrationPlan", () => {
   test("narrationGroups are the plan's groups", () => {
     const lesson = makeLesson(5);
     expect(narrationGroups(lesson, "fr")).toEqual(narrationPlan(lesson, "fr").groups);
+  });
+});
+
+describe("quizScript in any language", () => {
+  test("uses the words Muse Spark wrote in the lesson's language", () => {
+    const lesson = makeScript(4, "hau");
+    lesson.videoText = {
+      quizTitle: "Ƙaramin gwaji",
+      quizSubtitle: "Tambayoyi uku",
+      quizIntro: "Ƙaramin gwaji!",
+      questionLeads: ["Tambaya ta ɗaya.", "Tambaya ta biyu.", "Tambaya ta uku."],
+      letterNames: ["a", "bi", "si"],
+      answerIntro: "Amsar daidai ita ce",
+      endCard: "Sake kallon wannan darasi da iyayenka.",
+    };
+    lesson.quiz[0]!.answerIndex = 1;
+    const { title, questions } = quizScript(lesson, "hau");
+    expect(title).toBe("Ƙaramin gwaji");
+    expect(questions[0]!.pieces[0]).toBe("Tambaya ta ɗaya.");
+    expect(questions[0]!.pieces[3]).toMatch(/^bi, /);
+    expect(questions[0]!.answer).toMatch(/^Amsar daidai ita ce bi, /);
+  });
+
+  test("asks only the first questions of a shorter video", () => {
+    expect(quizScript(makeLesson(6), "fr", 1).questions).toHaveLength(1);
+    expect(quizScript(makeLesson(6), "fr", 0).questions).toHaveLength(0);
   });
 });

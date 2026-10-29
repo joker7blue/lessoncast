@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { makeLesson } from "../lesson.fixture";
-import { Lesson, lessonJsonSchema } from "../schema";
+import { makeLesson, makeScript } from "../lesson.fixture";
+import { Lesson, lessonJsonSchema, lessonSchemaFor } from "../schema";
 
 type JsonNode = { [key: string]: unknown };
 
@@ -15,7 +15,7 @@ function objectNodes(node: unknown, found: JsonNode[] = []): JsonNode[] {
 
 describe("lessonJsonSchema", () => {
   test("fits the strict structured-output subset", () => {
-    const schema = lessonJsonSchema();
+    const schema = lessonJsonSchema("hau");
     expect(schema).not.toHaveProperty("$schema");
     const objects = objectNodes(schema);
     expect(objects.length).toBeGreaterThan(5);
@@ -26,7 +26,7 @@ describe("lessonJsonSchema", () => {
   });
 
   test("asks Muse Spark whether the photo is a textbook page", () => {
-    const page = (lessonJsonSchema().properties as Record<string, JsonNode>).page;
+    const page = (lessonJsonSchema("fr").properties as Record<string, JsonNode>).page;
     expect((page.properties as Record<string, JsonNode>).isTextbookPage.type).toBe("boolean");
   });
 });
@@ -36,9 +36,20 @@ describe("Lesson", () => {
     expect(Lesson.safeParse(makeLesson(6)).success).toBe(true);
   });
 
-  test("rejects 4 scenes and 9 scenes", () => {
-    expect(Lesson.safeParse(makeLesson(4)).success).toBe(false);
+  test("takes 1 to 8 scenes, for videos from 15 seconds to 3 minutes", () => {
+    expect(Lesson.safeParse(makeLesson(1)).success).toBe(true);
+    expect(Lesson.safeParse(makeLesson(0)).success).toBe(false);
     expect(Lesson.safeParse(makeLesson(9)).success).toBe(false);
+  });
+
+  test("reads a script in one language, and an older one in French and Pidgin", () => {
+    expect(Lesson.safeParse(makeScript(4, "swh")).success).toBe(true);
+    expect(Lesson.safeParse(makeLesson(6)).success).toBe(true);
+  });
+
+  test("a script for a language must hold that language", () => {
+    expect(lessonSchemaFor("swh").safeParse(makeScript(4, "swh")).success).toBe(true);
+    expect(lessonSchemaFor("fon").safeParse(makeScript(4, "swh")).success).toBe(false);
   });
 
   test("a lesson needs one of the four styles and its visual notes", () => {

@@ -1,18 +1,15 @@
 "use client";
 
-// The choices every new lesson asks for, whatever its pages come from: the language of the voice and
-// the picture style, each style shown by the same scene drawn in it.
+// The choices every new lesson asks for, whatever its pages come from: the language of the voice, the
+// video's length and the picture style, each style shown by the same scene drawn in it.
 
 import { Check } from "lucide-react";
 import Image from "next/image";
 import type { ReactNode } from "react";
+import { LANGUAGE_CODES, LANGUAGES as LANGUAGE_INFO } from "@/lib/lesson/languages";
+import { formatLength, LENGTHS, type VideoLength } from "@/lib/lesson/length";
 import type { Language } from "@/lib/lesson/schema";
 import { ArtStyle, AUTO_STYLE, STYLES, type StyleChoice } from "@/lib/lesson/styles";
-
-const LANGUAGES: { value: Language; label: string; hint: string }[] = [
-  { value: "fr", label: "French", hint: "Français" },
-  { value: "pcm", label: "Pidgin", hint: "Kamtok" },
-];
 
 const STYLE_CHOICES: { value: StyleChoice; label: string; description: string }[] = [
   { value: "auto", ...AUTO_STYLE },
@@ -51,42 +48,67 @@ function StylePreview({ value }: { value: StyleChoice }) {
 export function LessonOptions({
   language,
   onLanguage,
+  length,
+  onLength,
+  recommendedLength,
   style,
   onStyle,
   firstStep,
 }: {
   language: Language;
   onLanguage(language: Language): void;
+  length: VideoLength;
+  onLength(length: VideoLength): void;
+  /** The length that fits these pages, marked as recommended. */
+  recommendedLength: VideoLength;
   style: StyleChoice;
   onStyle(style: StyleChoice): void;
-  /** The number of the language step; the style step follows it. */
+  /** The number of the language step; the length and style steps follow it. */
   firstStep: number;
 }) {
   return (
     <>
-      <Step n={firstStep} title="Video language" hint="The language the children speak at home.">
-        <div role="radiogroup" aria-label="Video language" className="grid max-w-md grid-cols-2 gap-2 rounded-lg bg-panel p-1">
-          {LANGUAGES.map((option) => (
-            <label
-              key={option.value}
-              className={`cursor-pointer rounded-md py-2.5 text-center font-bold has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-spoken ${language === option.value ? "bg-chalk text-board" : "text-dust hover:text-chalk"}`}
-            >
-              <input
-                type="radio"
-                name="language"
-                value={option.value}
-                checked={language === option.value}
-                onChange={() => onLanguage(option.value)}
-                className="sr-only"
-              />
-              {option.label}
-              <span className="ml-1.5 text-sm font-semibold opacity-70">{option.hint}</span>
-            </label>
-          ))}
+      <Step n={firstStep} title="Video language" hint="The language the children speak at home. Each one has its own Meta MMS voice.">
+        <div role="radiogroup" aria-label="Video language" className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {LANGUAGE_CODES.map((code) => {
+            const info = LANGUAGE_INFO[code];
+            const selected = language === code;
+            return (
+              <label
+                key={code}
+                className={`cursor-pointer rounded-lg border-2 px-3 py-2 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-spoken ${selected ? "border-spoken bg-panel" : "border-line hover:border-dust"}`}
+              >
+                <input type="radio" name="language" value={code} checked={selected} onChange={() => onLanguage(code)} className="sr-only" />
+                <span className="flex items-baseline justify-between gap-2">
+                  <span className="font-extrabold">{info.label}</span>
+                  {info.native !== info.label && <span className="truncate text-sm font-semibold text-dust">{info.native}</span>}
+                </span>
+                <span className="block truncate text-xs text-dust">{info.where}</span>
+              </label>
+            );
+          })}
         </div>
       </Step>
 
-      <Step n={firstStep + 1} title="Picture style" hint="Each picture shows the same scene drawn in that style.">
+      <Step n={firstStep + 1} title="Video length" hint="Shorter videos have fewer scenes and fewer quiz questions.">
+        <div role="radiogroup" aria-label="Video length" className="flex flex-wrap gap-2">
+          {LENGTHS.map((seconds) => {
+            const selected = length === seconds;
+            return (
+              <label
+                key={seconds}
+                className={`cursor-pointer rounded-lg border-2 px-4 py-2 font-bold has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-spoken ${selected ? "border-spoken bg-panel" : "border-line text-dust hover:border-dust hover:text-chalk"}`}
+              >
+                <input type="radio" name="length" value={seconds} checked={selected} onChange={() => onLength(seconds)} className="sr-only" />
+                {formatLength(seconds)}
+                {seconds === recommendedLength && <span className="ml-2 rounded bg-spoken px-1.5 py-0.5 text-xs font-extrabold text-board">Recommended</span>}
+              </label>
+            );
+          })}
+        </div>
+      </Step>
+
+      <Step n={firstStep + 2} title="Picture style" hint="Each picture shows the same scene drawn in that style.">
         <div role="radiogroup" aria-label="Picture style" className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {STYLE_CHOICES.map((option) => {
             const selected = style === option.value;

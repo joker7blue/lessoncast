@@ -41,12 +41,13 @@ export default function WhyPage() {
       </ul>
 
       <section className="mt-14">
-        <h2 className="text-2xl font-extrabold">Why Pidgin first</h2>
+        <h2 className="text-2xl font-extrabold">Which languages, and why</h2>
         <p className="mt-3 leading-relaxed text-dust">
-          Meta&apos;s MMS speech models cover over a thousand languages, 47 of them spoken in Cameroon. The most widely spoken
-          ones, such as Ewondo, Duala, Basaa, Bulu, Fulfulde and Cameroonian Pidgin, don&apos;t have a voice yet. LessonCast
-          starts with French and Pidgin, read with the closest available voice, Nigerian Pidgin. The lesson script already
-          holds every narration as text, so a new language only needs a new voice.
+          Meta&apos;s MMS speech models cover over a thousand languages, 47 of them spoken in Cameroon. LessonCast narrates in
+          French and English, Cameroon&apos;s official languages, and in six languages of home: Pidgin, read with the
+          Nigerian Pidgin voice; Hausa and Fulfulde for northern Cameroon; Yoruba and Fon for Benin; Swahili for the DR
+          Congo. Each one is a language Muse Spark can write and an MMS voice can read. Ewondo, Duala, Basaa, Bulu and
+          Lingala have no voice yet: when one arrives, it is one more line in LessonCast&apos;s list of languages.
         </p>
       </section>
 

@@ -62,9 +62,9 @@ export async function findAllHighlights(
   const scenes = lesson.scenes.map((scene, s) => ({
     imageWidth: images[s]!.width,
     imageHeight: images[s]!.height,
-    objects: scene.highlights.flatMap(({ samPrompt, fr, pcm }, h): FoundObject[] => {
+    objects: scene.highlights.flatMap((highlight, h): FoundObject[] => {
       const found = shapes.get(`${s}:${h}`);
-      return found ? [{ samPrompt, fr, pcm, shapes: found }] : [];
+      return found ? [{ ...highlight, shapes: found }] : [];
     }),
   }));
   return { scenes, found: shapes.size, requested: jobs.length };

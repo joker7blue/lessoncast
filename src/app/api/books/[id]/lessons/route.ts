@@ -5,6 +5,7 @@ import { tasks } from "@trigger.dev/sdk";
 import { z } from "zod";
 import { MAX_LESSON_PAGES } from "@/lib/books/pdf";
 import { getBook } from "@/lib/books/repo";
+import { defaultLength, VideoLength } from "@/lib/lesson/length";
 import { Language } from "@/lib/lesson/schema";
 import { StyleChoice } from "@/lib/lesson/styles";
 import { hashIp } from "@/lib/lessons/ip";
@@ -12,7 +13,7 @@ import { checkRateLimit } from "@/lib/lessons/rate-limit";
 import { createLesson, updateLesson } from "@/lib/lessons/repo";
 import type { generateLesson } from "@/trigger/generate-lesson";
 
-const Body = z.object({ lesson: z.int().positive(), language: Language, style: StyleChoice });
+const Body = z.object({ lesson: z.int().positive(), language: Language, style: StyleChoice, length: VideoLength.optional() });
 
 const fail = (status: number, error: string) => Response.json({ error }, { status });
 
@@ -30,12 +31,14 @@ export async function POST(request: Request, ctx: RouteContext<"/api/books/[id]/
   const limited = await checkRateLimit(ipHash);
   if (limited) return fail(429, limited);
 
+  const pageCount = Math.min(lesson.lastPage - lesson.firstPage + 1, MAX_LESSON_PAGES);
   const created = await createLesson({
     language: body.data.language,
     style: body.data.style,
     ipHash,
-    pageCount: Math.min(lesson.lastPage - lesson.firstPage + 1, MAX_LESSON_PAGES),
+    pageCount,
     book: { id, lesson: body.data.lesson },
+    targetSeconds: body.data.length ?? defaultLength(pageCount),
   });
   try {
     const run = await tasks.trigger<typeof generateLesson>("generate-lesson", { lessonId: created.id }, { idempotencyKey: created.id });

@@ -31,6 +31,7 @@ function row(patch: Partial<LessonRow> = {}): LessonRow {
     highlightsPath: null,
     bookId: null,
     bookLesson: null,
+    targetSeconds: null,
     words: null,
     metrics: {},
     ipHash: null,
