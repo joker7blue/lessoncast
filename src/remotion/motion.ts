@@ -48,3 +48,19 @@ export function coverFit(box: { width: number; height: number }, image: { width:
   const scale = Math.max(box.width / image.width, box.height / image.height);
   return { scale, x: (box.width - image.width * scale) / 2, y: (box.height - image.height * scale) / 2 };
 }
+
+type QuizQuestion = NonNullable<VideoProps["quiz"]>["questions"][number];
+
+/** The choice the voice is reading at `frame`, or -1 before the first and from the countdown on. */
+export function readingChoice(question: QuizQuestion, frame: number): number {
+  if (frame >= question.countdownStartFrame) return -1;
+  return question.choices.findLastIndex((choice) => frame >= choice.startFrame);
+}
+
+/** During the silence before the answer: the number to show (3, 2, 1) and how much of it has passed. */
+export function countdown(question: QuizQuestion, frame: number): { number: number; progress: number } | null {
+  const { countdownStartFrame: start, revealFrame: end } = question;
+  if (frame < start || frame >= end) return null;
+  const progress = (frame - start) / (end - start);
+  return { number: Math.min(3, Math.max(1, 3 - Math.floor(progress * 3))), progress: Math.round(progress * 1000) / 1000 };
+}

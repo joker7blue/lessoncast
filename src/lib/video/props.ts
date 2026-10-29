@@ -25,6 +25,18 @@ const Overlay = z.object({
   highlights: z.array(Window.extend({ shapes: z.array(Shape).min(1) }).refine(ordered, ORDER)).min(1),
 });
 
+/** The quiz after the last scene: an intro, then each question with its choices lit as the voice reads
+ * them, a countdown, and the right answer revealed when the voice says it. Optional, like the overlay. */
+const QuizQuestion = Window.extend({
+  number: z.int().positive(),
+  text: z.string(),
+  choices: z.array(z.object({ text: z.string(), startFrame: Frame })).length(3),
+  answerIndex: z.int().min(0).max(2),
+  countdownStartFrame: Frame,
+  revealFrame: Frame,
+}).refine(ordered, ORDER);
+const Quiz = Window.extend({ title: z.string(), subtitle: z.string(), questions: z.array(QuizQuestion).min(1) }).refine(ordered, ORDER);
+
 export const VideoProps = z.object({
   language: Language,
   durationInFrames: z.int().positive(),
@@ -33,6 +45,7 @@ export const VideoProps = z.object({
   scenes: z.array(Window.extend({ imageUrl: z.url(), motion: Motion, overlay: Overlay.nullish() }).refine(ordered, ORDER)).min(1),
   // A word that names a lit object stays yellow until litUntilFrame.
   captions: z.array(Window.extend({ words: z.array(Window.extend({ text: z.string(), litUntilFrame: Frame.optional() })).min(1) })),
+  quiz: Quiz.nullish(),
   endCard: Window.extend({ text: z.string() }).refine(ordered, ORDER),
 });
 export type VideoProps = z.infer<typeof VideoProps>;

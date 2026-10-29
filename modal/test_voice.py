@@ -53,6 +53,16 @@ class PauseAfterGroup(unittest.TestCase):
     def test_nothing_after_the_last_group(self):
         self.assertEqual(pause_after_group(7, 140.0, last=True), 0.0)
 
+    def test_a_group_can_ask_for_its_own_pause(self):
+        # The quiz's countdown: three seconds of silence after a question.
+        self.assertAlmostEqual(pause_after_group(9, 150.0, last=False, pause=3.0), 3.0)
+
+    def test_its_own_pause_keeps_the_title_padding(self):
+        self.assertAlmostEqual(pause_after_group(0, 1.2, last=False, pause=1.0), 1.8 + 1.0)
+
+    def test_even_its_own_pause_is_dropped_after_the_last_group(self):
+        self.assertEqual(pause_after_group(9, 150.0, last=True, pause=3.0), 0.0)
+
 
 if __name__ == "__main__":
     unittest.main()

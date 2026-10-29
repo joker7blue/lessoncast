@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { activeCaption, activeWordIndex, fadeOpacity, motionTransform, coverFit, highlightLevel } from "../motion";
+import { activeCaption, activeWordIndex, countdown, coverFit, fadeOpacity, highlightLevel, motionTransform, readingChoice } from "../motion";
 
 describe("motionTransform", () => {
   test("zoom-in goes from scale(1) to scale(1.08)", () => {
@@ -100,5 +100,38 @@ describe("coverFit", () => {
     expect(fit.scale).toBeCloseTo(0.854);
     expect(fit.x).toBe(0);
     expect(fit.y).toBeCloseTo((480 - 854) / 2);
+  });
+});
+
+describe("quiz helpers", () => {
+  const question = {
+    number: 1,
+    text: "Q?",
+    choices: [
+      { text: "A", startFrame: 100 },
+      { text: "B", startFrame: 130 },
+      { text: "C", startFrame: 160 },
+    ],
+    answerIndex: 1,
+    startFrame: 80,
+    endFrame: 300,
+    countdownStartFrame: 190,
+    revealFrame: 270,
+  };
+
+  test("readingChoice is the choice the voice is reading, none before or during the countdown", () => {
+    expect(readingChoice(question, 99)).toBe(-1);
+    expect(readingChoice(question, 100)).toBe(0);
+    expect(readingChoice(question, 145)).toBe(1);
+    expect(readingChoice(question, 189)).toBe(2);
+    expect(readingChoice(question, 190)).toBe(-1);
+  });
+
+  test("countdown goes 3, 2, 1 over the silence, and is null outside it", () => {
+    expect(countdown(question, 189)).toBeNull();
+    expect(countdown(question, 190)).toEqual({ number: 3, progress: 0 });
+    expect(countdown(question, 230)!.number).toBe(2);
+    expect(countdown(question, 260)!.number).toBe(1);
+    expect(countdown(question, 270)).toBeNull();
   });
 });

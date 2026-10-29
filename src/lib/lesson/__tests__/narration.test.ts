@@ -17,11 +17,12 @@ describe("splitSentences", () => {
 });
 
 describe("narrationGroups", () => {
-  test("title first, then one group per scene, in the chosen language", () => {
+  test("title first, then one group per scene, in the chosen language, then the quiz", () => {
     const lesson = makeLesson(6);
     const groups = narrationGroups(lesson, "pcm");
     expect(groups[0]).toEqual([lesson.title.pcm]);
-    expect(groups).toHaveLength(lesson.scenes.length + 1);
+    // The quiz: its intro, then three questions each followed by its answer.
+    expect(groups).toHaveLength(lesson.scenes.length + 1 + 7);
     expect(groups[1]).toEqual(splitSentences(lesson.scenes[0]!.narration.pcm));
   });
 

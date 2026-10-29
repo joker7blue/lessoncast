@@ -3,8 +3,9 @@
     scripts/derisk/.venv/bin/modal deploy modal/voice.py
 
 `narrate` takes the narration as ordered groups of sentences (group 0 is the title, then one group
-per scene), uploads the WAV to a signed URL and returns every word with its start, end, alignment
-score and group. The group boundaries give the title card and scene durations of the video.
+per scene, then the quiz), uploads the WAV to a signed URL and returns every word with its start, end,
+alignment score and group. `pauses` can give a group its own silence after it, such as the quiz's
+countdown after a question. The group boundaries give the title card and scene durations of the video.
 Built from the derisk run in scripts/derisk/voice_modal.py (tests 4 and 5).
 """
 
@@ -62,13 +63,13 @@ def has_speech(sentence: str) -> bool:
     return any(c.isalpha() for c in sentence)
 
 
-def pause_after_group(group: int, group_end: float, last: bool) -> float:
-    """Silence after a group's last sentence pause: none after the last group, the group pause
-    otherwise, plus what the title needs to last TITLE_MIN_SECONDS."""
+def pause_after_group(group: int, group_end: float, last: bool, pause: float | None = None) -> float:
+    """Silence after a group's last sentence pause: none after the last group, the group's own
+    `pause` or GROUP_PAUSE otherwise, plus what the title needs to last TITLE_MIN_SECONDS."""
     if last:
         return 0.0
     title_padding = max(0.0, TITLE_MIN_SECONDS - group_end) if group == 0 else 0.0
-    return title_padding + GROUP_PAUSE
+    return title_padding + (GROUP_PAUSE if pause is None else pause)
 
 
 # 8 CPUs until the Modal workspace has a payment method, which deployed GPU functions require: then
@@ -138,7 +139,7 @@ class Voice:
         return timed
 
     @modal.method()
-    def narrate(self, groups: list[list[str]], lang: str, upload_url: str) -> dict:
+    def narrate(self, groups: list[list[str]], lang: str, upload_url: str, pauses: list[float | None] | None = None) -> dict:
         import torch
 
         def silence(seconds: float):
@@ -179,7 +180,8 @@ class Voice:
 
                 pieces += [waveform, silence(SENTENCE_PAUSE)]
                 offset += waveform.shape[0] / SAMPLE_RATE + SENTENCE_PAUSE
-            pause = pause_after_group(group, offset, last=group == len(groups) - 1)
+            own = pauses[group] if pauses and group < len(pauses) else None
+            pause = pause_after_group(group, offset, last=group == len(groups) - 1, pause=own)
             if pause:
                 pieces.append(silence(pause))
                 offset += pause

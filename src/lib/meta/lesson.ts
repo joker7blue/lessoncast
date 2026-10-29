@@ -25,7 +25,7 @@ Rules:
 - imagePrompt (English): one illustration for the scene, which must show clearly every highlight object of the scene; describe subject, setting and composition. Show Cameroonian people and places when people or places appear, with pupils of the age the pages are written for. Never ask for text, letters, labels or numbers in the image. Leave the art style out: it is set by style.
 - visualNotes (English): the recurring characters (age, look, clothes), places and objects, described once so every image draws them the same way. No art style.
 - highlights: 1 to 3 objects per scene that the narration names. samPrompt is a short English noun phrase for one concrete, visible object ("heart", "river", "red blood cell"), never a group, a place or an idea. fr and pcm copy the exact word or phrase used in each narration.
-- quiz: 3 multiple-choice questions on the lesson, 3 choices each. answerIndex is the index of the correct choice; vary its position.`;
+- quiz: 3 multiple-choice questions on the lesson, 3 choices each, read aloud and shown at the end of the video. Each question is a full question in the normal spelling of its language, ending with a question mark (Qu'est-ce que le cœur ?, Où va le sang ?). Choices are short. answerIndex is the index of the correct choice; vary its position.`;
 
 type ChatCompletion = {
   choices: { message: { content: string | null; refusal?: string | null }; finish_reason: string }[];
