@@ -67,7 +67,7 @@ same minute. Cameroon's own languages, such as Ewondo, Duala or Basaa, have no M
 ## How it works
 
 <p align="center">
-  <img src="docs/assets/pipeline.svg" width="760" alt="The pipeline: textbook pages go to Muse Spark, which writes the lesson; Muse Image draws the scenes while MMS on Modal speaks and times every word; SAM 3.1 cuts out the objects the voice names; Remotion on Modal renders a WhatsApp-ready MP4">
+  <img src="docs/assets/pipeline.svg" width="760" alt="The pipeline: textbook pages go to Muse Spark, which writes the lesson; Muse Image draws the scenes while MMS on Modal speaks and times every word; SAM 3.1 cuts out the objects the voice names; Remotion on Modal renders an MP4 to download and share">
 </p>
 
 | Step | Model | What it does |
