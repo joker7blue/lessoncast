@@ -52,6 +52,31 @@ body {
   }
 }
 
+/* The hero's slogan: a pill whose yellow edge turns slowly around it, like the spoken word moving through a
+   lesson. The site's reduced-motion rule stops it. */
+@property --slogan-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+.slogan {
+  border-radius: 9999px;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--slogan-angle),
+    color-mix(in srgb, var(--color-spoken) 18%, transparent) 0deg,
+    var(--color-spoken) 60deg,
+    color-mix(in srgb, var(--color-spoken) 18%, transparent) 130deg 360deg
+  );
+  box-shadow: 0 0 24px color-mix(in srgb, var(--color-spoken) 22%, transparent);
+  animation: slogan-turn 4s linear infinite;
+}
+@keyframes slogan-turn {
+  to {
+    --slogan-angle: 360deg;
+  }
+}
+
 :focus-visible {
   outline: 2px solid var(--color-spoken);
   outline-offset: 2px;

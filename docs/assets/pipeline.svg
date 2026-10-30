@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 824" width="760" height="824" role="img" aria-labelledby="title desc">
   <title id="title">How LessonCast makes a video lesson</title>
-  <desc id="desc">A textbook PDF, or page photos, go to Muse Spark, which writes the lesson. Muse Image draws the scenes while MMS on Modal speaks and times every word. SAM 3.1 cuts out the objects the voice names. Modal runs Remotion, which renders a WhatsApp-ready MP4.</desc>
+  <desc id="desc">A textbook PDF, or page photos, go to Muse Spark, which writes the lesson. Muse Image draws the scenes while MMS on Modal speaks and times every word. SAM 3.1 cuts out the objects the voice names. Modal runs Remotion, which renders an MP4 to download and share.</desc>
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0 0L10 5L0 10z" fill="#ffd400"/>
@@ -81,10 +81,10 @@
 
   <!-- The video -->
   <rect class="node" x="24" y="672" width="712" height="92" rx="14"/>
-  <text class="title" x="44" y="704">A video for the parents' WhatsApp group</text>
+  <text class="title" x="44" y="704">Export and share the video</text>
   <g class="plain"><rect x="617" y="686" width="99" height="24" rx="12"/><text class="chip" x="666.5" y="702.5" text-anchor="middle">Under 10 MB</text></g>
   <text class="text" x="44" y="730">About 2 MB a minute, ready in two to five minutes, for 5 to 18 cents of model calls.</text>
-  <text class="text" x="44" y="749">A parent replays it with the child at night, in the language they speak at home.</text>
+  <text class="text" x="44" y="749">Downloaded and shared on any phone or app, a parent replays it with the child at night.</text>
 
   <text class="note" x="380" y="798" text-anchor="middle">Each step is a Trigger.dev task with its own retries. Supabase keeps the lessons and their files.</text>
 </svg>

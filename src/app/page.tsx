@@ -1,4 +1,4 @@
-import { Clock, HardDrive, Languages, Wallet } from "lucide-react";
+import { Clock, Globe, HardDrive, Languages, Wallet } from "lucide-react";
 import { getImageProps } from "next/image";
 import Image from "next/image";
 import Link from "next/link";
@@ -60,7 +60,13 @@ export default async function Home() {
     <main className="mx-auto w-full max-w-6xl px-4 sm:px-8">
       <section className="grid items-center gap-10 py-12 lg:grid-cols-[1.15fr_1fr] lg:gap-14 lg:py-20">
         <div>
-          <h1 className="text-4xl leading-[1.08] font-extrabold tracking-tight sm:text-5xl">
+          <p className="slogan inline-block">
+            <span className="flex items-center gap-2 rounded-full bg-board px-4 py-1.5 text-sm font-extrabold text-chalk">
+              <Globe aria-hidden className="size-4 text-spoken" />
+              Education without borders
+            </span>
+          </p>
+          <h1 className="mt-6 text-4xl leading-[1.08] font-extrabold tracking-tight sm:text-5xl">
             A textbook or an ebook becomes video lessons in the language of home.
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-dust">
