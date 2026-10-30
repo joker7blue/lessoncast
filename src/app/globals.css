@@ -12,6 +12,28 @@
   --font-sans: var(--font-nunito), var(--font-noto-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
+:root {
+  color-scheme: dark;
+}
+
+/* The light theme, chosen on the device (TopActions.tsx): paper and ink. The yellow stays behind dark text,
+   and turns a deeper gold where it is the text itself, so it stays readable on paper. */
+html[data-theme="light"] {
+  --color-board: #f6f5ef;
+  --color-panel: #ffffff;
+  --color-line: #dcddd3;
+  --color-chalk: #15201b;
+  --color-dust: #56615b;
+  --color-danger: #b3261e;
+  color-scheme: light;
+}
+html[data-theme="light"] .text-spoken {
+  color: #7a5c00;
+}
+html[data-theme="light"] .bg-spoken {
+  color: #15201b;
+}
+
 body {
   background: var(--color-board);
   color: var(--color-chalk);
