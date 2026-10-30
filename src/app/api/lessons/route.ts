@@ -45,7 +45,7 @@ export async function POST(request: Request) {
   const lengthField = form.get("length");
   const length = lengthField === null ? { success: true as const, data: defaultLength(pages.length) } : VideoLength.safeParse(Number(lengthField));
   if (!length.success) return fail(400, "Choose a video length.");
-  const quiz = quizChoice(form.get("quiz") ?? undefined, length.data);
+  const quiz = quizChoice(form.get("quiz") ?? undefined, length.data, language.data);
   if (!quiz.ok) return fail(400, quiz.error);
 
   const ipHash = hashIp(request);

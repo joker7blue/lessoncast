@@ -157,7 +157,7 @@ describe("POST /api/books/:id/lessons", () => {
     expect(lessons.createLesson).toHaveBeenCalledWith(expect.objectContaining({ targetSeconds: 120, quizQuestions: 5 }));
     const res = await post({ lesson: 1, language: "fr", style: "auto", length: 60, quiz: 3 });
     expect(res.status).toBe(400);
-    expect((await res.json()).error).toBe("This video has room for 2 quiz questions at most.");
+    expect((await res.json()).error).toBe("This video has room for 1 quiz question at most.");
   });
 
   test("counts at most 20 pages for a long lesson", async () => {

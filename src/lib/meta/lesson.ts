@@ -18,7 +18,7 @@ const TIMEOUT_MS = 150_000;
 export const LESSON_INSTRUCTIONS = `You turn the pages of one lesson of an African school textbook, photographed or from the book's PDF, given in page order, into the script of one short narrated, illustrated video lesson for pupils, in the language the request names: often the language the children speak at home rather than the language of the book. Parents and pupils will replay it at home in the evening, so it must be clear when heard without the book.
 
 Rules:
-- First decide page.isTextbookPage: true only when every page is a readable page of a school textbook, an educational ebook or an exercise book. If any page is something else (a selfie, a blurred or partial photo, a screen, an object), set it to false and keep every other field as short as the schema allows.
+- First decide page.isTextbookPage: true when every page is a readable page of school material: a textbook, an educational ebook, an exercise book, a curriculum or a teacher's guide. If any page is something else (a selfie, a blurred or partial photo, a screen, an object), set it to false and keep every other field as short as the schema allows.
 - Read every page carefully, in order, as one lesson. Teach only what the pages teach, and do not invent facts. Copy their title and main definitions into page.keyText as printed.
 - Write exactly the number of scenes the request asks for, each narration about the number of words it asks for, however many pages there are: condense rather than lengthen. Each narration is short spoken sentences.
 - Every text the voice says or the screen shows (titles, narrations, highlight phrases, the quiz and videoText) is in the request's language only, following the request's rule for that language. Do not translate the pages word for word: explain them. Keep the subject's key terms; when the language has no word for one, use the textbook's term and explain it.
@@ -82,14 +82,22 @@ function videoRequest(language: Language, seconds: number, quizQuestions: number
 const DEFAULT_SECONDS = 180;
 
 /** Writes the lesson from its pages, in page order, in `language`, for a video of about `seconds` ending with
- * `quizQuestions` quiz questions; a forced style always wins. */
+ * `quizQuestions` quiz questions; a forced style always wins. Now and then Muse Spark turns down a real
+ * page: pages it turns down get a second look before the lesson is refused. */
 export async function writeLesson(
   source: LessonPages,
   style: StyleChoice,
   language: Language,
   seconds: number = DEFAULT_SECONDS,
-  quizQuestions: number = quizQuestionsFor(seconds),
+  quizQuestions: number = quizQuestionsFor(seconds, LANGUAGES[language].wordsPerSecond),
 ): Promise<WrittenLesson> {
+  const first = await askSpark(source, style, language, seconds, quizQuestions);
+  if (first.isTextbookPage) return first;
+  const second = await askSpark(source, style, language, seconds, quizQuestions);
+  return { ...second, seconds: first.seconds + second.seconds, costUsd: first.costUsd + second.costUsd };
+}
+
+async function askSpark(source: LessonPages, style: StyleChoice, language: Language, seconds: number, quizQuestions: number): Promise<WrittenLesson> {
   const { intro, parts } = pagesContent(source);
   const start = performance.now();
   const res = await postJson("/chat/completions", {

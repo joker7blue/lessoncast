@@ -23,7 +23,8 @@ async function pagesOf(row: LessonRow): Promise<LessonPages> {
 export const writeScript = schemaTask({
   id: "write-script",
   schema: LessonPayload,
-  maxDuration: 180,
+  // Room for two answers from Muse Spark, when the first turns the pages down.
+  maxDuration: 300,
   // A book lesson's slices (up to two of 30 pages) are loaded to cut its pages.
   machine: "small-1x",
   run: async ({ lessonId }) => {
