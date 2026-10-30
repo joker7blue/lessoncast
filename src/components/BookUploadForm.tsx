@@ -10,6 +10,7 @@ import { FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { LessonOptions, Step } from "@/components/LessonOptions";
+import { SampleBooks } from "@/components/SampleBooks";
 import { LANGUAGES } from "@/lib/lesson/languages";
 import { maxQuizQuestions, quizQuestionsFor, type VideoLength } from "@/lib/lesson/length";
 import type { Language } from "@/lib/lesson/schema";
@@ -126,6 +127,7 @@ export function BookUploadForm() {
             <input ref={input} type="file" accept="application/pdf,.pdf" className="sr-only" onChange={(e) => choose(e.target.files?.[0])} />
           </label>
         )}
+        {!file && <SampleBooks onUse={choose} />}
       </Step>
 
       <div className="space-y-12">

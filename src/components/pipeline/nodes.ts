@@ -22,7 +22,7 @@ export function explainNodes(): Record<NodeId, NodeContent> {
     voice: { title: "MMS voice", model: "mms-tts + MMS_FA", role: "Speaks the lesson and times every word, on Modal." },
     sam: { title: "SAM 3.1", model: SAM_MODEL, role: "Cuts out each object the voice names, to light it up on cue." },
     render: { title: "Remotion on Modal", model: `remotion ${REMOTION_VERSION}`, role: "Edits scenes, voice and karaoke subtitles into a 480p video, on Modal." },
-    video: { title: "WhatsApp video", role: "An MP4 under 10 MB that a parent can replay at night." },
+    video: { title: "Export and share", role: "An MP4 under 10 MB to download and share with parents, on any phone or app." },
   };
 }
 
@@ -63,6 +63,6 @@ export function lessonNodes(lesson: LessonView): Record<NodeId, NodeContent> {
     },
     sam: { ...nodes.sam, output: samOutput(lesson), metrics: m["find-highlights"] },
     render: { ...nodes.render, output: lesson.videoUrl ? "854 × 480 MP4" : undefined, metrics: m["render-video"] },
-    video: { ...nodes.video, output: lesson.status === "done" ? "Ready to watch and send" : undefined },
+    video: { ...nodes.video, output: lesson.status === "done" ? "Ready to download and share" : undefined },
   };
 }
