@@ -4,13 +4,13 @@
 // when the teacher asks for it, in the language and style they pick, and the videos already made are
 // listed under their lesson.
 
-import { BookOpen, ChevronDown, ExternalLink, LoaderCircle, Pencil, Play, TriangleAlert } from "lucide-react";
+import { BookOpen, Check, ChevronDown, Copy, ExternalLink, LoaderCircle, MessageCircle, Pencil, Play, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MAX_LESSON_PAGES } from "@/lib/books/pdf";
 import type { BookView } from "@/lib/books/view";
-import { LANGUAGES } from "@/lib/lesson/languages";
+import { LANGUAGE_CODES, LANGUAGES } from "@/lib/lesson/languages";
 import { defaultLength, maxQuizQuestions, quizQuestionsFor, type VideoLength } from "@/lib/lesson/length";
 import type { Language } from "@/lib/lesson/schema";
 import type { StyleChoice } from "@/lib/lesson/styles";
@@ -166,6 +166,121 @@ function LessonPages({ bookId, lesson, label }: { bookId: string; lesson: Lesson
   );
 }
 
+type WrittenSummary = { language: Language; summary: string; keyTerms: { term: string; meaning: string }[] };
+
+/** The lesson summarized as text by Muse Spark, in a language of home, to read again and send on WhatsApp. */
+function LessonSummaryPanel({ bookId, bookLanguage, lesson }: { bookId: string; bookLanguage: BookView["language"]; lesson: Lesson }) {
+  const [language, setLanguage] = useState<Language>(() => bookChoices(bookId).language ?? (bookLanguage === "en" ? "en" : "fr"));
+  const [written, setWritten] = useState<Partial<Record<Language, WrittenSummary>>>({});
+  const [writing, setWriting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const shown = written[language];
+
+  async function summarize() {
+    setWriting(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/books/${bookId}/lessons/${lesson.n}/summary`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ language }),
+      });
+      const body = (await res.json().catch(() => ({}))) as WrittenSummary & { error?: string };
+      if (!res.ok) throw new Error(body.error ?? OFFLINE);
+      setWritten((all) => ({ ...all, [language]: body }));
+    } catch (e) {
+      setError(e instanceof Error && e.message !== "Failed to fetch" ? e.message : OFFLINE);
+    } finally {
+      setWriting(false);
+    }
+  }
+
+  const text = shown
+    ? [lesson.title, "", shown.summary, "", ...shown.keyTerms.map((k) => `• ${k.term}: ${k.meaning}`)].join("\n")
+    : "";
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // No clipboard here: the text can still be selected by hand.
+    }
+  }
+
+  const selectId = `lesson-${lesson.n}-summary-language`;
+  return (
+    <div className="mt-4 rounded-xl border border-line bg-board p-4 sm:p-5">
+      <div className="flex flex-wrap items-center gap-3">
+        <label htmlFor={selectId} className="font-bold">
+          Summary in
+        </label>
+        <select
+          id={selectId}
+          value={language}
+          onChange={(e) => {
+            setLanguage(e.target.value as Language);
+            setError(null);
+          }}
+          className="rounded-lg border border-line bg-panel px-3 py-2 font-bold"
+        >
+          {LANGUAGE_CODES.map((code) => (
+            <option key={code} value={code}>
+              {LANGUAGES[code].label}
+            </option>
+          ))}
+        </select>
+        {!shown && (
+          <button
+            type="button"
+            onClick={summarize}
+            disabled={writing}
+            className="inline-flex items-center gap-2 rounded-lg bg-spoken px-4 py-2 font-extrabold text-board disabled:opacity-60"
+          >
+            {writing && <LoaderCircle aria-hidden className="size-4 motion-safe:animate-spin" />}
+            {writing ? "Muse Spark is reading the pages…" : "Write the summary"}
+          </button>
+        )}
+      </div>
+      {error && (
+        <p role="alert" className="mt-3 text-danger">
+          {error}
+        </p>
+      )}
+      {shown && (
+        <article lang={shown.language} className="mt-4">
+          <p className="leading-relaxed">{shown.summary}</p>
+          <h4 className="mt-4 font-extrabold">Key words</h4>
+          <dl className="mt-2 space-y-1.5">
+            {shown.keyTerms.map((k) => (
+              <div key={k.term}>
+                <dt className="inline font-bold">{k.term}: </dt>
+                <dd className="inline text-dust">{k.meaning}</dd>
+              </div>
+            ))}
+          </dl>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <button type="button" onClick={copy} className="inline-flex items-center gap-2 rounded-lg border border-line px-4 py-2 font-bold hover:bg-panel">
+              {copied ? <Check aria-hidden className="size-4" /> : <Copy aria-hidden className="size-4" />}
+              {copied ? "Copied" : "Copy"}
+            </button>
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(text)}`}
+              target="_blank"
+              rel="noopener"
+              className="inline-flex items-center gap-2 rounded-lg border border-line px-4 py-2 font-bold hover:bg-panel"
+            >
+              <MessageCircle aria-hidden className="size-4" />
+              Send on WhatsApp
+            </a>
+          </div>
+        </article>
+      )}
+    </div>
+  );
+}
+
 function LessonItem({
   bookId,
   bookLanguage,
@@ -183,7 +298,9 @@ function LessonItem({
 }) {
   const pages = lesson.firstPage === lesson.lastPage ? `Page ${lesson.firstPage}` : `Pages ${lesson.firstPage}–${lesson.lastPage}`;
   const [showPages, setShowPages] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
   const pagesId = `lesson-${lesson.n}-pages`;
+  const summaryId = `lesson-${lesson.n}-summary`;
   return (
     <li className="rounded-2xl border border-line bg-panel p-5 sm:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
@@ -194,16 +311,28 @@ function LessonItem({
           <h3 className="text-lg leading-snug font-extrabold">{lesson.title}</h3>
           <p className="mt-0.5 text-sm font-bold text-dust">{pages}</p>
           <p className="mt-2 leading-relaxed text-chalk/85">{lesson.summary}</p>
-          <button
-            type="button"
-            onClick={() => setShowPages((shown) => !shown)}
-            aria-expanded={showPages}
-            aria-controls={pagesId}
-            className="mt-3 inline-flex items-center gap-1.5 font-bold text-spoken underline underline-offset-4"
-          >
-            {showPages ? "Hide the pages" : "View the pages"}
-            <ChevronDown aria-hidden className={`size-4 transition-transform ${showPages ? "rotate-180" : ""}`} />
-          </button>
+          <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
+            <button
+              type="button"
+              onClick={() => setShowPages((shown) => !shown)}
+              aria-expanded={showPages}
+              aria-controls={pagesId}
+              className="inline-flex items-center gap-1.5 font-bold text-spoken underline underline-offset-4"
+            >
+              {showPages ? "Hide the pages" : "View the pages"}
+              <ChevronDown aria-hidden className={`size-4 transition-transform ${showPages ? "rotate-180" : ""}`} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowSummary((shown) => !shown)}
+              aria-expanded={showSummary}
+              aria-controls={summaryId}
+              className="inline-flex items-center gap-1.5 font-bold text-spoken underline underline-offset-4"
+            >
+              {showSummary ? "Hide the summary" : "Summarize the lesson"}
+              <ChevronDown aria-hidden className={`size-4 transition-transform ${showSummary ? "rotate-180" : ""}`} />
+            </button>
+          </div>
           {lesson.videos.length > 0 && (
             <ul className="mt-3 space-y-1">
               {lesson.videos.map((video) => (
@@ -226,6 +355,11 @@ function LessonItem({
           </button>
         )}
       </div>
+      {showSummary && (
+        <div id={summaryId}>
+          <LessonSummaryPanel bookId={bookId} bookLanguage={bookLanguage} lesson={lesson} />
+        </div>
+      )}
       {showPages && (
         <div id={pagesId}>
           <LessonPages bookId={bookId} lesson={lesson} label={pages} />

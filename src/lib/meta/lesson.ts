@@ -48,7 +48,8 @@ export type WrittenLesson = { seconds: number; costUsd: number } & ({ isTextbook
 /** A lesson's pages: the teacher's photos (public URLs), or a book lesson's pages cut into one PDF. */
 export type LessonPages = { photoUrls: string[] } | { pdf: Uint8Array; pageCount: number };
 
-function pagesContent(source: LessonPages): { intro: string; parts: unknown[] } {
+/** The intro sentence and the parts (a PDF, or the photos) that give Muse Spark a lesson's pages. */
+export function pagesContent(source: LessonPages): { intro: string; parts: unknown[] } {
   if ("pdf" in source) {
     if (source.pageCount < 1 || source.pageCount > MAX_LESSON_PAGES) {
       throw new RangeError(`A book lesson takes 1 to ${MAX_LESSON_PAGES} pages, got ${source.pageCount}`);
