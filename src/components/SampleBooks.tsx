@@ -95,28 +95,45 @@ export function SampleBooks({ onUse }: { onUse(file: File): void }) {
 
         <ul className="grid max-h-[75vh] gap-6 overflow-y-auto p-5 sm:grid-cols-2 sm:p-6 lg:grid-cols-3">
           {SAMPLE_BOOKS.map((sample) => (
-            <li key={sample.url} className="flex flex-col overflow-hidden rounded-xl border border-line bg-board">
-              <button type="button" onClick={() => preview(sample)} className="group relative block bg-white" aria-label={`Preview ${sample.title}`}>
-                <Image
-                  src={sample.cover}
-                  alt=""
-                  width={600}
-                  height={850}
-                  sizes="(max-width: 640px) 100vw, 320px"
-                  className="aspect-[3/4] w-full object-cover object-top transition-opacity group-hover:opacity-90"
-                />
-                <span className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-2 bg-board/85 py-2 text-sm font-bold opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
-                  <Eye aria-hidden className="size-4" />
-                  Preview
-                </span>
+            <li key={sample.url} className="relative overflow-hidden rounded-xl border border-line bg-white shadow-lg">
+              <Image
+                src={sample.cover}
+                alt=""
+                width={600}
+                height={850}
+                sizes="(max-width: 640px) 100vw, 320px"
+                className="aspect-[3/4] w-full object-cover object-top"
+              />
+              <button
+                type="button"
+                onClick={() => preview(sample)}
+                aria-label={`Preview ${sample.title}`}
+                title="Preview"
+                className="absolute top-3 right-3 grid size-10 place-items-center rounded-full bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80"
+              >
+                <Eye aria-hidden className="size-5" />
               </button>
-              <div className="flex flex-1 flex-col p-4">
+              {/* The book's name and what it holds, over the bottom of its cover. */}
+              <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/90 via-black/75 to-transparent px-4 pt-20 pb-4 text-white">
                 <p className="text-lg leading-snug font-extrabold">{sample.title}</p>
-                <p className="mt-0.5 text-sm font-bold text-dust">
+                <p className="mt-0.5 text-xs font-bold text-white/70">
                   {sample.subject}, {sample.level}, in {sample.language}, {sample.pages} pages
                 </p>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-chalk/85">{sample.description}</p>
-                <div className="mt-4">{actions(sample, true)}</div>
+                <p className="mt-2 line-clamp-2 text-sm leading-snug text-white/85">{sample.description}</p>
+                <div className="mt-3 flex gap-2">
+                  <button type="button" onClick={() => use(sample)} disabled={loading !== null} className={`${PRIMARY} flex-1`}>
+                    {loading === sample.url ? "Loading the book…" : "Use this book"}
+                  </button>
+                  <a
+                    href={sample.url}
+                    download
+                    aria-label={`Download ${sample.title}`}
+                    title="Download"
+                    className="grid size-10 shrink-0 place-items-center rounded-lg bg-white/15 transition-colors hover:bg-white/25"
+                  >
+                    <Download aria-hidden className="size-5" />
+                  </a>
+                </div>
               </div>
             </li>
           ))}
