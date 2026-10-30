@@ -10,6 +10,9 @@ import { PipelineDemo } from "@/components/pipeline/PipelineDemo";
 import { LANGUAGES } from "@/lib/lesson/languages";
 import { ArtStyle, STYLES } from "@/lib/lesson/styles";
 import { heroLesson, textbookLessons } from "@/lib/lessons/examples";
+import { pageMetadata, SITE_DESCRIPTION } from "@/lib/seo";
+
+export const metadata = pageMetadata({ description: SITE_DESCRIPTION, path: "/" });
 
 const PRIMARY = "inline-flex items-center justify-center rounded-lg bg-spoken px-6 py-3.5 text-lg font-extrabold text-board";
 const SECONDARY = "inline-flex items-center justify-center rounded-lg border border-line px-6 py-3.5 text-lg font-bold hover:bg-panel";

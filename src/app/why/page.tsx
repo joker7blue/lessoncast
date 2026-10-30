@@ -1,8 +1,13 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { Mission } from "@/components/home/Mission";
 
-export const metadata: Metadata = { title: "Why LessonCast" };
+export const metadata: Metadata = pageMetadata({
+  absoluteTitle: "Why LessonCast",
+  description: "Education without borders: what school teaches in an imported language, explained in the language a child speaks at home, across Africa and beyond.",
+  path: "/why",
+});
 
 const POINTS = [
   {
