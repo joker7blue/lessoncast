@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="96" height="96" role="img" aria-label="LessonCast">
+  <rect width="32" height="32" rx="8" fill="#ffd400"/>
+  <path d="M9 6.5h10l4.5 4.5v14.5H9z" fill="#141b18"/>
+  <path d="M19 6.5v4.5h4.5" fill="none" stroke="#ffd400" stroke-width="1.2"/>
+  <path d="M14 13.2v7.6l6-3.8z" fill="#ffd400"/>
+</svg>

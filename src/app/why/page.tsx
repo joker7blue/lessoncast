@@ -5,8 +5,12 @@ export const metadata: Metadata = { title: "Why LessonCast" };
 
 const POINTS = [
   {
-    title: "School is taught in a language many children don't speak at home",
-    body: "Cameroon teaches in French and English. At home, many families speak one of the country's local languages or Cameroonian Pidgin English. A child who follows half of the lesson in class has no one to explain the page again in words they know.",
+    title: "Across Africa, school is taught in a language many children don't speak at home",
+    body: "Cameroon teaches in French and English, Angola and Mozambique in Portuguese, Equatorial Guinea in Spanish. At home, families speak Pidgin, Hausa, Fulfulde or one of hundreds of other languages. A child who follows half of the lesson in class has no one to explain the page again in words they know.",
+  },
+  {
+    title: "Knowledge in the language of home, with its culture kept",
+    body: "Science, history and geography mostly reach children in an imported language. LessonCast explains the page in the language they think in, keeping the subject's own terms and explaining them, so a child can learn the science without leaving behind the language their family speaks, and the culture it carries.",
   },
   {
     title: "Classes are crowded and textbooks are shared",
@@ -27,7 +31,8 @@ export default function WhyPage() {
     <main className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-8 lg:py-12">
       <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Why LessonCast</h1>
       <p className="mt-3 text-lg leading-relaxed text-dust">
-        A printed page helps a child who reads the school language well. A short video in the language of home helps the
+        Education without borders: what school teaches in an imported language, explained in the language a child speaks at
+        home. A printed page helps a child who reads the school language well. A short video in the language of home helps the
         others, and the parents who want to sit next to them.
       </p>
 
