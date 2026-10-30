@@ -18,6 +18,7 @@ import { bookChoices, bookEditKey, rememberLesson } from "@/lib/lessons/remember
 import { describeLesson } from "./LessonCard";
 import { describeVideo } from "@/lib/lesson/describe";
 import { LessonOptions } from "./LessonOptions";
+import { Loading } from "./shell/Loading";
 
 const POLL_MS = 3000;
 const OFFLINE = "Sending failed. Check the internet connection and try again.";
@@ -345,7 +346,7 @@ export function BookLessons({ id }: { id: string }) {
       </div>
     );
   }
-  if (!book) return <p className="text-dust">Loading the book…</p>;
+  if (!book) return <Loading label="Loading the book…" />;
 
   return (
     <div>

@@ -16,6 +16,7 @@ import { lessonNodes } from "./pipeline/nodes";
 import { PipelineGraph } from "./pipeline/PipelineGraph";
 import { RenderingPreview } from "./RenderingPreview";
 import { SceneGallery } from "./SceneGallery";
+import { Loading } from "./shell/Loading";
 
 /** What the video slot says while the last steps run, before the MP4 exists. */
 const FINISHING: Partial<Record<LessonView["status"], string>> = {
@@ -87,7 +88,7 @@ export function LessonStatus({ id }: { id: string }) {
       </div>
     );
   }
-  if (!lesson) return <p className="text-dust">Loading the lesson…</p>;
+  if (!lesson) return <Loading label="Loading the lesson…" />;
 
   const done = lesson.status === "done";
   const failed = lesson.status === "failed";
