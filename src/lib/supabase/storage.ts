@@ -16,6 +16,7 @@ export const lessonPaths = {
 export const bookPaths = {
   pdf: (id: string) => `books/${id}/book.pdf`,
   slice: (id: string, firstPage: number, lastPage: number) => `books/${id}/slices/${firstPage}-${lastPage}.pdf`,
+  summaries: (id: string) => `books/${id}/summaries`,
   summary: (id: string, lesson: number, language: string) => `books/${id}/summaries/${lesson}-${language}.json`,
 };
 
@@ -37,6 +38,13 @@ export async function downloadFile(path: string): Promise<Uint8Array> {
   const { data, error } = await supabase().storage.from(BUCKET).download(path);
   if (error) throw new Error(`Download of ${path} failed: ${error.message}`);
   return new Uint8Array(await data.arrayBuffer());
+}
+
+/** The names of the files in `folder` (none when it doesn't exist yet). */
+export async function listFiles(folder: string): Promise<string[]> {
+  const { data, error } = await supabase().storage.from(BUCKET).list(folder, { limit: 1000 });
+  if (error) throw new Error(`Listing ${folder} failed: ${error.message}`);
+  return data.map((file) => file.name);
 }
 
 /** The size of the file at `path`, or null when there is none. */

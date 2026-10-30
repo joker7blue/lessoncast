@@ -175,20 +175,36 @@ function LessonSummaryPanel({ bookId, bookLanguage, lesson }: { bookId: string; 
   const [writing, setWriting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  // The languages this lesson already has a summary in, shown as chips that open it at once.
+  const [available, setAvailable] = useState<Language[]>([]);
   const shown = written[language];
 
-  async function summarize() {
+  useEffect(() => {
+    let stopped = false;
+    fetch(`/api/books/${bookId}/lessons/${lesson.n}/summary`)
+      .then((res) => (res.ok ? (res.json() as Promise<{ languages?: Language[] }>) : { languages: [] }))
+      .then((body) => !stopped && setAvailable(body.languages ?? []))
+      .catch(() => {
+        // No list: the summaries can still be asked for one by one.
+      });
+    return () => {
+      stopped = true;
+    };
+  }, [bookId, lesson.n]);
+
+  async function summarize(target: Language) {
     setWriting(true);
     setError(null);
     try {
       const res = await fetch(`/api/books/${bookId}/lessons/${lesson.n}/summary`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ language }),
+        body: JSON.stringify({ language: target }),
       });
       const body = (await res.json().catch(() => ({}))) as WrittenSummary & { error?: string };
       if (!res.ok) throw new Error(body.error ?? OFFLINE);
-      setWritten((all) => ({ ...all, [language]: body }));
+      setWritten((all) => ({ ...all, [target]: body }));
+      setAvailable((all) => LANGUAGE_CODES.filter((code) => code === target || all.includes(code)));
     } catch (e) {
       setError(e instanceof Error && e.message !== "Failed to fetch" ? e.message : OFFLINE);
     } finally {
@@ -209,9 +225,34 @@ function LessonSummaryPanel({ bookId, bookLanguage, lesson }: { bookId: string; 
     }
   }
 
+  function open(code: Language) {
+    setLanguage(code);
+    setError(null);
+    if (!written[code]) void summarize(code);
+  }
+
   const selectId = `lesson-${lesson.n}-summary-language`;
   return (
     <div className="mt-4 rounded-xl border border-line bg-board p-4 sm:p-5">
+      {available.length > 0 && (
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <span className="text-sm font-bold text-dust">Summary available in</span>
+          {available.map((code) => {
+            const current = code === language && shown !== undefined;
+            return (
+              <button
+                key={code}
+                type="button"
+                onClick={() => open(code)}
+                aria-pressed={current}
+                className={`rounded-full border px-3 py-1 text-sm font-bold transition-colors ${current ? "border-spoken bg-panel" : "border-line text-dust hover:border-dust hover:text-chalk"}`}
+              >
+                {LANGUAGES[code].label}
+              </button>
+            );
+          })}
+        </div>
+      )}
       <div className="flex flex-wrap items-center gap-3">
         <label htmlFor={selectId} className="font-bold">
           Summary in
@@ -234,7 +275,7 @@ function LessonSummaryPanel({ bookId, bookLanguage, lesson }: { bookId: string; 
         {!shown && (
           <button
             type="button"
-            onClick={summarize}
+            onClick={() => summarize(language)}
             disabled={writing}
             className="inline-flex items-center gap-2 rounded-lg bg-spoken px-4 py-2 font-extrabold text-board disabled:opacity-60"
           >
