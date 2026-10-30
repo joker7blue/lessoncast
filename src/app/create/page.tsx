@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { CreateForm } from "@/components/CreateForm";
 
-export const metadata: Metadata = { title: "Create a lesson · LessonCast" };
+export const metadata: Metadata = pageMetadata({
+  title: "Create a lesson",
+  description: "Upload a textbook as a PDF, or photograph a page, pick the language, the length, the quiz and the picture style, and get a narrated video lesson a few minutes later. Sample textbooks are there to try it.",
+  path: "/create",
+});
 
 export default function CreatePage() {
   return (
