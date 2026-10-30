@@ -60,16 +60,21 @@ body {
   inherits: false;
 }
 .slogan {
+  --slogan-arc: var(--color-spoken);
   border-radius: 9999px;
-  padding: 1.5px;
+  padding: 2px;
   background: conic-gradient(
     from var(--slogan-angle),
-    color-mix(in srgb, var(--color-spoken) 18%, transparent) 0deg,
-    var(--color-spoken) 60deg,
-    color-mix(in srgb, var(--color-spoken) 18%, transparent) 130deg 360deg
+    color-mix(in srgb, var(--slogan-arc) 20%, transparent) 0deg,
+    var(--slogan-arc) 80deg,
+    color-mix(in srgb, var(--slogan-arc) 20%, transparent) 160deg 360deg
   );
-  box-shadow: 0 0 24px color-mix(in srgb, var(--color-spoken) 22%, transparent);
+  box-shadow: 0 0 28px color-mix(in srgb, var(--slogan-arc) 32%, transparent);
   animation: slogan-turn 4s linear infinite;
+}
+/* On paper, the yellow arc would fade into the page: a deep gold keeps it turning in plain sight. */
+html[data-theme="light"] .slogan {
+  --slogan-arc: #d39e00;
 }
 @keyframes slogan-turn {
   to {
