@@ -106,6 +106,23 @@ Measured on real lessons, from the upload to the finished video:
 Every lesson page shows its own times and costs as a live graph of the pipeline. The derisk tests that set
 these choices are in [`docs/derisk.md`](docs/derisk.md).
 
+## What comes next
+
+Today LessonCast serves one teacher with one phone. Next, it grows to serve whole schools:
+
+- **Testing with teachers and parents** in Cameroon, on their own textbooks and phones, to learn what makes a
+  lesson worth replaying at home.
+- **Teacher accounts**: each teacher keeps their books and lessons in one place, shares them with their
+  classes, and can correct a script before its video is made.
+- **Subscriptions for schools and NGOs**: a lesson costs five to eighteen cents of model calls, so a few free
+  lessons for every teacher, then plans for schools, ministries and NGOs that pay for whole classes.
+- **More languages of home**: MMS speaks over a thousand languages, and each new voice can join. Next come
+  Ewondo, Duala and Basaa, which have no voice yet, and a voice note read by Omnilingual ASR in place of a photo.
+- **Ready for a whole country**: the voice on Modal GPUs (about six seconds of compute instead of a minute), more
+  lessons made at once, and a lesson already made never made twice.
+- **Straight from WhatsApp**: a teacher sends a page to a WhatsApp number and gets the video back in the same
+  chat.
+
 ## Architecture
 
 ```
