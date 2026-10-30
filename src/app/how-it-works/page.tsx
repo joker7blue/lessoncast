@@ -23,7 +23,7 @@ const STEPS = [
   {
     title: "MMS speaks the lesson and times every word",
     model: `facebook/mms-tts in ${LANGUAGE_CODES.length} languages, ${ALIGNER_MODEL}, open weights on Modal`,
-    body: `Meta's Massively Multilingual Speech models run in our own container while the scenes are drawn. MMS-TTS reads each sentence in the language the teacher picked (${LANGUAGE_NAMES}), and MMS forced alignment finds when each word starts and ends, which gives the karaoke subtitles and the length of every scene.`,
+    body: `Meta's Massively Multilingual Speech models run on Modal, in our own container, while the scenes are drawn: Modal starts them for the lesson and stops them two minutes after. MMS-TTS reads each sentence in the language the teacher picked (${LANGUAGE_NAMES}), and MMS forced alignment finds when each word starts and ends, which gives the karaoke subtitles and the length of every scene.`,
   },
   {
     title: "SAM 3.1 cuts out the objects the voice names",
@@ -31,9 +31,9 @@ const STEPS = [
     body: "For every object a scene's narration names, such as the heart or the map, SAM 3.1 finds it in the drawing and returns its exact outline. The video then dims the rest of the scene and lifts that object, outlined in yellow, at the moment the voice says its name, so a child sees what the word means. An object SAM can't find is simply left out.",
   },
   {
-    title: "Remotion edits the video",
+    title: "Remotion edits the video on Modal",
     model: `Remotion ${REMOTION_VERSION}, on Modal`,
-    body: "A title card, the scenes with a slow zoom and crossfades, the SAM cut-outs lit on their words, subtitles that light up the spoken word, and an end card that asks the child to replay the lesson with a parent. 854 × 480 at 300 kbit/s: about six megabytes for two and a half minutes.",
+    body: "Modal renders it on eight CPUs, started for the lesson: a title card, the scenes with a slow zoom and crossfades, the SAM cut-outs lit on their words, subtitles that light up the spoken word, and an end card that asks the child to replay the lesson with a parent. 854 × 480 at 300 kbit/s: about six megabytes for two and a half minutes.",
   },
 ];
 
