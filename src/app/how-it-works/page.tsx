@@ -13,7 +13,7 @@ const STEPS = [
   {
     title: "Muse Spark reads the pages and writes the lesson",
     model: `${SPARK_MODEL}, Meta Model API`,
-    body: "All the photos go into one request, in page order. Muse Spark checks that they are textbook pages, then answers with a lesson that must match a strict JSON schema: seven scenes with a narration in French and in Pidgin, an image prompt per scene, the objects each scene names, and a three-question quiz. In Automatic, it also picks the picture style from the level and the subject.",
+    body: "All the photos go into one request, in page order. Muse Spark checks that they are pages of school material, and gives a page it turns down a second look before telling the teacher. It then answers with a lesson that must match a strict JSON schema, all in the language the teacher picked: as many scenes and words as the chosen length allows at that language's pace, an image prompt per scene, the objects each scene names, the quiz the teacher asked for (none to five questions) and the words the video says around it. In Automatic, it also picks the picture style from the level and the subject.",
   },
   {
     title: "Muse Image draws the scenes, all with the same characters",
@@ -33,7 +33,7 @@ const STEPS = [
   {
     title: "Remotion edits the video on Modal",
     model: `Remotion ${REMOTION_VERSION}, on Modal`,
-    body: "Modal renders it on eight CPUs, started for the lesson: a title card, the scenes with a slow zoom and crossfades, the SAM cut-outs lit on their words, subtitles that light up the spoken word, and an end card that asks the child to replay the lesson with a parent. 854 × 480 at 300 kbit/s: about six megabytes for two and a half minutes.",
+    body: "Modal renders it on eight CPUs, started for the lesson: a title card, the scenes with a slow zoom and crossfades, the SAM cut-outs lit on their words, subtitles that light up the spoken word, the quiz read aloud with a countdown and the right answer, and an end card that asks the child to replay the lesson with a parent. 854 × 480 at 300 kbit/s: about two megabytes a minute.",
   },
 ];
 
@@ -78,9 +78,9 @@ export default function HowItWorksPage() {
       <section className="mt-16 rounded-2xl border border-line bg-panel p-6 sm:p-8">
         <h2 className="text-xl font-extrabold">Measured on real lessons</h2>
         <p className="mt-3 max-w-3xl leading-relaxed text-dust">
-          A one-page lesson took about four minutes from upload to video, a little more when several were made at once, and about $0.15 in model calls: $0.05 for Muse Spark,
-          $0.07 for seven Muse Image scenes, about three cents for SAM 3.1, about a cent each for the voice and the render on Modal. Every lesson page shows
-          its own times and costs, step by step.
+          A one-minute lesson in Swahili was ready in 2 minutes 13 seconds, for about six cents of model calls. A three-minute lesson from a book took 4 minutes 37
+          seconds and about 18 cents: 6 for Muse Spark, 7 for seven Muse Image scenes, 3 for SAM 3.1, and about a cent each for the voice and the render on Modal.
+          Every lesson page shows its own times and costs, step by step.
         </p>
         <Link href="/create" className="mt-6 inline-flex rounded-lg bg-spoken px-6 py-3 font-extrabold text-board">
           Create a lesson
