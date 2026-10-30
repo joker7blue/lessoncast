@@ -4,13 +4,13 @@ import type { BookRow } from "@/lib/books/repo";
 const books = vi.hoisted(() => ({ getBook: vi.fn() }));
 const pages = vi.hoisted(() => ({ bookLessonPdf: vi.fn() }));
 const spark = vi.hoisted(() => ({ summarizeLesson: vi.fn() }));
-const storage = vi.hoisted(() => ({ downloadFile: vi.fn(), uploadFile: vi.fn() }));
+const storage = vi.hoisted(() => ({ downloadFile: vi.fn(), uploadFile: vi.fn(), listFiles: vi.fn() }));
 vi.mock("@/lib/books/repo", () => books);
 vi.mock("@/lib/books/lesson-pages", () => pages);
 vi.mock("@/lib/meta/summary", async (importOriginal) => ({ ...(await importOriginal<object>()), ...spark }));
 vi.mock("@/lib/supabase/storage", async (importOriginal) => ({ ...(await importOriginal<object>()), ...storage }));
 
-import { POST as summaryRoute } from "../[id]/lessons/[n]/summary/route";
+import { GET as summariesRoute, POST as summaryRoute } from "../[id]/lessons/[n]/summary/route";
 
 const ID = "7d1f2c3a-5b6e-4f70-8a91-b2c3d4e5f607";
 const SUMMARY = { summary: "Le cœur pompe le sang dans tout le corps.", keyTerms: [{ term: "cœur", meaning: "Le muscle qui pompe le sang." }, { term: "artère", meaning: "Un vaisseau qui part du cœur." }] };
@@ -67,4 +67,22 @@ test("refuses a language LessonCast doesn't speak, a missing lesson, and a book 
   books.getBook.mockResolvedValue(null);
   expect((await post("1", { language: "fr" })).status).toBe(404);
   expect(spark.summarizeLesson).not.toHaveBeenCalled();
+});
+
+const list = (n: string) => summariesRoute(new Request(`http://localhost/api/books/${ID}/lessons/${n}/summary`), { params: Promise.resolve({ id: ID, n }) });
+
+test("lists the languages a lesson already has a summary in, in the languages' order", async () => {
+  books.getBook.mockResolvedValue(book());
+  storage.listFiles.mockResolvedValue(["1-pcm.json", "1-hau.json", "2-fr.json", "1-xx.json", "notes.txt"]);
+  const res = await list("1");
+  expect(res.status).toBe(200);
+  expect(await res.json()).toEqual({ languages: ["pcm", "hau"] });
+  expect(storage.listFiles).toHaveBeenCalledWith(`books/${ID}/summaries`);
+});
+
+test("a lesson without a summary lists none, and a missing lesson is a 404", async () => {
+  books.getBook.mockResolvedValue(book());
+  storage.listFiles.mockResolvedValue([]);
+  expect(await (await list("1")).json()).toEqual({ languages: [] });
+  expect((await list("2")).status).toBe(404);
 });

@@ -1,13 +1,15 @@
 // POST /api/books/:id/lessons/:n/summary { language }: a short text summary of the lesson in that language,
 // written by Muse Spark from the lesson's pages. Each one is saved as a JSON file next to the book, so it is
-// written once per lesson and language and read back on every later click.
+// written once per lesson and language and read back on every later click. GET lists the languages the
+// lesson already has a summary in.
 
 import { z } from "zod";
 import { bookLessonPdf } from "@/lib/books/lesson-pages";
 import { getBook } from "@/lib/books/repo";
+import { LANGUAGE_CODES } from "@/lib/lesson/languages";
 import { Language } from "@/lib/lesson/schema";
 import { LessonSummary, summarizeLesson } from "@/lib/meta/summary";
-import { bookPaths, downloadFile, uploadFile } from "@/lib/supabase/storage";
+import { bookPaths, downloadFile, listFiles, uploadFile } from "@/lib/supabase/storage";
 
 // Muse Spark reads up to 20 pages: room for one answer.
 export const maxDuration = 120;
@@ -23,6 +25,16 @@ async function saved(path: string): Promise<LessonSummary | null> {
     // None yet (or unreadable): it is written again.
     return null;
   }
+}
+
+export async function GET(_request: Request, ctx: RouteContext<"/api/books/[id]/lessons/[n]/summary">) {
+  const { id, n: raw } = await ctx.params;
+  const n = Number(raw);
+  const book = await getBook(id);
+  if (!book) return fail(404, "This book doesn't exist.");
+  if (!Number.isInteger(n) || !book.lessons[n - 1]) return fail(404, "This book has no such lesson.");
+  const names = new Set(await listFiles(bookPaths.summaries(id)).catch(() => []));
+  return Response.json({ languages: LANGUAGE_CODES.filter((code) => names.has(`${n}-${code}.json`)) });
 }
 
 export async function POST(request: Request, ctx: RouteContext<"/api/books/[id]/lessons/[n]/summary">) {
