@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { BookCard } from "@/components/BookCard";
 import { describeLesson, LessonCard } from "@/components/LessonCard";
@@ -6,7 +7,11 @@ import { MyBooks } from "@/components/MyBooks";
 import { MyLessons } from "@/components/MyLessons";
 import { galleryBooks, galleryLessons } from "@/lib/lessons/gallery";
 
-export const metadata: Metadata = { title: "Lessons · LessonCast" };
+export const metadata: Metadata = pageMetadata({
+  title: "Lessons",
+  description: "Every lesson and textbook made with LessonCast, in eight languages: watch them, and see how each Meta model worked on them.",
+  path: "/lessons",
+});
 
 export default async function LessonsPage() {
   const [books, lessons] = await Promise.all([galleryBooks(), galleryLessons()]);

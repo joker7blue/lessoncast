@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { VERSION as REMOTION_VERSION } from "remotion/version";
 import { PipelineDemo } from "@/components/pipeline/PipelineDemo";
@@ -7,7 +8,11 @@ import { ALIGNER_MODEL, IMAGE_MODEL, SAM_MODEL, SPARK_MODEL } from "@/lib/meta/m
 
 const LANGUAGE_NAMES = LANGUAGE_CODES.map((code) => LANGUAGES[code].label).join(", ");
 
-export const metadata: Metadata = { title: "How it works · LessonCast" };
+export const metadata: Metadata = pageMetadata({
+  title: "How it works",
+  description: "How Muse Spark, Muse Image, SAM 3.1 and MMS on Modal turn a textbook into narrated video lessons, step by step, with the times and costs measured on real lessons.",
+  path: "/how-it-works",
+});
 
 const STEPS = [
   {
