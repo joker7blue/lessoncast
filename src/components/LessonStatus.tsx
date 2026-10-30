@@ -16,6 +16,7 @@ import { lessonNodes } from "./pipeline/nodes";
 import { PipelineGraph } from "./pipeline/PipelineGraph";
 import { RenderingPreview } from "./RenderingPreview";
 import { SceneGallery } from "./SceneGallery";
+import { Loading } from "./shell/Loading";
 
 /** What the video slot says while the last steps run, before the MP4 exists. */
 const FINISHING: Partial<Record<LessonView["status"], string>> = {
@@ -87,7 +88,7 @@ export function LessonStatus({ id }: { id: string }) {
       </div>
     );
   }
-  if (!lesson) return <p className="text-dust">Loading the lesson…</p>;
+  if (!lesson) return <Loading label="Loading the lesson…" />;
 
   const done = lesson.status === "done";
   const failed = lesson.status === "failed";
@@ -109,9 +110,20 @@ export function LessonStatus({ id }: { id: string }) {
         <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">{lesson.title ?? "Your lesson"}</h1>
         <p className="mt-2 text-lg text-dust">{subtitle(lesson)}</p>
         {lesson.book && (
-          <Link href={`/books/${lesson.book.id}`} className="mt-2 inline-block font-bold text-spoken underline underline-offset-4">
-            Lesson {lesson.book.n} of {lesson.book.title ?? "the book"}, pages {lesson.book.firstPage}–{lesson.book.lastPage}
-          </Link>
+          <p className="mt-2 flex flex-wrap gap-x-5 gap-y-1">
+            <Link href={`/books/${lesson.book.id}`} className="font-bold text-spoken underline underline-offset-4">
+              Lesson {lesson.book.n} of {lesson.book.title ?? "the book"}, pages {lesson.book.firstPage}–{lesson.book.lastPage}
+            </Link>
+            {/* The pages Muse Spark read to write this video, to set beside it. */}
+            <a
+              href={`/api/books/${lesson.book.id}/lessons/${lesson.book.n}/pages`}
+              target="_blank"
+              rel="noopener"
+              className="font-bold text-spoken underline underline-offset-4"
+            >
+              See the pages it was made from
+            </a>
+          </p>
         )}
       </header>
 

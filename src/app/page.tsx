@@ -64,7 +64,7 @@ export default async function Home() {
             A textbook or an ebook becomes video lessons in the language of home.
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-dust">
-            A teacher photographs a page, or uploads a whole textbook as a PDF that Muse Spark splits into lessons. A few
+            A teacher uploads a whole textbook as a PDF, which Muse Spark splits into lessons, or photographs a page. A few
             minutes later, Meta&apos;s models have written, drawn and narrated a short lesson in the language of home, small
             enough to share in the parents&apos; WhatsApp group.
           </p>
