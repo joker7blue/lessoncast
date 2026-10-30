@@ -6,13 +6,13 @@
 
 <p align="center">
   A photo of a textbook page in, a narrated, illustrated video lesson out,<br>
-  in the language the children speak at home.
+  in the language the children speak at home. Education without borders.
 </p>
 
 <p align="center">
   <a href="https://lessoncast-ai.vercel.app"><img src="https://img.shields.io/badge/Try_it_live-lessoncast--ai.vercel.app-ffd400?style=flat-square&labelColor=141b18" alt="Try it live"></a>
   <img src="https://img.shields.io/badge/Meta-Muse_Spark_%7C_Muse_Image_%7C_SAM_3.1_%7C_MMS-ffd400?style=flat-square&labelColor=141b18" alt="Meta models: Muse Spark, Muse Image, SAM 3.1, MMS">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-a7b0a9?style=flat-square&labelColor=141b18" alt="MIT license"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-ffd400?style=flat-square&labelColor=141b18" alt="MIT license"></a>
 </p>
 
 <p align="center">
@@ -23,12 +23,19 @@
 
 ## Why
 
-Many children in Cameroon learn in French or English, a language they don't speak at home, in crowded
-classes with few textbooks and expensive mobile data. The printed page stays at school. A short video in the
-language of home, which a parent can replay with the child at night, goes home with them.
+Many children in Cameroon, and across Africa, learn in French, English, Portuguese or Spanish: a language
+they don't speak at home. Science, history and geography reach them in that imported language, while the
+language they think in, and the culture it carries, stays outside the classroom. Classes are crowded,
+textbooks are shared, mobile data is expensive, and the printed page stays at school.
 
-LessonCast turns the page the teacher already has into that video: a few minutes of waiting, a few cents of
-model calls, and an MP4 small enough for the parents' WhatsApp group.
+LessonCast carries the lesson across that border. The teacher photographs the page they already have, and a
+few minutes later gets a short video that explains it in the language of home, keeping the subject's own
+terms and explaining them, so a child can learn science without leaving their language behind. The video is
+small enough for the parents' WhatsApp group, and a parent can replay it with the child at night.
+
+It started in Cameroon, and it isn't only for Cameroon: a page in any school language can become a lesson in
+any language Muse Spark writes and an MMS voice reads, in Africa or anywhere a country's own languages are
+kept out of its schools. Eight today, from Hausa to Swahili; each new MMS voice can join them.
 
 ## What a teacher does
 
