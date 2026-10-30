@@ -4,7 +4,7 @@
 // when the teacher asks for it, in the language and style they pick, and the videos already made are
 // listed under their lesson.
 
-import { BookOpen, LoaderCircle, Pencil, Play, TriangleAlert } from "lucide-react";
+import { BookOpen, ChevronDown, ExternalLink, LoaderCircle, Pencil, Play, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -145,6 +145,26 @@ function MakeVideo({ bookId, bookLanguage, lesson, onCancel }: { bookId: string;
   );
 }
 
+/** The lesson's own pages, cut out of the book: what Muse Spark reads to write its video. */
+function LessonPages({ bookId, lesson, label }: { bookId: string; lesson: Lesson; label: string }) {
+  const url = `/api/books/${bookId}/lessons/${lesson.n}/pages`;
+  const pageCount = lesson.lastPage - lesson.firstPage + 1;
+  return (
+    <div className="mt-4">
+      <p className="text-sm text-dust">
+        {pageCount > MAX_LESSON_PAGES
+          ? `Muse Spark writes the video from the lesson's first ${MAX_LESSON_PAGES} pages, shown here.`
+          : "These are the pages Muse Spark reads to write this lesson's video."}
+      </p>
+      <iframe src={`${url}#view=FitH`} title={`${label} of the book`} className="mt-3 h-[75vh] w-full rounded-lg border border-line bg-white" />
+      <a href={url} target="_blank" rel="noopener" className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-spoken underline underline-offset-4">
+        <ExternalLink aria-hidden className="size-4" />
+        Open the pages in a new tab
+      </a>
+    </div>
+  );
+}
+
 function LessonItem({
   bookId,
   bookLanguage,
@@ -161,6 +181,8 @@ function LessonItem({
   onClose(): void;
 }) {
   const pages = lesson.firstPage === lesson.lastPage ? `Page ${lesson.firstPage}` : `Pages ${lesson.firstPage}–${lesson.lastPage}`;
+  const [showPages, setShowPages] = useState(false);
+  const pagesId = `lesson-${lesson.n}-pages`;
   return (
     <li className="rounded-2xl border border-line bg-panel p-5 sm:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
@@ -171,6 +193,16 @@ function LessonItem({
           <h3 className="text-lg leading-snug font-extrabold">{lesson.title}</h3>
           <p className="mt-0.5 text-sm font-bold text-dust">{pages}</p>
           <p className="mt-2 leading-relaxed text-chalk/85">{lesson.summary}</p>
+          <button
+            type="button"
+            onClick={() => setShowPages((shown) => !shown)}
+            aria-expanded={showPages}
+            aria-controls={pagesId}
+            className="mt-3 inline-flex items-center gap-1.5 font-bold text-spoken underline underline-offset-4"
+          >
+            {showPages ? "Hide the pages" : "View the pages"}
+            <ChevronDown aria-hidden className={`size-4 transition-transform ${showPages ? "rotate-180" : ""}`} />
+          </button>
           {lesson.videos.length > 0 && (
             <ul className="mt-3 space-y-1">
               {lesson.videos.map((video) => (
@@ -193,6 +225,11 @@ function LessonItem({
           </button>
         )}
       </div>
+      {showPages && (
+        <div id={pagesId}>
+          <LessonPages bookId={bookId} lesson={lesson} label={pages} />
+        </div>
+      )}
       {open && <MakeVideo bookId={bookId} bookLanguage={bookLanguage} lesson={lesson} onCancel={onClose} />}
     </li>
   );
