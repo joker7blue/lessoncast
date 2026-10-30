@@ -16,6 +16,7 @@ export const lessonPaths = {
 export const bookPaths = {
   pdf: (id: string) => `books/${id}/book.pdf`,
   slice: (id: string, firstPage: number, lastPage: number) => `books/${id}/slices/${firstPage}-${lastPage}.pdf`,
+  summary: (id: string, lesson: number, language: string) => `books/${id}/summaries/${lesson}-${language}.json`,
 };
 
 /** Uploads a file, replacing any file already at that path. */
