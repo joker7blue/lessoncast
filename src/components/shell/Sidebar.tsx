@@ -11,6 +11,7 @@ import { usePathname } from "next/navigation";
 import { Suspense, useState, useSyncExternalStore } from "react";
 import { activeHref, type NavHref } from "@/lib/nav";
 import { Logo, LogoMark } from "./Logo";
+import { REPO_URL, TopActions } from "./TopActions";
 
 const SIDEBAR_KEY = "lessoncast:sidebar";
 const SIDEBAR_EVENT = "lessoncast:sidebar";
@@ -47,8 +48,6 @@ const ABOUT = [
   { href: "/how-it-works", label: "How it works", icon: Workflow },
   { href: "/why", label: "Why LessonCast", icon: HeartHandshake },
 ] as const;
-
-const REPO_URL = "https://github.com/joker7blue/lessoncast";
 
 type Item = { href: NavHref; label: string; icon: typeof House };
 
@@ -153,9 +152,12 @@ export function Sidebar() {
         <Link href="/">
           <Logo />
         </Link>
-        <button type="button" onClick={() => setOpen(true)} aria-label="Open the menu" className="rounded-lg p-2 hover:bg-panel">
-          <Menu aria-hidden className="size-6" />
-        </button>
+        <div className="flex items-center gap-1">
+          <TopActions />
+          <button type="button" onClick={() => setOpen(true)} aria-label="Open the menu" className="rounded-lg p-2 hover:bg-panel">
+            <Menu aria-hidden className="size-6" />
+          </button>
+        </div>
       </header>
 
       {open && (

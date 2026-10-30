@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Mission } from "@/components/home/Mission";
 
 export const metadata: Metadata = { title: "Why LessonCast" };
 
@@ -28,15 +29,19 @@ const POINTS = [
 
 export default function WhyPage() {
   return (
-    <main className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-8 lg:py-12">
+    <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-8 lg:py-12">
       <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Why LessonCast</h1>
-      <p className="mt-3 text-lg leading-relaxed text-dust">
+      <p className="mt-3 max-w-3xl text-lg leading-relaxed text-dust">
         Education without borders: what school teaches in an imported language, explained in the language a child speaks at
         home. A printed page helps a child who reads the school language well. A short video in the language of home helps the
         others, and the parents who want to sit next to them.
       </p>
 
-      <ul className="mt-10 space-y-8">
+      <section className="mt-10 border-t border-line pt-10">
+        <Mission />
+      </section>
+
+      <ul className="mt-12 grid gap-x-10 gap-y-8 border-t border-line pt-12 sm:grid-cols-2">
         {POINTS.map((point) => (
           <li key={point.title} className="border-l-4 border-spoken pl-5">
             <h2 className="text-xl font-extrabold">{point.title}</h2>
@@ -47,7 +52,7 @@ export default function WhyPage() {
 
       <section className="mt-14">
         <h2 className="text-2xl font-extrabold">Which languages, and why</h2>
-        <p className="mt-3 leading-relaxed text-dust">
+        <p className="mt-3 max-w-3xl leading-relaxed text-dust">
           Meta&apos;s MMS speech models cover over a thousand languages, 47 of them spoken in Cameroon. LessonCast narrates in
           French and English, Cameroon&apos;s official languages, and in six languages of home: Pidgin, read with the
           Nigerian Pidgin voice; Hausa and Fulfulde for northern Cameroon; Yoruba and Fon for Benin; Swahili for the DR

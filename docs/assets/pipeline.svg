@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 824" width="760" height="824" role="img" aria-labelledby="title desc">
   <title id="title">How LessonCast makes a video lesson</title>
-  <desc id="desc">Textbook pages go to Muse Spark, which writes the lesson. Muse Image draws the scenes while MMS on Modal speaks and times every word. SAM 3.1 cuts out the objects the voice names. Modal runs Remotion, which renders a WhatsApp-ready MP4.</desc>
+  <desc id="desc">A textbook PDF, or page photos, go to Muse Spark, which writes the lesson. Muse Image draws the scenes while MMS on Modal speaks and times every word. SAM 3.1 cuts out the objects the voice names. Modal runs Remotion, which renders a WhatsApp-ready MP4.</desc>
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0 0L10 5L0 10z" fill="#ffd400"/>
@@ -26,9 +26,9 @@
 
   <!-- The pages -->
   <rect class="node" x="24" y="24" width="712" height="92" rx="14"/>
-  <text class="title" x="44" y="56">Textbook pages</text>
+  <text class="title" x="44" y="56">A textbook PDF, or page photos</text>
   <g class="plain"><rect x="619" y="38" width="97" height="24" rx="12"/><text class="chip" x="667.5" y="54.5" text-anchor="middle">The teacher</text></g>
-  <text class="text" x="44" y="82">One to four page photos, or a whole PDF book that Muse Spark splits into lessons.</text>
+  <text class="text" x="44" y="82">A whole textbook as a PDF, which Muse Spark splits into lessons, or one to four page photos.</text>
   <text class="text" x="44" y="101">The teacher picks the language, the length (15 s to 3 min), the quiz and the picture style.</text>
 
   <path class="flow" d="M380 116V146" marker-end="url(#arrow)"/>

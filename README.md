@@ -5,7 +5,7 @@
 <h1 align="center">LessonCast</h1>
 
 <p align="center">
-  A photo of a textbook page in, a narrated, illustrated video lesson out,<br>
+  A textbook PDF, or a photographed page, in; narrated, illustrated video lessons out,<br>
   in the language the children speak at home. Education without borders.
 </p>
 
@@ -28,8 +28,8 @@ they don't speak at home. Science, history and geography reach them in that impo
 language they think in, and the culture it carries, stays outside the classroom. Classes are crowded,
 textbooks are shared, mobile data is expensive, and the printed page stays at school.
 
-LessonCast carries the lesson across that border. The teacher photographs the page they already have, and a
-few minutes later gets a short video that explains it in the language of home, keeping the subject's own
+LessonCast carries the lesson across that border. The teacher uploads the textbook they already have, or
+photographs a page of it, and a few minutes later gets a short video that explains it in the language of home, keeping the subject's own
 terms and explaining them, so a child can learn science without leaving their language behind. The video is
 small enough for the parents' WhatsApp group, and a parent can replay it with the child at night.
 
@@ -39,7 +39,7 @@ kept out of its schools. Eight today, from Hausa to Swahili; each new MMS voice 
 
 ## What a teacher does
 
-1. Photographs one to four pages, or uploads the whole textbook as a PDF: Muse Spark splits it into lessons.
+1. Uploads the whole textbook as a PDF, which Muse Spark splits into lessons, or photographs one to four pages.
 2. Picks the language, the length (15 s to 3 minutes), the quiz (none to five questions) and the picture
    style, or lets LessonCast choose from the pages.
 3. Gets the video a few minutes later, with its scenes, its voice, subtitles that light up each spoken word
@@ -105,6 +105,23 @@ Measured on real lessons, from the upload to the finished video:
 
 Every lesson page shows its own times and costs as a live graph of the pipeline. The derisk tests that set
 these choices are in [`docs/derisk.md`](docs/derisk.md).
+
+## What comes next
+
+Today LessonCast serves one teacher with one phone. Next, it grows to serve whole schools:
+
+- **Testing with teachers and parents** in Cameroon, on their own textbooks and phones, to learn what makes a
+  lesson worth replaying at home.
+- **Teacher accounts**: each teacher keeps their books and lessons in one place, shares them with their
+  classes, and can correct a script before its video is made.
+- **Subscriptions for schools and NGOs**: a lesson costs five to eighteen cents of model calls, so a few free
+  lessons for every teacher, then plans for schools, ministries and NGOs that pay for whole classes.
+- **More languages of home**: MMS speaks over a thousand languages, and each new voice can join. Next come
+  Ewondo, Duala and Basaa, which have no voice yet, and a voice note read by Omnilingual ASR in place of a photo.
+- **Ready for a whole country**: the voice on Modal GPUs (about six seconds of compute instead of a minute), more
+  lessons made at once, and a lesson already made never made twice.
+- **Straight from WhatsApp**: a teacher sends a page to a WhatsApp number and gets the video back in the same
+  chat.
 
 ## Architecture
 

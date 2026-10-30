@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
-import { rememberBook, rememberedBooks, rememberedLessons, rememberLesson } from "../remembered";
+import { bookChoices, rememberBook, rememberBookChoices, rememberedBooks, rememberedLessons, rememberLesson } from "../remembered";
 
 let store: Record<string, string>;
 beforeEach(() => {
@@ -41,4 +41,14 @@ test("books are remembered apart from lessons", () => {
   rememberBook("book-2");
   expect(rememberedBooks()).toEqual(["book-2", "book-1"]);
   expect(rememberedLessons()).toEqual(["lesson"]);
+});
+
+test("a book's choices are kept for its lessons, and a book without any starts from none", () => {
+  rememberBookChoices("book-1", { language: "hau", length: 60, style: "comic" });
+  rememberBookChoices("book-2", { quiz: 0 });
+  expect(bookChoices("book-1")).toEqual({ language: "hau", length: 60, style: "comic" });
+  expect(bookChoices("book-2")).toEqual({ quiz: 0 });
+  expect(bookChoices("book-3")).toEqual({});
+  store["lessoncast:book-choices"] = "not json";
+  expect(bookChoices("book-1")).toEqual({});
 });

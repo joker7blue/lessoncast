@@ -3,27 +3,58 @@ import { getImageProps } from "next/image";
 import Image from "next/image";
 import Link from "next/link";
 import { HeroVideo } from "@/components/home/HeroVideo";
+import { Mission } from "@/components/home/Mission";
 import { describeLesson, LessonCard } from "@/components/LessonCard";
 import { PipelineDemo } from "@/components/pipeline/PipelineDemo";
+import { LANGUAGES } from "@/lib/lesson/languages";
 import { ArtStyle, STYLES } from "@/lib/lesson/styles";
-import { exampleLessons } from "@/lib/lessons/examples";
+import { heroLesson, textbookLessons } from "@/lib/lessons/examples";
 
 const PRIMARY = "inline-flex items-center justify-center rounded-lg bg-spoken px-6 py-3.5 text-lg font-extrabold text-board";
 const SECONDARY = "inline-flex items-center justify-center rounded-lg border border-line px-6 py-3.5 text-lg font-bold hover:bg-panel";
+const LINK = "font-bold text-spoken underline underline-offset-4";
 
 // The Meta models every lesson goes through, in pipeline order.
 const MODELS = ["Muse Spark", "Muse Image", "MMS-TTS", "MMS alignment", "SAM 3.1"];
 
+// Measured on the lessons made this week (How it works and the README give the details).
 const FACTS = [
-  { icon: Clock, text: "About four minutes from photo to video." },
-  { icon: Wallet, text: "About fifteen cents of model calls per lesson." },
-  { icon: HardDrive, text: "Six megabytes for a lesson of two and a half minutes." },
+  { icon: Clock, text: "Two to five minutes from photo to video." },
+  { icon: Wallet, text: "Five to eighteen cents of model calls per lesson." },
+  { icon: HardDrive, text: "About two megabytes a minute: a three-minute lesson stays under ten." },
   { icon: Languages, text: "Eight languages today, from Hausa to Swahili; MMS speaks over a thousand." },
 ];
 
+// What LessonCast needs to go from one teacher's phone to whole schools.
+const NEXT = [
+  {
+    title: "Testing with teachers and parents",
+    body: "First with teachers and parents in Cameroon, on their own textbooks and phones, to learn what makes a lesson worth replaying at home.",
+  },
+  {
+    title: "Teacher accounts",
+    body: "Each teacher keeps their books and lessons in one place, shares them with their classes, and can correct a script before its video is made.",
+  },
+  {
+    title: "Subscriptions for schools and NGOs",
+    body: "A lesson costs five to eighteen cents of model calls. A few free lessons for every teacher, then plans for schools, ministries and NGOs that pay for whole classes.",
+  },
+  {
+    title: "More languages of home",
+    body: "MMS speaks over a thousand languages: each new voice can join. Next come Ewondo, Duala and Basaa, which have no voice yet, and a voice note read by Omnilingual ASR in place of a photo.",
+  },
+  {
+    title: "Ready for a whole country",
+    body: "The voice on Modal GPUs, about six seconds of compute instead of a minute, more lessons made at once, and a lesson already made never made twice.",
+  },
+  {
+    title: "Straight from WhatsApp",
+    body: "A teacher sends a page to a WhatsApp number and gets the video back in the same chat, with no website to open.",
+  },
+];
+
 export default async function Home() {
-  const examples = await exampleLessons();
-  const hero = examples[0];
+  const [hero, textbook] = await Promise.all([heroLesson(), textbookLessons()]);
 
   return (
     <main className="mx-auto w-full max-w-6xl px-4 sm:px-8">
@@ -33,9 +64,9 @@ export default async function Home() {
             A textbook or an ebook becomes video lessons in the language of home.
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-dust">
-            A teacher photographs a page, or uploads a whole textbook as a PDF that Muse Spark splits into lessons. In
-            about four minutes, Meta&apos;s models write, draw and narrate a short lesson in the language of home, small enough
-            to share in the parents&apos; WhatsApp group.
+            A teacher photographs a page, or uploads a whole textbook as a PDF that Muse Spark splits into lessons. A few
+            minutes later, Meta&apos;s models have written, drawn and narrated a short lesson in the language of home, small
+            enough to share in the parents&apos; WhatsApp group.
           </p>
           <ul aria-label="Meta models used" className="mt-7 flex flex-wrap gap-1.5">
             {MODELS.map((model) => (
@@ -44,6 +75,7 @@ export default async function Home() {
               </li>
             ))}
           </ul>
+          <p className="mt-3 text-sm text-dust">The voice and the video run on Modal.</p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/create" className={PRIMARY}>
               Create a lesson
@@ -70,10 +102,10 @@ export default async function Home() {
         <div>
           <h2 className="text-3xl font-extrabold tracking-tight">Five Meta models make every lesson</h2>
           <p className="mt-4 max-w-xl text-lg leading-relaxed text-dust">
-            Muse Spark reads the photographed pages and writes the lesson. Muse Image draws each scene with the same
-            characters. MMS, Meta&apos;s open speech models, reads the lesson aloud and times every word for the karaoke
-            subtitles. SAM 3.1 cuts out each object the voice names, so it lights up as the word is said. Remotion puts it
-            all together into one small video.
+            Muse Spark reads the pages and writes the lesson in the language picked. Muse Image draws each scene with the same
+            characters. MMS, Meta&apos;s open speech models, reads the lesson aloud on Modal and times every word for the
+            karaoke subtitles. SAM 3.1 cuts out each object the voice names, so it lights up as the word is said. Remotion, on
+            Modal too, puts it all together into one small video, quiz included.
           </p>
           <ul className="mt-8 space-y-4">
             {FACTS.map(({ icon: Icon, text }) => (
@@ -83,12 +115,38 @@ export default async function Home() {
               </li>
             ))}
           </ul>
-          <Link href="/how-it-works" className="mt-8 inline-block font-bold text-spoken underline underline-offset-4">
+          <Link href="/how-it-works" className={`mt-8 inline-block ${LINK}`}>
             Each model, step by step
           </Link>
         </div>
         <PipelineDemo />
       </section>
+
+      <section className="border-t border-line py-16">
+        <Mission>
+          <Link href="/why" className={`mt-6 inline-block ${LINK}`}>
+            Why we built it
+          </Link>
+        </Mission>
+      </section>
+
+      {textbook.length > 0 && (
+        <section className="border-t border-line py-16">
+          <h2 className="text-3xl font-extrabold tracking-tight">One science textbook, {textbook.length === 8 ? "eight" : textbook.length} languages</h2>
+          <p className="mt-4 max-w-2xl text-lg leading-relaxed text-dust">
+            A teacher uploaded a 39-page CM1 science textbook as a PDF. Muse Spark split it into eight lessons in 38 seconds,
+            and each video below was made from one of them, in a different language. Open one to watch it and see how each
+            model worked on it.
+          </p>
+          <ul className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {textbook.map((lesson) => (
+              <li key={lesson.id}>
+                <LessonCard lesson={{ ...lesson, note: `${LANGUAGES[lesson.language].label}: ${lesson.source}.` }} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section className="border-t border-line py-16">
         <h2 className="text-3xl font-extrabold tracking-tight">Four ways to draw a lesson</h2>
@@ -114,38 +172,39 @@ export default async function Home() {
         </ul>
       </section>
 
-      {examples.length > 0 && (
-        <section className="border-t border-line py-16">
-          <h2 className="text-3xl font-extrabold tracking-tight">Lessons made with LessonCast</h2>
-          <p className="mt-4 max-w-2xl text-lg leading-relaxed text-dust">
-            Each one came from a single photographed page. Open one to watch it and see how each model worked on it.
-          </p>
-          <ul className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {examples.map((lesson) => (
-              <li key={lesson.id}>
-                <LessonCard lesson={{ ...lesson, note: `${describeLesson(lesson.language, lesson.style)}, from ${lesson.source}.` }} />
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      <section className="border-t border-line py-16">
+        <h2 className="text-3xl font-extrabold tracking-tight">What comes next</h2>
+        <p className="mt-4 max-w-2xl text-lg leading-relaxed text-dust">
+          Today LessonCast serves one teacher with one phone. Next, it grows to serve whole schools.
+        </p>
+        <ul className="mt-10 grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+          {NEXT.map((step) => (
+            <li key={step.title} className="border-l-4 border-spoken pl-5">
+              <h3 className="text-lg font-extrabold">{step.title}</h3>
+              <p className="mt-2 leading-relaxed text-dust">{step.body}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
 
-      <section className="grid gap-10 border-t border-line py-16 lg:grid-cols-2 lg:gap-14">
-        <div>
-          <h2 className="text-3xl font-extrabold tracking-tight">Why LessonCast</h2>
-          <p className="mt-4 text-lg leading-relaxed text-dust">
-            In Cameroon, children learn in French or English, while many of them speak another language at home. Classes are
-            crowded and textbooks are shared. A short video in the language of home, replayed with a parent in the evening,
-            helps where a printed page doesn&apos;t.
-          </p>
-          <Link href="/why" className="mt-6 inline-block font-bold text-spoken underline underline-offset-4">
-            Read why we built it
-          </Link>
-        </div>
-        <div className="rounded-2xl border border-line bg-panel p-8">
-          <p className="text-2xl leading-snug font-extrabold">Try it with a page, or a whole textbook.</p>
-          <p className="mt-3 text-dust">No account, works on a phone, ready in about four minutes.</p>
-          <Link href="/create" className={`mt-6 ${PRIMARY}`}>
+      <section className="border-t border-line py-16">
+        <div className="grid items-center gap-8 rounded-2xl border border-line bg-panel p-8 lg:grid-cols-[1fr_auto]">
+          <div>
+            <p className="text-2xl leading-snug font-extrabold">Try it with a page, or a whole textbook.</p>
+            <p className="mt-3 text-dust">No account, works on a phone, ready in a few minutes.</p>
+            <p className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+              <Link href="/how-it-works" className={LINK}>
+                How it works
+              </Link>
+              <Link href="/why" className={LINK}>
+                Why LessonCast
+              </Link>
+              <a href="https://github.com/joker7blue/lessoncast" className={LINK}>
+                The code on GitHub
+              </a>
+            </p>
+          </div>
+          <Link href="/create" className={PRIMARY}>
             Create a lesson
           </Link>
         </div>
