@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { HeroVideo } from "@/components/home/HeroVideo";
 import { Mission } from "@/components/home/Mission";
+import { PoweredBy } from "@/components/home/PoweredBy";
 import { describeLesson, LessonCard } from "@/components/LessonCard";
 import { PipelineDemo } from "@/components/pipeline/PipelineDemo";
 import { LANGUAGES } from "@/lib/lesson/languages";
@@ -103,6 +104,8 @@ export default async function Home() {
           </figure>
         )}
       </section>
+
+      <PoweredBy />
 
       <section className="grid gap-10 border-t border-line py-16 lg:grid-cols-[1fr_27rem] lg:gap-14">
         <div>
