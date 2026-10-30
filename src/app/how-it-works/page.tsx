@@ -11,9 +11,14 @@ export const metadata: Metadata = { title: "How it works · LessonCast" };
 
 const STEPS = [
   {
-    title: "Muse Spark reads the pages and writes the lesson",
+    title: "Muse Spark reads the textbook and splits it into lessons",
+    model: `${SPARK_MODEL}, PDF input`,
+    body: "A teacher uploads a textbook or an ebook as a PDF, typed or scanned, up to 50 MB and 400 pages. Muse Spark reads it in parts of thirty pages, the text and the page images, and lists its lessons with their pages and what each one teaches: a 39-page science textbook became eight lessons in 38 seconds. Nothing more is made until the teacher picks a lesson, its language, its length, its quiz and its style. One to four photographed pages skip this step.",
+  },
+  {
+    title: "Muse Spark reads the lesson's pages and writes it",
     model: `${SPARK_MODEL}, Meta Model API`,
-    body: "All the photos go into one request, in page order. Muse Spark checks that they are pages of school material, and gives a page it turns down a second look before telling the teacher. It then answers with a lesson that must match a strict JSON schema, all in the language the teacher picked: as many scenes and words as the chosen length allows at that language's pace, an image prompt per scene, the objects each scene names, the quiz the teacher asked for (none to five questions) and the words the video says around it. In Automatic, it also picks the picture style from the level and the subject.",
+    body: "The lesson's pages, cut out of the PDF, or the teacher's photos go into one request, in page order. Muse Spark checks that they are pages of school material, and gives a page it turns down a second look before telling the teacher. It then answers with a lesson that must match a strict JSON schema, all in the language the teacher picked: as many scenes and words as the chosen length allows at that language's pace, an image prompt per scene, the objects each scene names, the quiz the teacher asked for (none to five questions) and the words the video says around it. In Automatic, it also picks the picture style from the level and the subject.",
   },
   {
     title: "Muse Image draws the scenes, all with the same characters",
@@ -42,8 +47,9 @@ export default function HowItWorksPage() {
     <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-8 lg:py-12">
       <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">How it works</h1>
       <p className="mt-3 max-w-2xl text-lg leading-relaxed text-dust">
-        One photographed page goes through five Meta models. Trigger.dev runs each step as its own task, with retries, and
-        draws the scenes while the voice records. Supabase keeps the lesson and its files.
+        A textbook PDF, or a few photographed pages, goes through five Meta models and comes out as narrated video lessons.
+        Trigger.dev runs each step as its own task, with retries, and draws the scenes while the voice records. Supabase
+        keeps the lessons and their files.
       </p>
 
       <div className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_27rem]">
@@ -63,17 +69,6 @@ export default function HowItWorksPage() {
           <PipelineDemo />
         </div>
       </div>
-
-      <section className="mt-16 max-w-3xl">
-        <h2 className="text-2xl font-extrabold">From a whole book</h2>
-        <p className="mt-2 inline-block rounded-md bg-panel px-2 py-0.5 text-sm font-bold text-chalk/90">{SPARK_MODEL}, PDF input</p>
-        <p className="mt-3 leading-relaxed text-dust">
-          A teacher can also upload a textbook or an ebook as a PDF, typed or scanned, up to 50 MB and 400 pages. Muse
-          Spark reads it in parts of thirty pages, the text and the page images, and lists its lessons with their pages
-          and what each one teaches. Nothing more happens until the teacher picks a lesson: its pages are then cut out of
-          the PDF, Muse Spark writes the lesson from them, and the five steps above make its video.
-        </p>
-      </section>
 
       <section className="mt-16 rounded-2xl border border-line bg-panel p-6 sm:p-8">
         <h2 className="text-xl font-extrabold">Measured on real lessons</h2>

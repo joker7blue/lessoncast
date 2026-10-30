@@ -1,7 +1,7 @@
 "use client";
 
-// Where a lesson's pages come from: photographed by the teacher, or a whole textbook or ebook as a PDF,
-// which Muse Spark splits into lessons first.
+// Where a lesson's pages come from: a whole textbook or ebook as a PDF, which Muse Spark splits into lessons
+// first, or pages photographed by the teacher.
 
 import { Camera, FileText } from "lucide-react";
 import { useState } from "react";
@@ -11,12 +11,12 @@ import { UploadForm } from "./UploadForm";
 type Source = "photos" | "book";
 
 const SOURCES: { value: Source; label: string; icon: typeof Camera }[] = [
-  { value: "photos", label: "Photograph pages", icon: Camera },
   { value: "book", label: "Upload a PDF book", icon: FileText },
+  { value: "photos", label: "Photograph pages", icon: Camera },
 ];
 
 export function CreateForm() {
-  const [source, setSource] = useState<Source>("photos");
+  const [source, setSource] = useState<Source>("book");
   return (
     <>
       <div role="radiogroup" aria-label="Where the pages come from" className="mt-8 grid max-w-lg grid-cols-2 gap-2 rounded-lg bg-panel p-1">
