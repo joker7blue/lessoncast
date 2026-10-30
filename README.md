@@ -1,46 +1,116 @@
-# LessonCast
+<p align="center">
+  <img src="docs/assets/logo.svg" width="88" height="88" alt="">
+</p>
 
-A teacher in Cameroon photographs one to four pages of a textbook and gets back a two-to-three-minute
-narrated, illustrated video lesson in the language of home, small enough to share in the parents' WhatsApp group: French, English, Pidgin, Hausa, Fulfulde, Yoruba, Fon or Swahili.
+<h1 align="center">LessonCast</h1>
 
-Many Cameroonian children learn in French or English, a language they don't speak at home, in crowded
-classes with few textbooks and expensive mobile data. A short video in the language of home, which a parent
-can replay with the child in the evening, helps where a printed page doesn't.
+<p align="center">
+  A photo of a textbook page in, a narrated, illustrated video lesson out,<br>
+  in the language the children speak at home.
+</p>
 
-## Meta models at every step
+<p align="center">
+  <a href="https://lessoncast-ai.vercel.app"><img src="https://img.shields.io/badge/Try_it_live-lessoncast--ai.vercel.app-ffd400?style=flat-square&labelColor=141b18" alt="Try it live"></a>
+  <img src="https://img.shields.io/badge/Meta-Muse_Spark_%7C_Muse_Image_%7C_SAM_3.1_%7C_MMS-ffd400?style=flat-square&labelColor=141b18" alt="Meta models: Muse Spark, Muse Image, SAM 3.1, MMS">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-a7b0a9?style=flat-square&labelColor=141b18" alt="MIT license"></a>
+</p>
+
+<p align="center">
+  <img src="docs/assets/frames.jpg" alt="Three frames of LessonCast videos: the water cycle in Swahili, the lungs in Yoruba, and a quiz card">
+  <br>
+  <sub>The water cycle in Swahili, the clouds lit as the voice says <i>wingu</i>. The lungs in Yoruba. A quiz question, answered.</sub>
+</p>
+
+## Why
+
+Many children in Cameroon learn in French or English, a language they don't speak at home, in crowded
+classes with few textbooks and expensive mobile data. The printed page stays at school. A short video in the
+language of home, which a parent can replay with the child at night, goes home with them.
+
+LessonCast turns the page the teacher already has into that video: a few minutes of waiting, a few cents of
+model calls, and an MP4 small enough for the parents' WhatsApp group.
+
+## What a teacher does
+
+1. Photographs one to four pages, or uploads the whole textbook as a PDF: Muse Spark splits it into lessons.
+2. Picks the language, the length (15 s to 3 minutes), the quiz (none to five questions) and the picture
+   style, or lets LessonCast choose from the pages.
+3. Gets the video a few minutes later, with its scenes, its voice, subtitles that light up each spoken word
+   and the objects the voice names, then the quiz read aloud.
+
+No account, nothing to install: a phone and a browser.
+
+## Eight languages
+
+| Language | Spoken in | Voice |
+|---|---|---|
+| French | Cameroon, official language | `facebook/mms-tts-fra` |
+| English | Cameroon, official language | `facebook/mms-tts-eng` |
+| Pidgin (Kamtok) | Cameroon, Nigeria | `facebook/mms-tts-pcm` |
+| Hausa | Northern Cameroon, Nigeria, Niger | `facebook/mms-tts-hau` |
+| Fulfulde | Northern Cameroon, the Sahel | `facebook/mms-tts-ful` |
+| Yoruba (Yorùbá) | Benin, Nigeria | `facebook/mms-tts-yor` |
+| Fon (Fɔngbè) | Benin | `facebook/mms-tts-fon` |
+| Swahili (Kiswahili) | DR Congo, East Africa | `facebook/mms-tts-swh` |
+
+Each one is a language Muse Spark can write and an open MMS voice from Meta can read, with its own letters
+(ɓ ɗ ƙ, ŋ ƴ, ẹ ọ ṣ, ɖ ɛ ɔ) and its own pace: a Swahili lesson gets fewer words than a Yoruba one for the
+same minute. Cameroon's own languages, such as Ewondo, Duala or Basaa, have no MMS voice yet.
+
+## How it works
+
+<p align="center">
+  <img src="docs/assets/pipeline.svg" width="760" alt="The pipeline: textbook pages go to Muse Spark, which writes the lesson; Muse Image draws the scenes while MMS on Modal speaks and times every word; SAM 3.1 cuts out the objects the voice names; Remotion on Modal renders a WhatsApp-ready MP4">
+</p>
 
 | Step | Model | What it does |
 |---|---|---|
-| Split a book into lessons | **Muse Spark** `muse-spark-1.3`, PDF input | Reads an uploaded textbook or ebook PDF (typed or scanned, up to 50 MB and 400 pages) in slices of 30 pages, and lists its lessons with their pages and a summary. No video is made until the teacher picks a lesson. |
-| Write the lesson | **Muse Spark** `muse-spark-1.3`, Meta Model API | Reads the photographed pages in one request, checks they are textbook pages, and writes the lesson as strict JSON in the language the teacher picked: as many scenes as the chosen length allows, their narration, an image prompt per scene, the objects each scene names, a three-question quiz and the video's own words. In *Automatic* it also picks the picture style from the level and the subject. |
+| Split a book into lessons | **Muse Spark** `muse-spark-1.3`, PDF input | Reads a textbook or ebook PDF (typed or scanned, up to 50 MB and 400 pages) in slices of 30 pages, and lists its lessons with their pages and a summary. No video is made until the teacher picks a lesson. |
+| Write the lesson | **Muse Spark** `muse-spark-1.3`, Meta Model API | Reads the pages in one request, checks they are pages of school material, and writes the lesson as strict JSON in the chosen language: as many scenes and words as the length allows at that language's pace, an image prompt per scene, the objects each scene names, the quiz and the video's own words. In *Automatic* it also picks the picture style from the level and the subject. |
 | Draw the scenes | **Muse Image** `muse-image-1.0`, Meta Model API | Draws scene 1 from a fixed style prompt (Illustrated, Realistic, Diagram or Comic), then every other scene as an edit of scene 1, so the characters stay the same. |
-| Speak | **MMS-TTS** `facebook/mms-tts-{fra,eng,pcm,hau,ful,yor,fon,swh}`, open weights on Modal | Reads the narration aloud in French, English, Pidgin, Hausa, Fulfulde, Yoruba, Fon or Swahili. Each voice loads the first time its language is used. |
-| Time every word | **MMS forced alignment** (torchaudio `MMS_FA`), open weights on Modal | Gives each word its start and end: the karaoke subtitles and the length of every scene. |
-| Cut out the objects | **SAM 3.1** `sam-3.1`, Meta Model API | Finds each object a scene's narration names ("the heart", "the map") in its drawing and returns its outline. When the voice says the word, the rest of the scene dims and the object lifts, outlined in yellow, with its word underlined in the subtitles. An object SAM can't find is left out; SAM never fails a lesson. |
-| Edit the video | Remotion 4, on Modal | Title card, scenes with slow zooms and crossfades, the SAM cut-outs lit on their words, subtitles that light up the spoken word, end card. 854 × 480 H.264 at 300 kbit/s. |
+| Speak | **MMS-TTS**, open weights on Modal | Reads the narration and the quiz in the chosen language. Each voice loads the first time its language is used. |
+| Time every word | **MMS forced alignment** (torchaudio `MMS_FA`), open weights on Modal | Gives each word its start and end: the karaoke subtitles, the length of every scene and the quiz's countdown. |
+| Cut out the objects | **SAM 3.1** `sam-3.1`, Meta Model API | Finds each object the narration names ("the heart", "the clouds") in its drawing and returns its outline. When the voice says the word, the rest of the scene dims and the object lifts, outlined in yellow. An object SAM can't find is left out; SAM never fails a lesson. |
+| Edit the video | Remotion 4, on Modal | Title card, scenes with slow zooms and crossfades, the cut-outs lit on their words, subtitles, the quiz with a countdown and the right answer, end card. 854 × 480 H.264 at 300 kbit/s. |
 
-Coming next: the quiz is narrated at the end of the video.
+## Built with
+
+| Layer | What we use |
+|---|---|
+| Site | Next.js 16 (App Router, Cache Components), React 19, TypeScript in strict mode, Tailwind CSS 4 |
+| Pipeline | Trigger.dev 4: one task per lesson, a child task per step with its own retries |
+| Meta models | Muse Spark, Muse Image and SAM 3.1 on the Meta Model API; MMS-TTS and MMS forced alignment, open weights |
+| Voice and video | Modal: Python and PyTorch for MMS, Node and Remotion 4 for the render, both started for the lesson and stopped after it |
+| Data | Supabase Postgres (row-level security on, server only) and Storage; Modal uploads through signed URLs and never holds the keys |
+| Contracts | Zod schemas for every model answer, sent to Muse Spark as a strict JSON schema |
+| Tests | Vitest (281 tests, the live Supabase ones included), Python `unittest` for the Modal helpers |
 
 ## What a lesson costs
 
-Measured on real lessons made from one page: about four minutes from upload to video, up to about five and a
-half when two lessons run at once, about $0.15 of model calls ($0.05 for Muse Spark, $0.07 for seven Muse Image scenes, about 3 cents
-for SAM 3.1 on 13 objects in 31 s, about a cent each for the voice and the render), and about 6 MB for two and a half minutes of video. Every lesson page shows its
-own times and costs as a live graph of the pipeline. The derisk tests that set these choices are in
-[`docs/derisk.md`](docs/derisk.md).
+Measured on real lessons, from the upload to the finished video:
+
+| Lesson | Ready in | Model calls | Video |
+|---|---|---|---|
+| 1 minute in Swahili, one question (production) | 2 min 13 s | $0.058 | 1.9 MB |
+| 1 minute in Yoruba, two questions | 2 min 20 s | $0.069 | 1.7 MB |
+| 3 minutes from a book lesson, in Pidgin (production) | 4 min 37 s | $0.182 | 6.1 MB |
+| Reading a 39-page science textbook into 8 lessons | 38 s | | |
+
+Every lesson page shows its own times and costs as a live graph of the pipeline. The derisk tests that set
+these choices are in [`docs/derisk.md`](docs/derisk.md).
 
 ## Architecture
 
 ```
 Browser (teacher or judge)
-  │ 1 to 4 page photos, each shrunk in the browser to a JPEG of at most 1600 px,
-  │ language fr | pcm, style auto | illustrated | realistic | diagram | comic
+  │ 1 to 4 page photos, each shrunk in the browser to a JPEG of at most 1600 px, or a PDF book;
+  │ the language (8), the length (15 s to 3 min), the quiz (0 to 5 questions), the style
   ▼
 Next.js 16
   │ POST /api/lessons      checks → pages to Supabase Storage → lessons row → trigger generate-lesson
   │ GET  /api/lessons/:id  status, scenes drawn so far, each step's metrics, the video (polled every 2 s)
   │ POST /api/books        a signed URL: the browser uploads the PDF straight to Supabase Storage
-  │ POST /api/books/:id/read, GET /api/books/:id, POST /api/books/:id/lessons (one lesson's video, on request)
+  │ POST /api/books/:id/read, GET and PATCH /api/books/:id, POST /api/books/:id/lessons (one lesson's video)
   ▼
 Trigger.dev
   read-book            the PDF in slices of 30 pages → Muse Spark → the book's lessons (no video yet)
@@ -54,17 +124,17 @@ Trigger.dev
 Supabase: the lessons and books tables (RLS on, server only) and the public "lessons" bucket
 ```
 
-Each step is a child task with its own retries; waiting on children is not billed. Modal never holds the
-Supabase keys: it uploads through signed URLs.
+Waiting on child tasks is not billed, so a lesson costs only the work it does.
 
 ```
-src/app          the site: landing, /create, /lessons, /lessons/[id], How it works, Why LessonCast, the API
-src/lib          lesson schema and styles, the pipeline's logic, Meta Model API and Modal clients, Supabase
+src/app          the site: landing, /create, /lessons, /lessons/[id], /books/[id], How it works, Why LessonCast, the API
+src/lib          lesson schema, languages, lengths and styles, the pipeline's logic, Meta Model API and Modal clients, Supabase
 src/remotion     the LessonVideo composition
 src/trigger      the Trigger.dev tasks
 modal/           voice.py (MMS) and render.py (Remotion), deployed to Modal
 supabase/        database migrations
 scripts/         smoke test, run a lesson without the site, record the Remotion fixture, derisk tests
+docs/            derisk.md, and the pictures of this README
 ```
 
 ## Run it locally
@@ -87,20 +157,21 @@ Modal.
 5. Set your Trigger.dev project ref in `trigger.config.ts`, then run the site and the worker side by side:
    `pnpm dev` and `pnpm trigger:dev`.
 6. Open http://localhost:3000, or check the whole pipeline from the terminal:
-   `pnpm smoke pcm auto page.jpg`.
+   `pnpm smoke swh auto page.jpg`.
 
 Tests: `pnpm test` (the tests that call Supabase and Modal run when `.env` has their keys and skip otherwise),
 `pnpm typecheck`, `pnpm lint`, and for the Modal helpers
 `scripts/derisk/.venv/bin/python -m unittest discover -s modal`.
 
-## Built during the Meta Global AI Developer Hackathon (26 October – 4 November 2026)
+## Built during the Meta Global AI Developer Hackathon
 
-Everything in this repository was written during the event, starting from an empty `create-next-app` on
-26 October: first the derisk tests, then the pipeline, then the site. The commit history and the pull
-requests show each step.
+Everything in this repository was written during the event (26 October to 4 November 2026), starting from an
+empty `create-next-app` on 26 October: first the derisk tests, then the pipeline, then the site, the books and
+the eight languages. The commit history and the pull requests show each step.
 
 ## Licenses
 
 The code is under the [MIT license](LICENSE). The MMS-TTS voices are released by Meta under CC-BY-NC 4.0, for
-non-commercial use. Muse Spark, Muse Image and SAM 3.1 are used through the Meta Model API under its terms. Remotion has
-its own license, free for individuals and small teams. Nunito is under the SIL Open Font License.
+non-commercial use. Muse Spark, Muse Image and SAM 3.1 are used through the Meta Model API under its terms.
+Remotion has its own license, free for individuals and small teams. Nunito and Noto Sans are under the SIL
+Open Font License.
