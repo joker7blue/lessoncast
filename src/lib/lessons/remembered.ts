@@ -2,6 +2,10 @@
 // device is still making, without accounts.
 // Browser storage can be missing or blocked (private windows): every access is guarded.
 
+import type { VideoLength } from "../lesson/length";
+import type { Language } from "../lesson/schema";
+import type { StyleChoice } from "../lesson/styles";
+
 const MAX = 50;
 
 function remembered(key: string): string[] {
@@ -50,3 +54,28 @@ export function rememberBookEditKey(id: string, key: string): void {
   }
 }
 
+const BOOK_CHOICES = "lessoncast:book-choices";
+
+/** What the teacher chose for a book's videos before uploading it; each lesson's video starts from it. */
+export type BookChoices = { language?: Language; length?: VideoLength; quiz?: number; style?: StyleChoice };
+
+function allBookChoices(): Record<string, BookChoices> {
+  try {
+    const choices: unknown = JSON.parse(localStorage.getItem(BOOK_CHOICES) ?? "{}");
+    return choices && typeof choices === "object" ? (choices as Record<string, BookChoices>) : {};
+  } catch {
+    return {};
+  }
+}
+
+export function bookChoices(id: string): BookChoices {
+  return allBookChoices()[id] ?? {};
+}
+
+export function rememberBookChoices(id: string, choices: BookChoices): void {
+  try {
+    localStorage.setItem(BOOK_CHOICES, JSON.stringify({ ...allBookChoices(), [id]: choices }));
+  } catch {
+    // Not kept: each lesson's video starts from the usual choices.
+  }
+}

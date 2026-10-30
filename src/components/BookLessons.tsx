@@ -14,7 +14,7 @@ import { LANGUAGES } from "@/lib/lesson/languages";
 import { defaultLength, maxQuizQuestions, quizQuestionsFor, type VideoLength } from "@/lib/lesson/length";
 import type { Language } from "@/lib/lesson/schema";
 import type { StyleChoice } from "@/lib/lesson/styles";
-import { bookEditKey, rememberLesson } from "@/lib/lessons/remembered";
+import { bookChoices, bookEditKey, rememberLesson } from "@/lib/lessons/remembered";
 import { describeLesson } from "./LessonCard";
 import { describeVideo } from "@/lib/lesson/describe";
 import { LessonOptions } from "./LessonOptions";
@@ -74,12 +74,14 @@ function VideoIcon({ status }: { status: Video["status"] }) {
 
 function MakeVideo({ bookId, bookLanguage, lesson, onCancel }: { bookId: string; bookLanguage: BookView["language"]; lesson: Lesson; onCancel(): void }) {
   const router = useRouter();
-  // An English book makes English videos by default; any other, French ones.
-  const [language, setLanguage] = useState<Language>(bookLanguage === "en" ? "en" : "fr");
-  const [style, setStyle] = useState<StyleChoice>("auto");
+  // What the teacher chose before uploading the book comes first; otherwise an English book makes English
+  // videos and any other French ones, as long as its pages need.
+  const [chosen] = useState(() => bookChoices(bookId));
+  const [language, setLanguage] = useState<Language>(chosen.language ?? (bookLanguage === "en" ? "en" : "fr"));
+  const [style, setStyle] = useState<StyleChoice>(chosen.style ?? "auto");
   const recommendedLength = defaultLength(Math.min(lesson.lastPage - lesson.firstPage + 1, MAX_LESSON_PAGES));
-  const [length, setLength] = useState<VideoLength>(recommendedLength);
-  const [chosenQuiz, setChosenQuiz] = useState<number | null>(null);
+  const [length, setLength] = useState<VideoLength>(chosen.length ?? recommendedLength);
+  const [chosenQuiz, setChosenQuiz] = useState<number | null>(chosen.quiz ?? null);
   const pace = LANGUAGES[language].wordsPerSecond;
   const quizQuestions = Math.min(chosenQuiz ?? quizQuestionsFor(length, pace), maxQuizQuestions(length, pace));
   const [sending, setSending] = useState(false);

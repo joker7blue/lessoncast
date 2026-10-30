@@ -3,7 +3,7 @@
 // it feeds the Remotion render. Each node shows the model and its exact version, what it is doing, and
 // once done, its time and cost.
 
-import { AudioLines, Camera, Check, Clapperboard, Image as ImageIcon, ScanSearch, Smartphone, Sparkles, TriangleAlert } from "lucide-react";
+import { AudioLines, BookOpen, Check, Clapperboard, Image as ImageIcon, ScanSearch, Smartphone, Sparkles, TriangleAlert } from "lucide-react";
 import type { ReactNode } from "react";
 import { formatSeconds, formatUsd } from "@/lib/format";
 import type { NodeId, NodeState } from "@/lib/lessons/graph";
@@ -19,8 +19,8 @@ export type NodeContent = {
   metrics?: StepMetrics;
 };
 
-const ICONS: Record<NodeId, typeof Camera> = {
-  pages: Camera,
+const ICONS: Record<NodeId, typeof BookOpen> = {
+  pages: BookOpen,
   spark: Sparkles,
   image: ImageIcon,
   voice: AudioLines,

@@ -12,7 +12,7 @@ import type { NodeContent } from "./PipelineGraph";
 
 export function explainNodes(): Record<NodeId, NodeContent> {
   return {
-    pages: { title: "Page photos", role: "One to four photos of a textbook lesson, taken with a phone." },
+    pages: { title: "Textbook PDF or photos", role: "A lesson from a whole textbook PDF, or one to four page photos taken with a phone." },
     spark: {
       title: "Muse Spark",
       model: SPARK_MODEL,
