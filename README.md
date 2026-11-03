@@ -72,7 +72,7 @@ same minute. Cameroon's own languages, such as Ewondo, Duala or Basaa, have no M
 
 | Step | Model | What it does |
 |---|---|---|
-| Split a book into lessons | **Muse Spark** `muse-spark-1.3`, PDF input | Reads a textbook or ebook PDF (typed or scanned, up to 50 MB and 400 pages) in slices of 30 pages, and lists its lessons with their pages and a summary. No video is made until the teacher picks a lesson. |
+| Split a book into lessons | **Muse Spark** `muse-spark-1.3`, PDF input | Reads a textbook or ebook PDF (typed or scanned, up to 50 MB and 600 pages) in slices of 30 pages, and lists its lessons with their pages and a summary. No video is made until the teacher picks a lesson. |
 | Write the lesson | **Muse Spark** `muse-spark-1.3`, Meta Model API | Reads the pages in one request, checks they are pages of school material, and writes the lesson as strict JSON in the chosen language: as many scenes and words as the length allows at that language's pace, an image prompt per scene, the objects each scene names, the quiz and the video's own words. In *Automatic* it also picks the picture style from the level and the subject. |
 | Draw the scenes | **Muse Image** `muse-image-1.0`, Meta Model API | Draws scene 1 from a fixed style prompt (Illustrated, Realistic, Diagram or Comic), then every other scene as an edit of scene 1, so the characters stay the same. |
 | Speak | **MMS-TTS**, open weights on Modal | Reads the narration and the quiz in the chosen language. Each voice loads the first time its language is used. |
