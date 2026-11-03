@@ -2,7 +2,6 @@
 // device is still making, without accounts.
 // Browser storage can be missing or blocked (private windows): every access is guarded.
 
-import type { VideoLength } from "../lesson/length";
 import type { Language } from "../lesson/schema";
 import type { StyleChoice } from "../lesson/styles";
 
@@ -56,8 +55,9 @@ export function rememberBookEditKey(id: string, key: string): void {
 
 const BOOK_CHOICES = "lessoncast:book-choices";
 
-/** What the teacher chose for a book's videos before uploading it; each lesson's video starts from it. */
-export type BookChoices = { language?: Language; length?: VideoLength; quiz?: number; style?: StyleChoice };
+/** The language and style of the last video the teacher made from a book: its next lesson starts from them.
+ * The length and the quiz fit each lesson's pages, so they are picked again for each one. */
+export type BookChoices = { language?: Language; style?: StyleChoice };
 
 function allBookChoices(): Record<string, BookChoices> {
   try {
