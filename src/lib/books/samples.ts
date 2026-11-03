@@ -1,6 +1,7 @@
 // Textbooks anyone can try LessonCast with, without one at hand: a judge, a visitor, a teacher curious first.
 // Each PDF is served from samples/ in the public lessons bucket (they are too large for the repository), and
-// must be free to share: the site is public. To add one, compress its PDF, upload it with
+// must be free to share: the site is public. The long books are cut to their first units, so whoever tries
+// one waits about a minute for its lessons, not several. To add one, compress its PDF, upload it with
 // scripts/upload-samples.ts (lowercase name, dashes), put its cover in public/samples/ (a JPEG of its first
 // page, 600 px wide, under the same name), then describe it here.
 
@@ -44,35 +45,35 @@ export const SAMPLE_BOOKS: SampleBook[] = [
     subject: "Physics",
     level: "Secondary, Senior 1",
     language: "English",
-    pages: 427,
+    pages: 103,
     description:
-      "Rwanda Basic Education Board's student book, 2020: laboratory safety and measurement, motion, forces and Newton's laws, energy, simple machines, heat, magnetism, electricity and light.",
+      "Its first two units, from Rwanda Basic Education Board's student book (2020): laboratory safety and measuring physical quantities, then distance, speed, velocity and acceleration.",
   }),
   sample("chemistry-s5", {
     title: "Chemistry, Senior 5",
     subject: "Chemistry",
     level: "Secondary, Senior 5",
     language: "English",
-    pages: 578,
+    pages: 113,
     description:
-      "Rwanda Education Board's student book, 2019: organic chemistry from alkanes to amino acids, then phase diagrams, solutions and titration, electrolysis, enthalpy and entropy.",
+      "Its first three units, from Rwanda Education Board's student book (2019): an introduction to organic chemistry, the alkanes, and the alkenes and alkynes.",
   }),
   sample("history-s4", {
     title: "History, Senior 4",
     subject: "History",
     level: "Secondary, Senior 4",
     language: "English",
-    pages: 540,
+    pages: 90,
     description:
-      "Rwanda Basic Education Board's student book, 2024: the ancient civilisations, Europe from 1789 to 1835, the colonisation of Africa and the African response, human rights, and conflict solving.",
+      "Its first two units, from Rwanda Basic Education Board's student book (2024): the ancient civilisations and modern society, then the medieval and modern times.",
   }),
   sample("history-y13", {
     title: "History, Year 13",
     subject: "History",
     level: "Secondary, Year 13",
     language: "English",
-    pages: 163,
+    pages: 69,
     description:
-      "Samoa Ministry of Education's student book, 2004: migration during the world wars and the Cold War, colonialism and nationalism, decolonisation, and international relations.",
+      "Its first three parts, from Samoa Ministry of Education's student book (2004): migration in the world wars and the Cold War, colonialism and decolonisation, and conflict.",
   }),
 ];
