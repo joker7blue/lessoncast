@@ -18,7 +18,7 @@ const STEPS = [
   {
     title: "Muse Spark reads the textbook and splits it into lessons",
     model: `${SPARK_MODEL}, PDF input`,
-    body: "A teacher uploads a textbook or an ebook as a PDF, typed or scanned, up to 50 MB and 400 pages. Muse Spark reads it in parts of thirty pages, the text and the page images, and lists its lessons with their pages and what each one teaches: a 39-page science textbook became eight lessons in 38 seconds. Nothing more is made until the teacher picks a lesson, its language, its length, its quiz and its style. One to four photographed pages skip this step.",
+    body: "A teacher uploads a textbook or an ebook as a PDF, typed or scanned, up to 50 MB and 600 pages. Muse Spark reads it in parts of thirty pages, the text and the page images, and lists its lessons with their pages and what each one teaches: a 39-page science textbook became eight lessons in 38 seconds. Nothing more is made until the teacher picks a lesson, its language, its length, its quiz and its style. One to four photographed pages skip this step.",
   },
   {
     title: "Muse Spark reads the lesson's pages and writes it",

@@ -105,7 +105,7 @@ export function BookUploadForm() {
 
   return (
     <form onSubmit={submit} className="mt-10 space-y-12">
-      <Step n={1} title="Textbook or ebook" hint="A PDF of up to 50 MB and 400 pages, typed or scanned.">
+      <Step n={1} title="Textbook or ebook" hint="A PDF of up to 50 MB and 600 pages, typed or scanned.">
         {file ? (
           <div className="flex items-center gap-4 rounded-xl border border-line bg-panel p-4">
             <FileText aria-hidden className="size-10 shrink-0 text-spoken" />
