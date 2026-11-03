@@ -1,25 +1,18 @@
 "use client";
 
-// The teacher picks a textbook or ebook PDF and, right away, how its lessons' videos will be made: the
-// language, the length, the quiz and the style. The PDF goes straight to storage through a signed URL (with
-// its progress), then Muse Spark starts reading it, and the teacher lands on the book page. No video is
-// made here: each lesson's video is made from the book page, when the teacher asks for it, starting from
-// these choices.
+// The teacher picks a textbook or ebook PDF, and only that: the PDF goes straight to storage through a
+// signed URL (with its progress), then Muse Spark starts reading it, and the teacher lands on the book page.
+// No video is made here, and none of its choices are asked: each lesson's language, length, quiz and style
+// are picked on the book page, when the teacher makes that lesson's video.
 
 import { FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { LessonOptions, Step } from "@/components/LessonOptions";
+import { Step } from "@/components/LessonOptions";
 import { SampleBooks } from "@/components/SampleBooks";
-import { LANGUAGES } from "@/lib/lesson/languages";
-import { maxQuizQuestions, quizQuestionsFor, type VideoLength } from "@/lib/lesson/length";
-import type { Language } from "@/lib/lesson/schema";
-import type { StyleChoice } from "@/lib/lesson/styles";
-import { rememberBook, rememberBookChoices, rememberBookEditKey } from "@/lib/lessons/remembered";
+import { rememberBook, rememberBookEditKey } from "@/lib/lessons/remembered";
 
 const MAX_BYTES = 50 * 1024 * 1024;
-// Most textbook lessons run three pages or more: three minutes fits them.
-const BOOK_LENGTH: VideoLength = 180;
 const OFFLINE = "Sending failed. Check the internet connection and try again.";
 
 type Phase = { kind: "idle" } | { kind: "uploading"; percent: number } | { kind: "starting" };
@@ -57,16 +50,6 @@ export function BookUploadForm() {
   const [phase, setPhase] = useState<Phase>({ kind: "idle" });
   const [error, setError] = useState<string | null>(null);
   const busy = phase.kind !== "idle";
-  // Each choice stays null until the teacher makes it: a lesson then gets what fits it (its book's
-  // language, the length its pages need).
-  const [chosenLanguage, setChosenLanguage] = useState<Language | null>(null);
-  const [chosenLength, setChosenLength] = useState<VideoLength | null>(null);
-  const [chosenQuiz, setChosenQuiz] = useState<number | null>(null);
-  const [style, setStyle] = useState<StyleChoice>("auto");
-  const language = chosenLanguage ?? "fr";
-  const length = chosenLength ?? BOOK_LENGTH;
-  const pace = LANGUAGES[language].wordsPerSecond;
-  const quizQuestions = Math.min(chosenQuiz ?? quizQuestionsFor(length, pace), maxQuizQuestions(length, pace));
 
   function choose(chosen: File | undefined) {
     if (input.current) input.current.value = "";
@@ -86,12 +69,6 @@ export function BookUploadForm() {
       const { id, uploadUrl, editKey } = await postJson("/api/books", { fileName: file.name, bytes: file.size });
       if (!id || !uploadUrl) throw new Error(OFFLINE);
       if (editKey) rememberBookEditKey(id, editKey);
-      rememberBookChoices(id, {
-        ...(chosenLanguage && { language: chosenLanguage }),
-        ...(chosenLength && { length: chosenLength }),
-        ...(chosenQuiz !== null && { quiz: chosenQuiz }),
-        ...(style !== "auto" && { style }),
-      });
       await upload(uploadUrl, file, (percent) => setPhase({ kind: "uploading", percent }));
       setPhase({ kind: "starting" });
       await postJson(`/api/books/${id}/read`);
@@ -130,28 +107,6 @@ export function BookUploadForm() {
         {!file && <SampleBooks onUse={choose} />}
       </Step>
 
-      <div className="space-y-12">
-        <div>
-          <h2 className="text-2xl font-extrabold">Each lesson&apos;s video</h2>
-          <p className="mt-2 max-w-2xl text-dust">
-            Muse Spark reads the book first. Then each lesson you pick is made with these choices, which you can still
-            change for that lesson.
-          </p>
-        </div>
-        <LessonOptions
-          language={language}
-          onLanguage={setChosenLanguage}
-          length={length}
-          onLength={setChosenLength}
-          recommendedLength={BOOK_LENGTH}
-          quizQuestions={quizQuestions}
-          onQuizQuestions={setChosenQuiz}
-          style={style}
-          onStyle={setStyle}
-          firstStep={2}
-        />
-      </div>
-
       <div>
         {error && (
           <p role="alert" className="mb-4 rounded-lg border border-danger/40 px-4 py-3 text-danger">
@@ -173,7 +128,10 @@ export function BookUploadForm() {
         >
           {phase.kind === "uploading" ? "Uploading the book…" : phase.kind === "starting" ? "Starting the reading…" : "Read the book"}
         </button>
-        <p className="mt-3 text-center text-dust">A 40-page textbook takes under a minute to read, a long book a few minutes. No video is made until you pick a lesson.</p>
+        <p className="mt-3 text-center text-dust">
+          A 40-page textbook takes under a minute to read, a long book a few minutes. Then you pick a lesson, its
+          language, its length, its quiz and its style: no video is made until you ask for one.
+        </p>
       </div>
     </form>
   );

@@ -95,6 +95,9 @@ export function SampleBooks({ onUse }: { onUse(file: File): void }) {
               Sample textbooks
             </h2>
             <p className="mt-1 text-dust">Free to use. Read one first, use it right away, or download it and upload it yourself.</p>
+            <p className="mt-1 text-sm text-dust">
+              The long textbooks are cut to their first units, so a try is quick: Muse Spark reads one in about a minute.
+            </p>
           </div>
           <CloseButton label="Close the sample textbooks" onClose={() => list.current?.close()} />
         </div>
