@@ -5,7 +5,7 @@ import { PDFDocument } from "pdf-lib";
 
 // Muse Spark sees the images of a PDF's first 50 pages only (derisk test 7): 30 leaves room.
 export const SLICE_PAGES = 30;
-export const MAX_BOOK_PAGES = 400;
+export const MAX_BOOK_PAGES = 600;
 // A lesson longer than this is filmed from its first pages: the video lasts about 2 minutes anyway.
 export const MAX_LESSON_PAGES = 20;
 

@@ -20,7 +20,7 @@ export const readBook = schemaTask({
   schema: BookPayload,
   // The whole PDF (up to 50 MB) is in memory while it is cut.
   machine: "small-2x",
-  // 400 pages are 14 slices: four rounds of about a minute, with room for retried slices.
+  // 600 pages are 20 slices: five rounds of about a minute, with room for retried slices.
   maxDuration: 900,
   // A second full reading would pay for every slice again: a slice already retries on its own.
   retry: { maxAttempts: 1 },
