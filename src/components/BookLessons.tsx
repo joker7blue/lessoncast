@@ -14,7 +14,7 @@ import { LANGUAGE_CODES, LANGUAGES } from "@/lib/lesson/languages";
 import { defaultLength, maxQuizQuestions, quizQuestionsFor, type VideoLength } from "@/lib/lesson/length";
 import type { Language } from "@/lib/lesson/schema";
 import type { StyleChoice } from "@/lib/lesson/styles";
-import { bookChoices, bookEditKey, rememberLesson } from "@/lib/lessons/remembered";
+import { bookChoices, bookEditKey, rememberBookChoices, rememberLesson } from "@/lib/lessons/remembered";
 import { describeLesson } from "./LessonCard";
 import { describeVideo } from "@/lib/lesson/describe";
 import { LessonOptions } from "./LessonOptions";
@@ -75,14 +75,14 @@ function VideoIcon({ status }: { status: Video["status"] }) {
 
 function MakeVideo({ bookId, bookLanguage, lesson, onCancel }: { bookId: string; bookLanguage: BookView["language"]; lesson: Lesson; onCancel(): void }) {
   const router = useRouter();
-  // What the teacher chose before uploading the book comes first; otherwise an English book makes English
-  // videos and any other French ones, as long as its pages need.
+  // The language and style of the last video made from this book come first; otherwise an English book
+  // makes English videos and any other French ones. The length is the one its pages need.
   const [chosen] = useState(() => bookChoices(bookId));
   const [language, setLanguage] = useState<Language>(chosen.language ?? (bookLanguage === "en" ? "en" : "fr"));
   const [style, setStyle] = useState<StyleChoice>(chosen.style ?? "auto");
   const recommendedLength = defaultLength(Math.min(lesson.lastPage - lesson.firstPage + 1, MAX_LESSON_PAGES));
-  const [length, setLength] = useState<VideoLength>(chosen.length ?? recommendedLength);
-  const [chosenQuiz, setChosenQuiz] = useState<number | null>(chosen.quiz ?? null);
+  const [length, setLength] = useState<VideoLength>(recommendedLength);
+  const [chosenQuiz, setChosenQuiz] = useState<number | null>(null);
   const pace = LANGUAGES[language].wordsPerSecond;
   const quizQuestions = Math.min(chosenQuiz ?? quizQuestionsFor(length, pace), maxQuizQuestions(length, pace));
   const [sending, setSending] = useState(false);
@@ -100,6 +100,7 @@ function MakeVideo({ bookId, bookLanguage, lesson, onCancel }: { bookId: string;
       const body = (await res.json().catch(() => ({}))) as { id?: string; error?: string };
       if (!res.ok || !body.id) throw new Error(body.error ?? OFFLINE);
       rememberLesson(body.id);
+      rememberBookChoices(bookId, { language, style });
       router.push(`/lessons/${body.id}`);
     } catch (e) {
       setError(e instanceof Error && e.message !== "Failed to fetch" ? e.message : OFFLINE);

@@ -43,11 +43,11 @@ test("books are remembered apart from lessons", () => {
   expect(rememberedLessons()).toEqual(["lesson"]);
 });
 
-test("a book's choices are kept for its lessons, and a book without any starts from none", () => {
-  rememberBookChoices("book-1", { language: "hau", length: 60, style: "comic" });
-  rememberBookChoices("book-2", { quiz: 0 });
-  expect(bookChoices("book-1")).toEqual({ language: "hau", length: 60, style: "comic" });
-  expect(bookChoices("book-2")).toEqual({ quiz: 0 });
+test("a book's last language and style are kept for its next lesson, and a book without any starts from none", () => {
+  rememberBookChoices("book-1", { language: "hau", style: "comic" });
+  rememberBookChoices("book-2", { language: "en" });
+  expect(bookChoices("book-1")).toEqual({ language: "hau", style: "comic" });
+  expect(bookChoices("book-2")).toEqual({ language: "en" });
   expect(bookChoices("book-3")).toEqual({});
   store["lessoncast:book-choices"] = "not json";
   expect(bookChoices("book-1")).toEqual({});
