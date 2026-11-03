@@ -11,6 +11,12 @@ import { SAMPLE_BOOKS, type SampleBook } from "@/lib/books/samples";
 const PRIMARY = "inline-flex items-center justify-center gap-2 rounded-lg bg-spoken px-4 py-2 font-extrabold text-board disabled:opacity-60";
 const SECONDARY = "inline-flex items-center justify-center gap-2 rounded-lg border border-line px-4 py-2 font-bold hover:bg-board";
 
+// The bucket is on another origin, where the download attribute is ignored: Supabase sends the file as
+// an attachment when asked with ?download=.
+function downloadUrl(sample: SampleBook): string {
+  return `${sample.url}?download=${sample.name}.pdf`;
+}
+
 function CloseButton({ label, onClose }: { label: string; onClose(): void }) {
   return (
     <button type="button" onClick={onClose} aria-label={label} className="grid size-9 shrink-0 place-items-center rounded-lg text-dust hover:bg-board hover:text-chalk">
@@ -59,7 +65,7 @@ export function SampleBooks({ onUse }: { onUse(file: File): void }) {
             Preview
           </button>
         )}
-        <a href={sample.url} download className={SECONDARY}>
+        <a href={downloadUrl(sample)} className={SECONDARY}>
           <Download aria-hidden className="size-4" />
           Download
         </a>
@@ -125,8 +131,7 @@ export function SampleBooks({ onUse }: { onUse(file: File): void }) {
                     {loading === sample.url ? "Loading the book…" : "Use this book"}
                   </button>
                   <a
-                    href={sample.url}
-                    download
+                    href={downloadUrl(sample)}
                     aria-label={`Download ${sample.title}`}
                     title="Download"
                     className="grid size-10 shrink-0 place-items-center rounded-lg bg-white/15 transition-colors hover:bg-white/25"
